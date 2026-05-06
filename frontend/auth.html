@@ -257,19 +257,22 @@
     }
 
     function showScreen(id) {
+      console.log('[FLOW] Transitioning to screen:', id);
       const active = document.querySelector('.screen.active');
       if (active) {
-        active.classList.add('exit'); active.classList.remove('active');
-        setTimeout(() => { active.classList.remove('exit'); active.style.display = 'none'; }, 500);
+        active.classList.remove('active');
+        active.style.display = 'none';
       }
       const next = document.getElementById(id);
-      setTimeout(() => {
+      if (next) {
         next.style.display = 'block';
         setTimeout(() => {
           next.classList.add('active');
           syncHeight();
-        }, 50);
-      }, 500);
+        }, 10);
+      } else {
+        console.error('[FLOW] Screen not found:', id);
+      }
     }
 
     function setMode(m) {
@@ -284,23 +287,32 @@
     }
 
     function goToChoice() {
+      console.log('[FLOW] Attempting to go to choice screen');
       const id = document.getElementById('identifierInput').value.trim();
       if (!id) return showError('identifier', 'Required');
       if (authMode === 'signup') {
         const name = document.getElementById('nameInput').value.trim(), 
               phone = document.getElementById('phoneInput').value.trim();
         
+        console.log('[FLOW] Validating Signup:', { name, phone, id });
+
         // Reset errors
         document.querySelectorAll('.form-group').forEach(g => g.classList.remove('has-error'));
 
         let hasError = false;
         if (!name) { showError('name', 'Name is required for setup'); hasError = true; }
         if (phone.length < 10) { showError('phone', '10-digit mobile required'); hasError = true; }
-        if (hasError) return;
+        if (hasError) {
+          console.warn('[FLOW] Validation failed');
+          return;
+        }
 
         userData = { name, phone, identifier: id };
-      } else { userData = { identifier: id }; }
+      } else { 
+        userData = { identifier: id }; 
+      }
       
+      console.log('[FLOW] Validation success, switching screen');
       showScreen('choiceScreen');
     }
 
