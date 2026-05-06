@@ -111,6 +111,7 @@
     <div class="orb o2"></div>
   </div>
 
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <div class="auth-container">
     <div class="auth-card" id="authCard">
       <div class="brand-wrap">
@@ -156,9 +157,33 @@
         </div>
 
 
+        <!-- STEP 2: CHOICE -->
+        <div id="choiceScreen" class="screen">
+          <button class="back-btn" onclick="showScreen('inputScreen')"><i class="fas fa-chevron-left"></i> Back to details</button>
+          <h1>Verify Identity</h1>
+          <p class="subtitle">Choose your preferred method to architect your account.</p>
+          
+          <div style="display:grid; gap:12px; margin-bottom:24px">
+            <button class="social-btn" style="padding:18px; justify-content:flex-start" onclick="sendAction('otp')">
+              <i class="fas fa-key" style="color:var(--c); margin-right:12px"></i> Secure OTP Code
+            </button>
+
+            <div class="separator" style="margin: 10px 0">or connect via</div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+              <button class="social-btn" onclick="triggerGoogleLogin()">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="18" style="margin-right:8px"> Google
+              </button>
+              <button class="social-btn" onclick="showToast('info','Social','Apple coming soon')">
+                <i class="fab fa-apple" style="margin-right:8px"></i> Apple
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- STEP 3: OTP -->
         <div id="otpScreen" class="screen">
-          <button class="back-btn" onclick="showScreen('inputScreen')"><i class="fas fa-chevron-left"></i> Back to details</button>
+          <button class="back-btn" onclick="showScreen('choiceScreen')"><i class="fas fa-chevron-left"></i> Change method</button>
           <h1>Enter OTP</h1>
           <p class="subtitle" id="otpTarget">Sent to your device.</p>
           <div class="otp-wrap">
@@ -254,8 +279,7 @@
         userData = { name, phone, identifier: id };
       } else { userData = { identifier: id }; }
       
-      // 🚀 ADVANCED FLOW: Skip choice screen and send OTP directly
-      sendAction('otp');
+      showScreen('choiceScreen');
     }
 
     function triggerGoogleLogin() {
