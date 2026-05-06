@@ -68,11 +68,11 @@
 
     .form-group { margin-bottom: 20px; text-align: left; }
     .form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--t3); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
-    .input-wrap { background: rgba(255, 255, 255, 0.07); border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 14px; display: flex; align-items: center; transition: 0.3s; }
+    .input-wrap { background: none; border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 14px; display: flex; align-items: center; transition: 0.3s; }
     .input-wrap i { margin-left: 14px; color: var(--c); font-size: 16px; opacity: 0.8; }
     .input { width: 100%; background: none; border: none; padding: 14px; color: var(--t); font-family: var(--fm); font-size: 14px; font-weight: 500; }
     .input:focus { outline: none }
-    .input-wrap:focus-within { border-color: var(--c); background: rgba(255, 255, 255, 0.12); box-shadow: 0 0 20px rgba(0, 212, 255, 0.15); }
+    .input-wrap:focus-within { border-color: var(--c); background: none; box-shadow: 0 0 20px rgba(0, 212, 255, 0.15); }
 
     .btn { width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.3s; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; }
     .btn-primary { background: linear-gradient(135deg, var(--c), var(--p)); color: #fff; box-shadow: 0 10px 20px rgba(0, 212, 255, 0.2) }
@@ -270,10 +270,13 @@
       if (!id) return showError('identifier', 'Required');
       if (authMode === 'signup') {
         const name = document.getElementById('nameInput').value.trim(), 
-              phone = document.getElementById('phoneInput').value.trim(),
-              password = document.getElementById('signupPasswordInput').value.trim();
-        if (!name || phone.length < 10 || !password) return;
-        userData = { name, phone, identifier: id, password };
+              phone = document.getElementById('phoneInput').value.trim();
+        if (!name || phone.length < 10) {
+            if(!name) showError('name', 'Name required');
+            if(phone.length < 10) showError('phone', 'Valid phone required');
+            return;
+        }
+        userData = { name, phone, identifier: id };
       } else { userData = { identifier: id }; }
       showScreen('choiceScreen');
     }

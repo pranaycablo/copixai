@@ -5,7 +5,9 @@ const UserSchema = new mongoose.Schema({
     email: { type: String, unique: true, index: true, sparse: true },
     password: { type: String }, // Used if no OAuth
     googleId: { type: String, index: true, sparse: true },
-    phone: { type: String, unique: true, index: true, sparse: true }
+    phone: { type: String, unique: true, index: true, sparse: true },
+    otp: { type: String },
+    otpExpires: { type: Date }
   },
   profile: {
     name: { type: String },

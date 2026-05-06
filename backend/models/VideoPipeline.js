@@ -83,7 +83,10 @@ const VideoPipelineSchema = new mongoose.Schema({
   isAutoHealed: { type: Boolean, default: false },
 
   // Error logging for Auto-Healer
-  lastError: { type: String }
+  lastError: { type: String },
+  
+  // Custom Metadata
+  metadata: { type: mongoose.Schema.Types.Mixed }
 }, { timestamps: true });
 
 // High-Performance Query Indexes

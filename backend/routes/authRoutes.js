@@ -5,6 +5,8 @@ const User = require('../models/User');
 const SecurityService = require('../services/SecurityService');
 const MailService = require('../services/MailService');
 const jwt = require('jsonwebtoken');
+const OTP = require('../models/OTP');
+const MailService = require('../services/MailService');
 const { OAuth2Client } = require('google-auth-library');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -61,7 +63,13 @@ router.post('/login-email', async (req, res) => {
   const { email, phone } = req.body;
   try {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    
+    const identifier = email || phone;
+    await OTP.findOneAndUpdate(
+        { identifier },
+        { otp, createdAt: new Date() },
+        { upsert: true, new: true }
+    );
+
     if (email) {
       const emailSent = await MailService.sendOTP(email, otp);
       if (!emailSent && mongoose.connection.readyState === 1) {
@@ -116,10 +124,19 @@ router.post('/verify-otp', async (req, res) => {
   const { email, phone, otp, name, deviceId } = req.body;
   
   try {
+    const identifier = email || phone;
+    if (!identifier || !otp) return res.status(400).json({ error: 'Identifier and OTP required' });
+
+    // 1. Verify OTP
+    const otpDoc = await OTP.findOne({ identifier, otp });
+    if (!otpDoc) return res.status(401).json({ error: 'Invalid or expired OTP' });
+
+    // 2. Clear OTP
+    await OTP.deleteOne({ _id: otpDoc._id });
+
     let query = {};
     if (email) query['auth.email'] = email;
     else if (phone) query['auth.phone'] = phone;
-    else return res.status(400).json({ error: 'Email or phone required' });
 
     let user = await User.findOne(query);
     if (!user) {

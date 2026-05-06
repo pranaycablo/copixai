@@ -43,6 +43,29 @@ class FfmpegEngine {
           '-movflags +faststart' // Optimize for web playback
         ])
         .mergeToFile(outputFilename, path.join(__dirname, '../temp'));
+  }
+
+  /**
+   * Adds HeroAi Branding (Logo) to the final video
+   */
+  static async addBranding(inputPath, logoPath) {
+    const outputPath = inputPath.replace('final_', 'branded_');
+    return new Promise((resolve, reject) => {
+        ffmpeg(inputPath)
+            .input(logoPath)
+            .complexFilter([
+                '[1:v]scale=120:-1[logo]', // Scale logo to 120px width
+                '[0:v][logo]overlay=W-w-20:20' // Overlay top-right with 20px padding
+            ])
+            .on('error', (err) => {
+                console.error('[FFMPEG ENGINE] Branding Error:', err.message);
+                reject(err);
+            })
+            .on('end', () => {
+                console.log(`[FFMPEG ENGINE] Branding added: ${outputPath}`);
+                resolve(outputPath);
+            })
+            .save(outputPath);
     });
   }
 }

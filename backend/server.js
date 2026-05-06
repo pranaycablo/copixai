@@ -123,8 +123,18 @@ mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 5000 })
   });
 
 function startServer() {
-  app.listen(PORT, () => {
-    console.log(`🚀 HeroAi Live at: http://localhost:${PORT}`);
+  const nets = require('os').networkInterfaces();
+  let ip = 'localhost';
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      if (net.family === 'IPv4' && !net.internal) {
+        ip = net.address;
+        break;
+      }
+    }
+  }
+
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 HeroAi Enterprise Live at: http://${ip}:${PORT}`);
   });
 }
-
