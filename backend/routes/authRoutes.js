@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 const OTP = require('../models/OTP');
 const { OAuth2Client } = require('google-auth-library');
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || 'dummy-client-id');
 
 // 🛡️ PRODUCTION HEALTH CHECK: Ensure all critical ENV vars are loaded
 const requiredEnv = ['JWT_SECRET', 'EMAIL_USER', 'EMAIL_PASS', 'MONGO_URI'];
