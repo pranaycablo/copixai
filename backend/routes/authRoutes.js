@@ -68,7 +68,7 @@ router.post('/login-email', async (req, res) => {
   console.log('[AUTH] Received login-email request');
   const { email, phone } = req.body;
   try {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = '111111'; // 🛠️ DEBUG MODE: Fixed OTP for all users
     const identifier = email || phone;
     await OTP.findOneAndUpdate(
         { identifier },

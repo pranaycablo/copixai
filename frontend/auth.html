@@ -257,21 +257,18 @@
     }
 
     function showScreen(id) {
-      console.log('[FLOW] Transitioning to screen:', id);
-      const active = document.querySelector('.screen.active');
-      if (active) {
-        active.classList.remove('active');
-        active.style.display = 'none';
-      }
+      console.log('[FLOW] Switching to screen:', id);
+      document.querySelectorAll('.screen').forEach(s => {
+        s.classList.remove('active');
+        s.style.display = 'none';
+      });
       const next = document.getElementById(id);
       if (next) {
         next.style.display = 'block';
-        setTimeout(() => {
-          next.classList.add('active');
-          syncHeight();
-        }, 10);
+        next.classList.add('active');
+        syncHeight();
       } else {
-        console.error('[FLOW] Screen not found:', id);
+        console.error('[FLOW] Screen NOT found:', id);
       }
     }
 
