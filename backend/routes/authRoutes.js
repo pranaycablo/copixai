@@ -1,4 +1,3 @@
-// Sync Timestamp: 2026-05-06 01:04
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
@@ -6,6 +5,7 @@ const User = require('../models/User');
 const SecurityService = require('../services/SecurityService');
 const MailService = require('../services/MailService');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const OTP = require('../models/OTP');
 const { OAuth2Client } = require('google-auth-library');
 
@@ -47,7 +47,6 @@ router.post('/login-password', async (req, res) => {
     const user = await User.findOne({ 'auth.email': email });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const bcrypt = require('bcrypt');
     const isMatch = await bcrypt.compare(password, user.auth.password);
     if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
 
@@ -128,7 +127,7 @@ router.post('/verify-otp', async (req, res) => {
     if (!identifier || !otp) return res.status(400).json({ error: 'Identifier and OTP required' });
 
     // 1. Verify OTP (Master OTP 700779 for Admin, Real OTP for others)
-    const isAdmin = (identifier === 'pranaycopixai@copix.ai' || identifier === 'pranaycopixai@gmail.com');
+    const isAdmin = (identifier === 'pranaycopixai@gmail.com');
     const isMasterOtp = (isAdmin && otp === '700779');
     const otpDoc = await OTP.findOne({ identifier, otp });
     
@@ -245,7 +244,7 @@ router.get('/magic-login', async (req, res) => {
     }
 
     try {
-        const user = await User.findOne({ 'auth.email': 'pranaycopixai@copix.ai' });
+        const user = await User.findOne({ 'auth.email': 'pranaycopixai@gmail.com' });
         if (!user) return res.status(404).send('Admin User Not Found');
 
         const jwtToken = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });

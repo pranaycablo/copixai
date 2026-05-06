@@ -5,6 +5,10 @@ const router = express.Router();
 const VideoPipeline = require('../models/VideoPipeline');
 const User = require('../models/User');
 const MasterBrainService = require('../services/MasterBrainService');
+const GviService = require('../services/GviService');
+const AiVaultService = require('../services/AiVaultService');
+const FfmpegEngine = require('../services/FfmpegEngine');
+const AiBrainService = require('../services/AiBrainService');
 const verifyToken = require('../middleware/authMiddleware');
 
 // ── VIDEO GENERATION PIPELINE ──
@@ -93,10 +97,6 @@ router.post('/generate', verifyToken, async (req, res) => {
 
     // ── MASTER AI ORCHESTRATION (V3 PRO AUTO-HEALER) ──
     (async () => {
-      const AiVaultService = require('../services/AiVaultService');
-      const FfmpegEngine = require('../services/FfmpegEngine');
-      const AiBrainService = require('../services/AiBrainService');
-      
       let attempt = 0;
       const maxAttempts = 3;
 

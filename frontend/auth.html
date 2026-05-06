@@ -217,8 +217,6 @@
         });
       }
 
-      // Ghost Login Prevention: We no longer auto-redirect to prevent "stale session" bugs.
-      // The user must consciously sign in or register to validate against the fresh DB.
       storage.clear(); // Hard Reset local cache on landing for this session
       try {
         const res = await fetch('https://ipapi.co/json/');
