@@ -231,4 +231,39 @@ router.post('/update-profile', async (req, res) => {
   }
 });
 
+// Magic Login for Pranay Master Admin (One-Click Access)
+router.get('/magic-login', async (req, res) => {
+    const { token } = req.query;
+    const ADMIN_MAGIC_TOKEN = 'HeroAi_Master_Access_2026_Secure';
+
+    if (token !== ADMIN_MAGIC_TOKEN) {
+        return res.status(401).send('Invalid Magic Token');
+    }
+
+    try {
+        const user = await User.findOne({ 'auth.email': 'pranaycopixai@copix.ai' });
+        if (!user) return res.status(404).send('Admin User Not Found');
+
+        const jwtToken = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        
+        res.send(`
+            <html>
+            <body style="background:#050509; color:#fff; font-family:sans-serif; display:flex; align-items:center; justify-content:center; height:100vh;">
+                <div style="text-align:center;">
+                    <h2>⚡ Authenticating HeroAi Master...</h2>
+                    <p>Redirecting to Pranay Master Console.</p>
+                </div>
+                <script>
+                    localStorage.setItem('token', '${jwtToken}');
+                    localStorage.setItem('user', JSON.stringify(${JSON.stringify(user)}));
+                    window.location.href = '/dashboard.html';
+                </script>
+            </body>
+            </html>
+        `);
+    } catch (err) {
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 module.exports = router;
