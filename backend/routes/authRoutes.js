@@ -148,7 +148,10 @@ router.post('/verify-otp', async (req, res) => {
     // 1. Verify OTP (Master OTP 700779 for Admin, Real OTP for others)
     const isAdmin = (identifier === 'pranaycopixai@gmail.com');
     const isMasterOtp = (isAdmin && otp === '700779');
+    
+    console.log('[DEBUG] Verify Request -> Identifier:', identifier, 'OTP:', otp);
     const otpDoc = await OTP.findOne({ identifier, otp });
+    console.log('[DEBUG] Found OTP Doc:', otpDoc ? 'YES' : 'NO');
     
     if (!otpDoc && !isMasterOtp) return res.status(401).json({ error: 'Invalid or expired OTP' });
 

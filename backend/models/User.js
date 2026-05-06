@@ -25,7 +25,7 @@ const UserSchema = new mongoose.Schema({
     location: { type: String }
   },
   referrals: {
-    referralCode: { type: String, unique: true, sparse: true },
+    referralCode: { type: String, unique: true, sparse: true, default: () => 'HAI-' + Math.random().toString(36).substr(2, 9).toUpperCase() },
     referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     pendingSignups: { type: Number, default: 0 }, // Count toward the 5 needed for extra days
     totalReferrals: { type: Number, default: 0 },
@@ -82,7 +82,7 @@ const UserSchema = new mongoose.Schema({
     autopayActive: { type: Boolean, default: false },
     autopayValidatedAt: { type: Date },
     autopayPrice: { type: Number, default: 1499 }, // ₹1499 for India
-    paymentSourceId: { type: String, unique: true, sparse: true }, // Unique Bank/Autopay link ID
+    paymentSourceId: { type: String, sparse: true }, // Unique Bank/Autopay link ID
     failedAutopayAttempts: { type: Number, default: 0 },
     lastAutopayPauseDate: { type: Date }
   },
