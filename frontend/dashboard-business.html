@@ -836,6 +836,20 @@
     deferredPrompt = null;
   }
 
+  function loadDashboard() {
+    if (!storage.get('token') || !storage.get('user')) {
+      window.location.href = 'auth.html';
+      return;
+    }
+    document.getElementById('dashRoot').style.display = 'flex';
+    if (!currentUser.isSetupComplete) {
+      document.getElementById('onboardingModal').classList.add('active');
+    } else {
+      initUserUI();
+      startETATimer();
+    }
+  }
+
   window.onload = loadDashboard;
 </script>
   <script src="pay.js"></script>
