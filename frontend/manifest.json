@@ -1,0 +1,23 @@
+{
+  "name": "HeroAi",
+  "short_name": "HeroAi",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#050509",
+  "theme_color": "#F5A623",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3670/3670147.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+
+
+
+
+
+
+
+

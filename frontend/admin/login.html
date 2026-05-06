@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>HeroAi — Master Terminal Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<script src="../config.js"></script>
+<script src="../ui.js"></script>
+<style>
+:root{
+  --bg:#020205;--s1:#080810;--c:#00D4FF;--p:#A78BFA;--am:#F5A623;
+  --t:#F0F0FC;--t2:#707090;--gb:rgba(255,255,255,0.05);
+  --fh:'Syne',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--t);font-family:var(--fm);height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+
+.terminal-box{width:100%;max-width:450px;background:var(--s1);border:1px solid var(--gb);border-radius:12px;overflow:hidden;box-shadow:0 0 50px rgba(0,0,0,0.8), 0 0 20px rgba(0,212,255,0.05);animation:glow 4s infinite alternate}
+@keyframes glow{from{box-shadow:0 0 50px rgba(0,0,0,0.8)}to{box-shadow:0 0 50px rgba(0,0,0,0.8), 0 0 30px rgba(0,212,255,0.1)}}
+
+.t-header{background:var(--gb);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--gb)}
+.t-dots{display:flex;gap:6px}
+.t-dot{width:10px;height:10px;border-radius:50%}
+.red{background:#FF5F56} .ylw{background:#FFBD2E} .grn{background:#27C93F}
+.t-title{font-size:11px;font-weight:700;color:var(--t2);letter-spacing:1px;text-transform:uppercase}
+
+.t-body{padding:40px}
+.t-logo{text-align:center;margin-bottom:30px}
+.t-logo img{width:60px;filter:drop-shadow(0 0 10px var(--c))}
+
+h1{font-family:var(--fh);font-size:24px;text-align:center;margin-bottom:10px;letter-spacing:-1px}
+p{text-align:center;color:var(--t2);font-size:13px;margin-bottom:35px}
+
+.form-group{margin-bottom:20px}
+label{display:block;font-size:10px;color:var(--t2);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
+input{width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--gb);border-radius:6px;padding:14px;color:var(--c);font-family:var(--fm);font-size:14px;outline:none;transition:all 0.3s}
+input:focus{border-color:var(--c);box-shadow:0 0 10px rgba(0,212,255,0.1)}
+
+.btn{width:100%;padding:16px;background:var(--c);color:#000;border:none;border-radius:6px;font-weight:800;font-family:var(--fm);text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all 0.3s}
+.btn:hover{background:#fff;transform:translateY(-2px)}
+
+.status-bar{margin-top:30px;font-size:10px;color:var(--t2);display:flex;justify-content:space-between;border-top:1px solid var(--gb);padding-top:15px}
+.blink{animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* STEP 2 */
+#step2{display:none}
+
+#toastContainer{position:fixed;top:20px;right:20px;z-index:9999}
+</style>
+</head>
+<body>
+
+<div class="terminal-box">
+  <div class="t-header">
+    <div class="t-dots"><div class="t-dot red"></div><div class="t-dot ylw"></div><div class="t-dot grn"></div></div>
+    <div class="t-title">HeroAi Master Node</div>
+    <div style="width:38px"></div>
+  </div>
+  
+  <div class="t-body">
+    <div class="t-logo"><img src="../logo.png" alt="HeroAi">HeroAi</div>
+
+    <!-- STEP 1: IDENTIFIER & PASSWORD -->
+    <div id="step1">
+      <h1>Access Terminal</h1>
+      <p>Enter Master Administrator credentials.</p>
+      <div class="form-group">
+        <label>ADMIN IDENTIFIER (EMAIL)</label>
+        <input type="text" id="adminId" placeholder="admin@HeroAi.com">
+      </div>
+      <div class="form-group">
+        <label>MASTER PASSWORD</label>
+        <input type="password" id="adminPass" placeholder="••••••••">
+      </div>
+      <button class="btn" onclick="loginWithPassword()">Complete Handshake</button>
+    </div>
+
+    <div class="status-bar">
+      <span><i class="fas fa-circle grn blink"></i> CORE_STABLE</span>
+      <span>V2.4.0_AUTH_SECURE</span>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+async function loginWithPassword() {
+  const email = document.getElementById('adminId').value;
+  const password = document.getElementById('adminPass').value;
+  
+  if(!email || !password) return showToast('error', 'Denied', 'Credentials required.');
+  
+  showToast('info', 'Authenticating...', 'Performing security handshake.');
+  try {
+    const res = await fetch(`${CONFIG.API_BASE_URL}/auth/login-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    
+    if(res.ok) {
+      if(data.user.profile.role !== 'ADMIN') {
+        return showToast('error', 'Escalation Failed', 'User lacks Master privileges.');
+      }
+      storage.set('token', data.token);
+      storage.set('user', data.user);
+      showToast('success', 'Welcome Master', 'Redirecting to command center.');
+      setTimeout(() => window.location.href = 'heroai.html', 1500);
+    } else {
+      showToast('error', 'Handshake Failed', data.error || 'Invalid credentials.');
+    }
+  } catch(e) { showToast('error', 'System Error', 'Authentication node unresponsive.'); }
+}
+</script>
+<script>
+  // Anti-Scraping Protection
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.onkeydown = function(e) {
+    if(e.keyCode == 123) return false;
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false;
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
+    if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+  }
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+

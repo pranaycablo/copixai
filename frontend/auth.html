@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>HeroAi — Secure Authentication</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="brand.css">
+  <script src="config.js"></script>
+  <style>
+    :root {
+      --bg: #050509; --s1: #0C0C18; --s2: #141428; --gb: rgba(255, 255, 255, 0.08);
+      --c: #00D4FF; --p: #7000FF; --cb: #00D4FF; --t: #FFFFFF;
+      --t2: rgba(255, 255, 255, 0.7); --t3: rgba(255, 255, 255, 0.4);
+      --fh: 'Syne', sans-serif; --fm: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0 }
+    body { background: var(--bg); color: var(--t); font-family: var(--fm); overflow-x: hidden; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px }
+
+    .bg-decor { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden }
+    .orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.15 }
+    .o1 { top: -10%; right: -10%; width: 500px; height: 500px; background: var(--c); animation: drift 20s infinite alternate }
+    .o2 { bottom: -10%; left: -10%; width: 600px; height: 600px; background: var(--p); animation: drift 25s infinite alternate-reverse }
+    @keyframes drift { from { transform: translate(0, 0) } to { transform: translate(50px, 100px) } }
+
+    .auth-container { width: 100%; max-width: 440px; position: relative; }
+    
+    .auth-card {
+      background: rgba(20, 20, 35, 0.7); backdrop-filter: blur(40px);
+      border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 32px; padding: 40px;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.05);
+      position: relative; overflow: hidden;
+      transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .brand-wrap { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; position: relative; z-index: 10; }
+    .logo-text { font-size: 32px !important; }
+    .brand-gem { width: 52px; height: 52px; background: #fff; border-radius: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(255, 255, 255, 0.25); overflow: hidden; padding: 8px; }
+
+    .mode-toggle { display: flex; background: rgba(255, 255, 255, 0.04); padding: 6px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--gb); position: relative; z-index: 10; }
+    .mode-btn { flex: 1; padding: 10px; text-align: center; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.3s; color: var(--t3) }
+    .mode-btn.active { background: var(--s2); color: var(--c); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) }
+
+    .social-btns { display: flex; gap: 12px; margin-bottom: 24px; position: relative; z-index: 10; }
+    .social-btn { flex: 1; padding: 12px; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--gb); color: var(--t); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; }
+    .social-btn:hover { background: rgba(255,255,255,0.08); border-color: var(--t3); }
+
+    .separator { text-align: center; margin: 0 0 24px; position: relative; z-index: 10; color: var(--t3); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; }
+
+    /* CONTENT FLOW */
+    #screenContainer { position: relative; }
+    .screen {
+      opacity: 0; transform: translateY(30px);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      display: none; width: 100%;
+    }
+    .screen.active {
+      display: block; opacity: 1; transform: translateY(0);
+    }
+    .screen.exit {
+      opacity: 0; transform: translateY(-30px);
+    }
+
+    h1 { font-family: var(--fh); font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+    .subtitle { color: var(--t2); font-size: 14px; line-height: 1.6; margin-bottom: 24px }
+
+    .form-group { margin-bottom: 20px; text-align: left; }
+    .form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--t3); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+    .input-wrap { background: rgba(255, 255, 255, 0.07); border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 14px; display: flex; align-items: center; transition: 0.3s; }
+    .input-wrap i { margin-left: 14px; color: var(--c); font-size: 16px; opacity: 0.8; }
+    .input { width: 100%; background: none; border: none; padding: 14px; color: var(--t); font-family: var(--fm); font-size: 14px; font-weight: 500; }
+    .input:focus { outline: none }
+    .input-wrap:focus-within { border-color: var(--c); background: rgba(255, 255, 255, 0.12); box-shadow: 0 0 20px rgba(0, 212, 255, 0.15); }
+
+    .btn { width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.3s; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .btn-primary { background: linear-gradient(135deg, var(--c), var(--p)); color: #fff; box-shadow: 0 10px 20px rgba(0, 212, 255, 0.2) }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0, 212, 255, 0.3) }
+    
+    .error-msg { color: #FF4D4D; font-size: 10px; font-weight: 600; margin-top: 4px; display: none; }
+    .form-group.has-error .input-wrap { border-color: #FF4D4D !important; }
+    .form-group.has-error .error-msg { display: block; }
+
+    .otp-wrap { display: flex; gap: 8px; justify-content: center; margin-bottom: 24px }
+    .otp-box { width: 44px; height: 50px; background: rgba(255, 255, 255, 0.04); border: 1.5px solid var(--gb); border-radius: 12px; text-align: center; font-size: 22px; font-weight: 800; color: var(--c); font-family: var(--fm) }
+    .otp-box:focus { border-color: var(--cb); background: rgba(0, 212, 255, 0.05); outline: none; }
+
+    .back-btn { background: none; border: none; color: var(--t3); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-bottom: 16px; transition: 0.2s; }
+    .back-btn:hover { color: var(--t); }
+
+    .loader { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn.loading .loader { display: block; }
+    .btn.loading span { display: none; }
+
+    /* Autofill Fix */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus {
+      -webkit-text-fill-color: var(--t) !important;
+      -webkit-box-shadow: 0 0 0px 1000px var(--s1) inset !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-decor">
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+  </div>
+
+  <div class="auth-container">
+    <div class="auth-card" id="authCard">
+      <div class="brand-wrap">
+        <div class="brand-gem"><img src="logo.png" style="width:100%;height:100%;object-fit:contain"></div>
+        <div class="logo-text"><span class="logo-hero">Hero</span><span class="logo-ai">Ai</span></div>
+      </div>
+
+      <div id="modeToggleWrap" class="mode-toggle">
+        <div class="mode-btn active" id="modeSignup" onclick="setMode('signup')">Sign Up</div>
+        <div class="mode-btn" id="modeLogin" onclick="setMode('login')">Login</div>
+      </div>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <div id="socialWrap" class="social-btns">
+    <div id="g_id_onload"></div>
+    <button class="social-btn" onclick="triggerGoogleLogin()">
+      <img src="https://www.gstatic.com/images/branding/googleg/svg/google_g.svg" width="18"> Google
+    </button>
+    <button class="social-btn" onclick="showToast('info','Social Login','Apple integration coming soon...')">
+      <i class="fab fa-apple" style="font-size:16px"></i> Apple
+    </button>
+  </div>
+
+      <div id="sep" class="separator">or continue with email</div>
+
+      <div id="screenContainer">
+        <!-- STEP 1: INPUTS -->
+        <div id="inputScreen" class="screen active">
+          <h1 id="h1">Join the Elite</h1>
+          <p class="subtitle" id="sub">Enter your details to architect your content empire.</p>
+
+          <div id="signupFields">
+            <div class="form-group" id="group-name">
+              <label>Full Name</label>
+              <div class="input-wrap"><i class="fas fa-user"></i><input type="text" id="nameInput" class="input" placeholder="Enter your name"></div>
+              <span class="error-msg">Please enter your full name.</span>
+            </div>
+            <div class="form-group" id="group-phone">
+              <label>Mobile Number</label>
+              <div class="input-wrap"><span id="countryFlag" style="margin-left:14px; font-size:16px;">🇮🇳</span><input type="tel" id="phoneInput" class="input" placeholder="9876543210" style="padding-left:10px;"></div>
+              <span class="error-msg">Valid 10-digit number required.</span>
+            </div>
+          </div>
+
+          <div class="form-group" id="group-identifier">
+            <label id="idLabel">Email Address</label>
+            <div class="input-wrap"><i class="fas fa-envelope" id="idIcon"></i><input type="text" id="identifierInput" class="input" placeholder="name@example.com"></div>
+            <span class="error-msg">Valid email or phone required.</span>
+          </div>
+
+
+          <button class="btn btn-primary" id="nextBtn" onclick="goToChoice()">
+            <span>Next Step <i class="fas fa-arrow-right"></i></span>
+            <div class="loader"></div>
+          </button>
+        </div>
+
+        <!-- STEP 2: CHOICE -->
+        <div id="choiceScreen" class="screen">
+          <button class="back-btn" onclick="showScreen('inputScreen')"><i class="fas fa-chevron-left"></i> Back to details</button>
+          <h1>Verification</h1>
+          <p class="subtitle">Choose your preferred secure login method.</p>
+          <div style="display:grid; gap:12px; margin-bottom:20px">
+            <button class="social-btn" style="padding:18px; justify-content:flex-start" onclick="sendAction('otp')"><i class="fas fa-key" style="color:var(--c)"></i> Secure OTP Code</button>
+            <button class="social-btn" style="padding:18px; justify-content:flex-start; opacity:0.5" onclick="showToast('info','Domain Required','Magic links coming soon.')"><i class="fas fa-magic" style="color:var(--p)"></i> Magic Login Link</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: OTP -->
+        <div id="otpScreen" class="screen">
+          <button class="back-btn" onclick="showScreen('choiceScreen')"><i class="fas fa-chevron-left"></i> Change method</button>
+          <h1>Enter OTP</h1>
+          <p class="subtitle" id="otpTarget">Sent to your device.</p>
+          <div class="otp-wrap">
+            <input type="text" maxlength="1" class="otp-box" onkeyup="otpMove(this,0)">
+            <input type="text" maxlength="1" class="otp-box" onkeyup="otpMove(this,1)">
+            <input type="text" maxlength="1" class="otp-box" onkeyup="otpMove(this,2)">
+            <input type="text" maxlength="1" class="otp-box" onkeyup="otpMove(this,3)">
+            <input type="text" maxlength="1" class="otp-box" onkeyup="otpMove(this,4)">
+            <input type="text" maxlength="1" class="otp-box" onkeyup="otpMove(this,5)">
+          </div>
+          <button class="btn btn-primary" id="verifyBtn" onclick="verifyFinal()">
+            <span>Verify & Connect <i class="fas fa-check-circle"></i></span>
+            <div class="loader"></div>
+          </button>
+          <button id="resendBtn" class="btn-ghost" style="border:none; background:none; color:var(--c); font-size:12px; margin-top:20px; cursor:pointer;" onclick="resendOtp()">Resend Code</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="ui.js"></script>
+  <script>
+    let authMode = 'signup', userData = {}, detectedCountryCode = '+91', resendTimer = 0;
+
+    window.onload = async () => {
+      syncHeight();
+      
+      // Initialize Google Login
+      if (typeof google !== 'undefined') {
+        google.accounts.id.initialize({
+          client_id: CONFIG.GOOGLE_CLIENT_ID,
+          callback: handleGoogleLogin
+        });
+      }
+
+      // Ghost Login Prevention: We no longer auto-redirect to prevent "stale session" bugs.
+      // The user must consciously sign in or register to validate against the fresh DB.
+      storage.clear(); // Hard Reset local cache on landing for this session
+      try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        if (data.country_calling_code) {
+          detectedCountryCode = data.country_calling_code;
+          const flag = data.country.toUpperCase().replace(/./g, c => String.fromCodePoint(c.charCodeAt(0) + 127397));
+          document.getElementById('countryFlag').innerText = flag;
+        }
+      } catch (e) {}
+    };
+
+    function syncHeight() {
+      const card = document.getElementById('authCard');
+      card.style.height = 'auto';
+      const height = card.scrollHeight;
+      card.style.height = height + 'px';
+    }
+
+    function showScreen(id) {
+      const active = document.querySelector('.screen.active');
+      if (active) {
+        active.classList.add('exit'); active.classList.remove('active');
+        setTimeout(() => { active.classList.remove('exit'); active.style.display = 'none'; }, 500);
+      }
+      const next = document.getElementById(id);
+      setTimeout(() => {
+        next.style.display = 'block';
+        setTimeout(() => {
+          next.classList.add('active');
+          syncHeight();
+        }, 50);
+      }, 500);
+    }
+
+    function setMode(m) {
+      authMode = m;
+      document.getElementById('modeSignup').classList.toggle('active', m === 'signup');
+      document.getElementById('modeLogin').classList.toggle('active', m === 'login');
+      document.getElementById('signupFields').style.display = m === 'signup' ? 'block' : 'none';
+      document.getElementById('h1').innerText = m === 'signup' ? 'Join the Elite' : 'Welcome Back';
+      document.getElementById('sub').innerText = m === 'signup' ? 'Enter your details to architect your content empire.' : 'Sign in to access your autonomous AI factory.';
+      document.getElementById('idLabel').innerText = m === 'signup' ? 'Email Address' : 'Email or Mobile';
+      syncHeight();
+    }
+
+    function goToChoice() {
+      const id = document.getElementById('identifierInput').value.trim();
+      if (!id) return showError('identifier', 'Required');
+      if (authMode === 'signup') {
+        const name = document.getElementById('nameInput').value.trim(), 
+              phone = document.getElementById('phoneInput').value.trim(),
+              password = document.getElementById('signupPasswordInput').value.trim();
+        if (!name || phone.length < 10 || !password) return;
+        userData = { name, phone, identifier: id, password };
+      } else { userData = { identifier: id }; }
+      showScreen('choiceScreen');
+    }
+
+    function triggerGoogleLogin() {
+      google.accounts.id.prompt();
+    }
+
+    function handleUserRedirect(user, token) {
+      storage.set('user', user);
+      storage.set('token', token);
+      const role = user.profile.role;
+      
+      if(user.isSetupComplete === false && role !== 'ADMIN') {
+        window.location.href = 'setup.html';
+      } else {
+        if(role === 'ADMIN') window.location.href = 'admin/heroai.html';
+        else if(role === 'AGENCY') window.location.href = 'dashboard-agency.html';
+        else if(role === 'BUSINESS') window.location.href = 'dashboard-business.html';
+        else if(user.subscription.planId === 'creator' || user.subscription.planId === 'pro') window.location.href = 'dashboard-pro.html';
+        else window.location.href = 'dashboard.html';
+      }
+    }
+
+    async function handleGoogleLogin(response) {
+      showToast('info', 'Google Login', 'Verifying identity...');
+      try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/auth/google-login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken: response.credential })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          handleUserRedirect(data.user, data.token);
+        } else {
+          showToast('error', 'Auth Failed', data.error);
+        }
+      } catch (e) {
+        showToast('error', 'Connection Error', 'Backend unreachable');
+      }
+    }
+
+    async function sendAction(type) {
+      const btn = document.getElementById('verifyBtn');
+      document.getElementById('otpTarget').innerText = `Sent to ${userData.identifier}`;
+      showScreen('otpScreen');
+      try {
+        let payload = {};
+        if (userData.identifier.includes('@')) payload.email = userData.identifier;
+        else payload.phone = userData.identifier;
+
+        const res = await fetch(`${CONFIG.API_BASE_URL}/auth/login-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if(res.ok) showToast('success', 'Code Sent', 'Check your device for the OTP code.');
+        else showToast('error', 'Failed', 'Could not send code.');
+      } catch (e) {
+        showToast('error', 'Error', 'Server offline.');
+      }
+    }
+
+    function otpMove(el, idx) {
+      if (el.value && idx < 5) document.querySelectorAll('.otp-box')[idx + 1].focus();
+      const otp = Array.from(document.querySelectorAll('.otp-box')).map(b => b.value).join('');
+      if (otp.length === 6) verifyFinal();
+    }
+
+    async function verifyFinal() {
+      const btn = document.getElementById('verifyBtn');
+      btn.classList.add('loading'); btn.disabled = true;
+      const otp = Array.from(document.querySelectorAll('.otp-box')).map(b => b.value).join('');
+      try {
+        let payload = { otp, name: userData.name, phone: userData.phone, password: userData.password, deviceId: 'browser' };
+        if (userData.identifier.includes('@')) payload.email = userData.identifier;
+        else payload.phone = userData.identifier;
+
+        const res = await fetch(`${CONFIG.API_BASE_URL}/auth/verify-otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok) {
+          handleUserRedirect(data.user, data.token);
+        } else {
+          showToast('error', 'Auth Failed', data.error || 'Invalid Code');
+        }
+      } catch (e) {
+        showToast('error', 'Sync Failure', 'Verification engine unreachable');
+      } finally { btn.classList.remove('loading'); btn.disabled = false; }
+    }
+
+    function showError(id, msg) { const g = document.getElementById('group-' + id); g.classList.add('has-error'); g.querySelector('.error-msg').innerText = msg; }
+  </script>
+</body>
+</html>
