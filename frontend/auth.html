@@ -318,10 +318,12 @@
     }
 
     function handleUserRedirect(user, token) {
-      console.log('[FLOW] Authentication Successful. User:', user);
+      console.log('[FLOW] Authentication Successful. Full User Data:', user);
       try {
+        if (!user) throw new Error('User object missing');
         storage.set('user', user);
         storage.set('token', token);
+        console.log('[FLOW] Session saved to storage');
       } catch (e) {
         console.error('[FLOW] Storage failed:', e);
         showToast('error', 'Storage Error', 'Could not save session.');
@@ -331,22 +333,19 @@
       const email = (user.auth && user.auth.email) ? user.auth.email : '';
       const isMaster = (email === 'pranaycopixai@gmail.com');
 
-      console.log('[FLOW] Redirecting...', { role, isSetup: user.isSetupComplete, isMaster });
+      console.log('[FLOW] Evaluating Redirect Path:', { role, isSetup: user.isSetupComplete, isMaster });
 
-      if (user.isSetupComplete === false && role !== 'ADMIN' && !isMaster) {
-        console.log('[FLOW] Going to setup.html');
+      if (!user.isSetupComplete && role !== 'ADMIN' && !isMaster) {
+        console.log('[FLOW] Path Chosen: Setup Onboarding');
         window.location.href = 'setup.html';
       } else {
-        if (role === 'ADMIN' || isMaster) {
-          console.log('[FLOW] Going to Admin Dashboard');
-          window.location.href = 'admin/heroai.html';
-        } else if (role === 'AGENCY') {
-          window.location.href = 'dashboard-agency.html';
-        } else if (role === 'BUSINESS') {
-          window.location.href = 'dashboard-business.html';
-        } else {
-          window.location.href = 'dashboard.html';
-        }
+        let target = 'dashboard.html';
+        if (role === 'ADMIN' || isMaster) target = 'admin/heroai.html';
+        else if (role === 'AGENCY') target = 'dashboard-agency.html';
+        else if (role === 'BUSINESS') target = 'dashboard-business.html';
+        
+        console.log('[FLOW] Path Chosen: Dashboard ->', target);
+        window.location.href = target;
       }
     }
 
@@ -421,25 +420,38 @@
       const btn = document.getElementById('verifyBtn');
       btn.classList.add('loading'); btn.disabled = true;
       const otp = Array.from(document.querySelectorAll('.otp-box')).map(b => b.value).join('');
+      console.log('[FLOW] Verifying OTP:', otp);
+
       try {
         let payload = { otp, name: userData.name, phone: userData.phone, password: userData.password, deviceId: 'browser' };
         if (userData.identifier.includes('@')) payload.email = userData.identifier;
         else payload.phone = userData.identifier;
 
+        console.log('[FLOW] Dispatching verification request...');
         const res = await fetch(`${CONFIG.API_BASE_URL}/auth/verify-otp`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
+        
         const data = await res.json();
+        console.log('[FLOW] Server Response:', data);
+
         if (res.ok) {
+          showToast('success', 'Verified', 'Identity architected successfully.');
           handleUserRedirect(data.user, data.token);
         } else {
+          console.warn('[FLOW] Verification failed:', data.error);
           showToast('error', 'Auth Failed', data.error || 'Invalid Code');
         }
       } catch (e) {
+        console.error('[FLOW] Network/Sync error:', e);
         showToast('error', 'Sync Failure', 'Verification engine unreachable');
-      } finally { btn.classList.remove('loading'); btn.disabled = false; }
+      } finally { 
+        console.log('[FLOW] Verification sequence complete');
+        btn.classList.remove('loading'); 
+        btn.disabled = false; 
+      }
     }
 
     function showError(id, msg) { const g = document.getElementById('group-' + id); g.classList.add('has-error'); g.querySelector('.error-msg').innerText = msg; }
