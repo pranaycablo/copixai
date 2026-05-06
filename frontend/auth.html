@@ -123,19 +123,6 @@
         <div class="mode-btn" id="modeLogin" onclick="setMode('login')">Login</div>
       </div>
 
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <div id="socialWrap" class="social-btns">
-    <div id="g_id_onload"></div>
-    <button class="social-btn" onclick="triggerGoogleLogin()">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="18" style="display:inline-block; vertical-align:middle;"> <span style="vertical-align:middle;">Google</span>
-    </button>
-    <button class="social-btn" onclick="showToast('info','Social Login','Apple integration coming soon...')">
-      <i class="fab fa-apple" style="font-size:16px"></i> Apple
-    </button>
-  </div>
-
-      <div id="sep" class="separator">or continue with email</div>
-
       <div id="screenContainer">
         <!-- STEP 1: INPUTS -->
         <div id="inputScreen" class="screen active">
@@ -163,25 +150,15 @@
 
 
           <button class="btn btn-primary" id="nextBtn" onclick="goToChoice()">
-            <span>Next Step <i class="fas fa-arrow-right"></i></span>
+            <span>Continue to Verify <i class="fas fa-arrow-right"></i></span>
             <div class="loader"></div>
           </button>
         </div>
 
-        <!-- STEP 2: CHOICE -->
-        <div id="choiceScreen" class="screen">
-          <button class="back-btn" onclick="showScreen('inputScreen')"><i class="fas fa-chevron-left"></i> Back to details</button>
-          <h1>Verification</h1>
-          <p class="subtitle">Choose your preferred secure login method.</p>
-          <div style="display:grid; gap:12px; margin-bottom:20px">
-            <button class="social-btn" style="padding:18px; justify-content:flex-start" onclick="sendAction('otp')"><i class="fas fa-key" style="color:var(--c)"></i> Secure OTP Code</button>
-            <button class="social-btn" style="padding:18px; justify-content:flex-start; opacity:0.5" onclick="showToast('info','Domain Required','Magic links coming soon.')"><i class="fas fa-magic" style="color:var(--p)"></i> Magic Login Link</button>
-          </div>
-        </div>
 
         <!-- STEP 3: OTP -->
         <div id="otpScreen" class="screen">
-          <button class="back-btn" onclick="showScreen('choiceScreen')"><i class="fas fa-chevron-left"></i> Change method</button>
+          <button class="back-btn" onclick="showScreen('inputScreen')"><i class="fas fa-chevron-left"></i> Back to details</button>
           <h1>Enter OTP</h1>
           <p class="subtitle" id="otpTarget">Sent to your device.</p>
           <div class="otp-wrap">
@@ -276,7 +253,9 @@
         }
         userData = { name, phone, identifier: id };
       } else { userData = { identifier: id }; }
-      showScreen('choiceScreen');
+      
+      // 🚀 ADVANCED FLOW: Skip choice screen and send OTP directly
+      sendAction('otp');
     }
 
     function triggerGoogleLogin() {

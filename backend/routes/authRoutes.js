@@ -76,12 +76,18 @@ router.post('/login-email', async (req, res) => {
         return res.status(201).json({ message: 'OTP active for Admin', email });
       }
 
+      console.log(`[AUTH] Attempting to send OTP to: ${email}`);
       const emailSent = await MailService.sendOTP(email, otp);
-      if (!emailSent && mongoose.connection.readyState === 1) {
-        console.warn('Mail delivery failed, falling back to console log for dev.');
-        console.log(`[AUTH] OTP for ${email}: ${otp}`);
+      
+      if (emailSent) {
+        console.log(`[AUTH] ✅ OTP successfully sent to ${email}`);
+      } else {
+        console.error(`[AUTH] ❌ Failed to send OTP to ${email}`);
+        if (mongoose.connection.readyState === 1) {
+          console.log(`[AUTH] DEV FALLBACK: OTP for ${email} is ${otp}`);
+        }
       }
-      return res.status(201).json({ message: 'OTP sent to email', email });
+      return res.status(201).json({ message: emailSent ? 'OTP sent to email' : 'OTP generation fallback (Check Server Logs)', email });
     } else if (phone) {
       console.log(`[AUTH] OTP for Phone ${phone}: ${otp}`);
       return res.status(201).json({ message: 'OTP sent to phone', phone });
