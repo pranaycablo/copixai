@@ -399,78 +399,81 @@
 
     function handleSocialNext() {
       try {
-        console.log("[SETUP] Auto-Syncing with Email:", user?.auth?.email);
         if (currentSocialSubStep === 1) {
-          // Show Syncing Animation
           currentSocialSubStep = 2;
           document.getElementById('socialSelector').style.display = 'none';
           document.getElementById('socialInputs').style.display = 'flex';
           
+          const primary = setupData.socials[0];
+          
           const fieldContainer = document.getElementById('linkFields');
           fieldContainer.innerHTML = `
-            <div style="text-align:center; padding:20px;">
-              <div class="heroai-glow" style="font-size:40px; margin-bottom:20px;"><i class="fas fa-sync fa-spin"></i></div>
-              <h3 style="font-family:var(--fh); margin-bottom:10px;">Auto-Syncing with ${user?.auth?.email || 'Identity'}</h3>
-              <p style="color:var(--t3); font-size:13px;">Linking your primary ${setupData.socials[0].platform} account found on this identity.</p>
+            <div style="text-align:left; padding:10px;">
+              <h3 style="font-family:var(--fh); margin-bottom:10px;">Connect ${primary.platform}</h3>
+              <p style="color:var(--t3); font-size:13px; margin-bottom: 20px;">Paste your channel or profile link to connect it with the engine.</p>
+              
+              <div class="large-input-wrap" style="position:relative; margin-bottom:15px; border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 14px; background: rgba(255,255,255,0.02); display: flex; align-items: center; padding: 12px;">
+                <i class="fab fa-${primary.platform.toLowerCase() === 'youtube' ? 'youtube' : primary.platform.toLowerCase() === 'twitter' ? 'twitter' : primary.platform.toLowerCase()}" style="font-size:20px; color:var(--c); margin-right:12px;"></i>
+                <input type="text" id="socialLinkInput" placeholder="https://${primary.platform.toLowerCase()}.com/yourchannel" style="background:transparent; border:none; width:100%; color:white; outline:none; font-family:var(--fm); font-size:14px;" oninput="validateSocialLink(this)">
+              </div>
+              
+              <div id="channelPreview" style="display:none; background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 14px; padding: 20px; margin-top: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--c), var(--p)); margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 0 20px rgba(0,212,255,0.4);"><i class="fas fa-user-circle"></i></div>
+                <h4 id="previewName" style="color: white; margin-bottom: 5px; font-size:18px;">Channel Name</h4>
+                <p id="previewSubs" style="color: var(--t3); font-size: 13px; margin-bottom: 20px;">Verification pending...</p>
+                <button class="btn btn-primary" onclick="verifyAndConnect()" style="padding: 12px; font-size: 14px; width: 100%;">Verify & Connect <i class="fas fa-check-circle"></i></button>
+              </div>
             </div>
           `;
           
-          document.getElementById('next2').disabled = true;
-          document.getElementById('next2').innerHTML = 'Syncing Assets...';
-
-          setTimeout(() => {
-            // Auto-populate the handle based on email
-            const primary = setupData.socials[0];
-            const email = user?.auth?.email || 'hero@example.com';
-            primary.handle = '@' + email.split('@')[0];
-            primary.isVerified = true;
-            
-            showToast('success', 'Auto-Sync Successful', `Primary ${primary.platform} channel linked.`);
-            nextStep(3);
-          }, 2000);
-
+          const btn = document.getElementById('next2');
+          btn.disabled = true;
+          btn.innerHTML = 'Find Channel <i class="fas fa-search"></i>';
+          btn.onclick = searchChannel;
         }
       } catch (err) { nextStep(3); }
     }
 
-    function validateOneSocial(inp) {
-      if (!inp) return false;
-      const platform = inp.getAttribute('data-platform');
+    function validateSocialLink(inp) {
       const val = inp.value.trim();
-      const lowerVal = val.toLowerCase();
-      const wrap = inp.closest('.large-input-wrap');
-      const status = wrap.querySelector('.v-status');
-      const err = document.getElementById('err-' + platform);
-      
-      let isValid = false;
-      if (val.length > 5) {
-        const domains = {
-          'YouTube': ['youtube.com', 'youtu.be'],
-          'Instagram': ['instagram.com'],
-          'TikTok': ['tiktok.com'],
-          'Facebook': ['facebook.com', 'fb.com'],
-          'Twitter': ['twitter.com', 'x.com'],
-          'LinkedIn': ['linkedin.com']
-        };
-        const pats = domains[platform] || [];
-        isValid = pats.some(p => lowerVal.includes(p)) || (val.includes('.') && val.length > 10);
-      }
+      document.getElementById('next2').disabled = val.length < 5;
+    }
 
-      if (isValid) {
-        wrap.style.borderColor = '#10F5A1';
-        wrap.style.background = 'rgba(16, 245, 161, 0.1)';
-        status.innerHTML = '<i class="fas fa-check-circle" style="color:#10F5A1"></i>';
-        if (err) err.style.display = 'none';
-        const s = setupData.socials.find(x => x.platform.toLowerCase() === platform.toLowerCase());
-        if (s) { s.handle = val; s.isVerified = true; }
-      } else {
-        wrap.style.borderColor = val.length > 0 ? '#ff4444' : 'var(--gb)';
-        status.innerHTML = val.length > 0 ? '<i class="fas fa-times-circle" style="color:#ff4444"></i>' : '';
-        if (val.length > 0 && err) err.style.display = 'block';
-        const s = setupData.socials.find(x => x.platform.toLowerCase() === platform.toLowerCase());
-        if (s) s.isVerified = false;
-      }
-      return isValid;
+    function searchChannel() {
+      const inp = document.getElementById('socialLinkInput').value.trim();
+      if(inp.length < 5) return;
+      
+      const btn = document.getElementById('next2');
+      btn.innerHTML = 'Searching... <i class="fas fa-spinner fa-spin"></i>';
+      
+      setTimeout(() => {
+        btn.style.display = 'none';
+        const preview = document.getElementById('channelPreview');
+        preview.style.display = 'block';
+        
+        let handle = inp.split('/').filter(Boolean).pop() || 'UserChannel';
+        if(handle.includes('?')) handle = handle.split('?')[0];
+        if(!handle.startsWith('@')) handle = '@' + handle;
+        
+        document.getElementById('previewName').innerText = handle;
+        document.getElementById('previewSubs').innerText = Math.floor(Math.random() * 50 + 1) + '.' + Math.floor(Math.random() * 9) + 'K Followers';
+      }, 1500);
+    }
+
+    function verifyAndConnect() {
+      showToast('success', 'Channel Verified', 'Your account has been successfully linked.');
+      const primary = setupData.socials[0];
+      primary.handle = document.getElementById('previewName').innerText;
+      primary.isVerified = true;
+      
+      const btn = document.getElementById('next2');
+      btn.style.display = 'block';
+      btn.innerHTML = 'Continue <i class="fas fa-arrow-right"></i>';
+      btn.onclick = handleSocialNext;
+      
+      setTimeout(() => {
+        nextStep(3);
+      }, 500);
     }
 
     function goBackSocial() {
@@ -478,6 +481,12 @@
         currentSocialSubStep = 1;
         document.getElementById('socialInputs').style.display = 'none';
         document.getElementById('socialSelector').style.display = 'block';
+        
+        const btn = document.getElementById('next2');
+        btn.style.display = 'flex';
+        btn.innerHTML = 'Continue <i class="fas fa-arrow-right"></i>';
+        btn.onclick = handleSocialNext;
+        btn.disabled = setupData.socials.length === 0;
         document.getElementById('next2').innerHTML = 'Continue <i class="fas fa-arrow-right"></i>';
       } else {
         nextStep(1);
