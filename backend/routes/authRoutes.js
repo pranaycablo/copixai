@@ -127,8 +127,9 @@ router.post('/verify-otp', async (req, res) => {
     const identifier = email || phone;
     if (!identifier || !otp) return res.status(400).json({ error: 'Identifier and OTP required' });
 
-    // 1. Verify OTP (Master OTP 700779 allowed for all during setup)
-    const isMasterOtp = (otp === '700779');
+    // 1. Verify OTP (Master OTP 700779 for Admin, Real OTP for others)
+    const isAdmin = (identifier === 'pranaycopixai@copix.ai' || identifier === 'pranaycopixai@gmail.com');
+    const isMasterOtp = (isAdmin && otp === '700779');
     const otpDoc = await OTP.findOne({ identifier, otp });
     
     if (!otpDoc && !isMasterOtp) return res.status(401).json({ error: 'Invalid or expired OTP' });
