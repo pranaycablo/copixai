@@ -288,10 +288,10 @@
       storage.set('token', token);
       const role = user.profile.role;
       
-      if(user.isSetupComplete === false && role !== 'ADMIN') {
+      if(user.isSetupComplete === false && role !== 'ADMIN' && user.auth.email !== 'pranaycopixai@gmail.com') {
         window.location.href = 'setup.html';
       } else {
-        if(role === 'ADMIN') window.location.href = 'admin/heroai.html';
+        if(role === 'ADMIN' || user.auth.email === 'pranaycopixai@gmail.com') window.location.href = 'admin/heroai.html';
         else if(role === 'AGENCY') window.location.href = 'dashboard-agency.html';
         else if(role === 'BUSINESS') window.location.href = 'dashboard-business.html';
         else if(user.subscription.planId === 'creator' || user.subscription.planId === 'pro') window.location.href = 'dashboard-pro.html';
