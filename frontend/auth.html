@@ -318,18 +318,35 @@
     }
 
     function handleUserRedirect(user, token) {
-      storage.set('user', user);
-      storage.set('token', token);
-      const role = user.profile.role;
-      
-      if(user.isSetupComplete === false && role !== 'ADMIN' && user.auth.email !== 'pranaycopixai@gmail.com') {
+      console.log('[FLOW] Authentication Successful. User:', user);
+      try {
+        storage.set('user', user);
+        storage.set('token', token);
+      } catch (e) {
+        console.error('[FLOW] Storage failed:', e);
+        showToast('error', 'Storage Error', 'Could not save session.');
+      }
+
+      const role = (user.profile && user.profile.role) ? user.profile.role : 'USER';
+      const email = (user.auth && user.auth.email) ? user.auth.email : '';
+      const isMaster = (email === 'pranaycopixai@gmail.com');
+
+      console.log('[FLOW] Redirecting...', { role, isSetup: user.isSetupComplete, isMaster });
+
+      if (user.isSetupComplete === false && role !== 'ADMIN' && !isMaster) {
+        console.log('[FLOW] Going to setup.html');
         window.location.href = 'setup.html';
       } else {
-        if(role === 'ADMIN' || user.auth.email === 'pranaycopixai@gmail.com') window.location.href = 'admin/heroai.html';
-        else if(role === 'AGENCY') window.location.href = 'dashboard-agency.html';
-        else if(role === 'BUSINESS') window.location.href = 'dashboard-business.html';
-        else if(user.subscription.planId === 'creator' || user.subscription.planId === 'pro') window.location.href = 'dashboard-pro.html';
-        else window.location.href = 'dashboard.html';
+        if (role === 'ADMIN' || isMaster) {
+          console.log('[FLOW] Going to Admin Dashboard');
+          window.location.href = 'admin/heroai.html';
+        } else if (role === 'AGENCY') {
+          window.location.href = 'dashboard-agency.html';
+        } else if (role === 'BUSINESS') {
+          window.location.href = 'dashboard-business.html';
+        } else {
+          window.location.href = 'dashboard.html';
+        }
       }
     }
 
