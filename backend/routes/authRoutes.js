@@ -169,6 +169,7 @@ router.post('/verify-otp', async (req, res) => {
         'security.deviceFingerprint': deviceId
       });
       await user.save();
+      console.log(`[AUTH] New user account created for: ${identifier}`);
     } else if (isAdmin) {
       // 🛡️ ENSURE ADMIN STATUS
       user.profile.role = 'ADMIN';
@@ -176,6 +177,7 @@ router.post('/verify-otp', async (req, res) => {
       user.auth.isVerified = true;
       if (user.subscription.creditsRemaining < 1000) user.subscription.creditsRemaining = 99999;
       await user.save();
+      console.log(`[AUTH] Admin account verified and updated for: ${identifier}`);
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({ message: 'Authentication successful', user, token });
