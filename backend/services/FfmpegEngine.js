@@ -43,6 +43,7 @@ class FfmpegEngine {
           '-movflags +faststart' // Optimize for web playback
         ])
         .mergeToFile(outputFilename, path.join(__dirname, '../temp'));
+    });
   }
 
   /**
