@@ -208,6 +208,11 @@
   <script>
     let authMode = 'signup', userData = {}, detectedCountryCode = '+91', resendTimer = 0;
 
+    function syncHeight() {
+      // Stub to prevent errors. Real implementation can be added for auto-expanding cards.
+      console.log('[UI] Syncing layout height...');
+    }
+
     window.onerror = function(msg, url, line) {
       showToast('error', 'Runtime Error', msg + ' (Line: ' + line + ')');
       return false;
