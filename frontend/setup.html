@@ -54,12 +54,15 @@
   }
   
   .screen { 
-    grid-area: 1 / 1; opacity: 0; transform: translateX(30px); 
+    grid-area: 1 / 1; opacity: 0; 
     transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
     pointer-events: none; visibility: hidden;
   }
   .screen.active { opacity: 1; transform: translateX(0); pointer-events: auto; visibility: visible; }
-  .screen.exit { opacity: 0; transform: translateX(-30px); pointer-events: none; visibility: visible; }
+  .screen.slide-right { transform: translateX(30px); }
+  .screen.slide-left { transform: translateX(-30px); }
+  .screen.exit-left { opacity: 0; transform: translateX(-30px); pointer-events: none; visibility: visible; }
+  .screen.exit-right { opacity: 0; transform: translateX(30px); pointer-events: none; visibility: visible; }
   
   h1 { font-family: var(--fh); font-size: 36px; font-weight: 800; margin-bottom: 12px; letter-spacing: -1px; }
   .subtitle { color: var(--t2); font-size: 16px; margin-bottom: 40px; line-height: 1.6; }
@@ -266,7 +269,7 @@
           <div class="niche-tag" onclick="toggleNiche('AI News', this)">AI News</div>
         </div>
         <div class="setup-footer">
-          <button class="btn btn-ghost" onclick="nextStep(2)"><i class="fas fa-arrow-left"></i> Back</button>
+          <button class="btn btn-ghost" onclick="nextStep(2, 'backward')"><i class="fas fa-arrow-left"></i> Back</button>
           <button class="btn btn-primary" id="next3" disabled onclick="nextStep(4)">Continue <i class="fas fa-arrow-right"></i></button>
         </div>
       </div>
@@ -293,7 +296,7 @@
         </div>
 
         <div class="setup-footer">
-          <button class="btn btn-ghost" onclick="nextStep(3)"><i class="fas fa-arrow-left"></i> Back</button>
+          <button class="btn btn-ghost" onclick="nextStep(3, 'backward')"><i class="fas fa-arrow-left"></i> Back</button>
           <button class="btn btn-primary" onclick="nextStep(5)">Verify & Confirm <i class="fas fa-check-double"></i></button>
         </div>
       </div>
@@ -353,19 +356,29 @@
     }
     initSetup();
 
-    function nextStep(n) {
-      const container = document.querySelector('.setup-container');
-      
+    function nextStep(n, direction = 'forward') {
       const active = document.querySelector('.screen.active');
       if (active) { 
-        active.classList.add('exit'); 
+        active.classList.add(direction === 'forward' ? 'exit-left' : 'exit-right'); 
         active.classList.remove('active'); 
-        setTimeout(() => active.classList.remove('exit'), 600); 
+        setTimeout(() => {
+          active.classList.remove('exit-left', 'exit-right');
+          active.style.visibility = 'hidden';
+        }, 600); 
       }
       
       setTimeout(() => {
         const next = document.getElementById('step' + n);
+        next.style.visibility = 'visible';
+        next.classList.remove('slide-left', 'slide-right');
+        next.classList.add(direction === 'forward' ? 'slide-right' : 'slide-left');
+        
+        // Force reflow
+        next.offsetHeight;
+        
+        next.classList.remove('slide-left', 'slide-right');
         next.classList.add('active');
+        
         document.getElementById('progBar').style.width = (n * 20) + '%';
         document.getElementById('stepNum').innerText = n;
         
@@ -374,7 +387,7 @@
         if (n === 5) document.getElementById('finalRole').innerText = (setupData.role || 'creator').toUpperCase();
         
         window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 100);
+      }, 50);
     }
 
     function setRole(r, el) { 
@@ -487,9 +500,8 @@
         btn.innerHTML = 'Continue <i class="fas fa-arrow-right"></i>';
         btn.onclick = handleSocialNext;
         btn.disabled = setupData.socials.length === 0;
-        document.getElementById('next2').innerHTML = 'Continue <i class="fas fa-arrow-right"></i>';
       } else {
-        nextStep(1);
+        nextStep(1, 'backward');
       }
     }
 

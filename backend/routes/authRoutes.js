@@ -250,15 +250,19 @@ router.post('/update-profile', async (req, res) => {
     
     if (userRole) {
       user.digitalIdentity.userRole = userRole;
-      if (userRole === 'agency') {
+      const r = userRole.toUpperCase();
+      if (r === 'AGENCY') {
         user.profile.role = 'AGENCY';
         user.subscription.planId = 'agency';
-      } else if (userRole === 'business') {
+      } else if (r === 'BUSINESS') {
         user.profile.role = 'BUSINESS';
         user.subscription.planId = 'business';
+      } else if (r === 'CREATOR') {
+        user.profile.role = 'CREATOR';
+        user.subscription.planId = 'pro'; // Creator gets Pro features
       } else {
         user.profile.role = 'USER';
-        user.subscription.planId = userRole; 
+        user.subscription.planId = 'trial';
       }
     }
     

@@ -291,6 +291,9 @@
       document.getElementById('h1').innerText = m === 'signup' ? 'Join the Elite' : 'Welcome Back';
       document.getElementById('sub').innerText = m === 'signup' ? 'Enter your details to architect your content empire.' : 'Sign in to access your autonomous AI factory.';
       document.getElementById('idLabel').innerText = m === 'signup' ? 'Email Address' : 'Email or Mobile';
+      
+      // Fix: Always return to input screen when switching modes
+      showScreen('inputScreen');
       syncHeight();
     }
 

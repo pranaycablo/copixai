@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const mongoose = require('mongoose');
@@ -148,6 +149,23 @@ function startServer() {
       }
     }
   }
+
+  // 🧹 AUTO-CLEANUP JOB: Purge temp files every 2 hours to maintain 1000% performance
+  setInterval(() => {
+    const tempDir = path.join(__dirname, 'temp');
+    if (fs.existsSync(tempDir)) {
+      const files = fs.readdirSync(tempDir);
+      const now = Date.now();
+      files.forEach(file => {
+        const filePath = path.join(tempDir, file);
+        const stats = fs.statSync(filePath);
+        if (now - stats.mtimeMs > 2 * 60 * 60 * 1000) { // 2 hours old
+           fs.unlinkSync(filePath);
+           console.log(`[CLEANUP] Purged stale asset: ${file}`);
+        }
+      });
+    }
+  }, 2 * 60 * 60 * 1000);
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 HeroAi Enterprise Live at: http://${ip}:${PORT}`);
