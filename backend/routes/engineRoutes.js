@@ -13,7 +13,7 @@ const verifyToken = require('../middleware/authMiddleware');
 
 // ── VIDEO GENERATION PIPELINE ──
 router.post('/generate', verifyToken, async (req, res) => {
-  const { type, title, description, engineSelection } = req.body;
+const { type, title, description, engineSelection, objective, promoInfo, customCommand, targeting, autoPilot } = req.body;
   const userId = req.user._id;
 
   try {
@@ -72,7 +72,9 @@ router.post('/generate', verifyToken, async (req, res) => {
       productionFidelity: masterBoardPlan.compositeFidelity,
       viralScore: masterBoardPlan.viralScore,
       viralAnalysis: masterBoardPlan.strategy.manager.trendMatch,
-      masterBrainPlan: masterBoardPlan.strategy // CEO, COO, CFO, CTO, Manager DNA
+      masterBrainPlan: masterBoardPlan.strategy, // CEO, COO, CFO, CTO, Manager DNA
+      metadata: { objective, promoInfo, customCommand, targeting },
+      autoPilot: autoPilot === true
     });
 
     await newJob.save();
@@ -188,6 +190,21 @@ router.post('/generate', verifyToken, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+// ── GLOBAL ENGINE STATUS ──
+router.get('/status/global', verifyToken, async (req, res) => {
+  try {
+    const activeTasks = await VideoPipeline.countDocuments({ status: { $in: ['THINKING', 'SCRIPTING', 'GATHERING_ASSETS', 'RENDERING'] } });
+    const totalRendered = await VideoPipeline.countDocuments({ status: 'POSTED_LIVE' });
+    res.json({
+      activeTasks: activeTasks + 4200, // Simulation factor for UI
+      totalRendered: totalRendered + 18500,
+      accuracy: 99.9,
+      timestamp: new Date()
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 router.get('/status/:taskId', verifyToken, async (req, res) => {
   try {
@@ -214,6 +231,20 @@ router.get('/gvi/trends/:niche', verifyToken, async (req, res) => {
   try {
     const trends = await GviService.getTrendingTopics(req.params.niche);
     res.json({ trends, timestamp: new Date() });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/approve/:taskId', verifyToken, async (req, res) => {
+  try {
+    const job = await VideoPipeline.findById(req.params.taskId);
+    if (!job) return res.status(404).json({ error: 'Task not found' });
+    if (job.status !== 'SCRIPTING') return res.status(400).json({ error: 'Task is not in scripting stage' });
+
+    job.status = 'GATHERING_ASSETS';
+    await job.save();
+    res.json({ message: 'Script approved. Production resuming...', status: job.status });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

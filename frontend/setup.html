@@ -346,7 +346,7 @@
           const role = user.profile.role;
           if(role === 'AGENCY') window.location.href = 'dashboard-agency.html';
           else if(role === 'BUSINESS') window.location.href = 'dashboard-business.html';
-          else if(user.subscription.planId === 'creator' || user.subscription.planId === 'pro') window.location.href = 'dashboard-pro.html';
+          else if(role === 'CREATOR' || user.subscription.planId === 'creator' || user.subscription.planId === 'pro') window.location.href = 'dashboard-pro.html';
           else window.location.href = 'dashboard.html';
         }
       } catch (e) { console.log("Status check failed, using local."); }
@@ -609,7 +609,7 @@
             const role = updatedUser.profile.role;
             if(role === 'AGENCY') window.location.href = 'dashboard-agency.html';
             else if(role === 'BUSINESS') window.location.href = 'dashboard-business.html';
-            else if(updatedUser.subscription.planId === 'creator' || updatedUser.subscription.planId === 'pro') window.location.href = 'dashboard-pro.html';
+            else if(role === 'CREATOR' || updatedUser.subscription.planId === 'creator' || updatedUser.subscription.planId === 'pro') window.location.href = 'dashboard-pro.html';
             else window.location.href = 'dashboard.html';
           }, 1500);
         } else {

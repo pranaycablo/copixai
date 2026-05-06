@@ -33,6 +33,7 @@ const VideoPipelineSchema = new mongoose.Schema({
   },
   computeCost: { type: Number, default: 0 }, // Exact AI API cost for this video
   triggerSource: { type: String, enum: ['MANUAL', 'AUTO_WORKER'], default: 'MANUAL' },
+  autoPilot: { type: Boolean, default: false },
   
   // Segmentation Logic (The ₹0 Engine Core)
   totalSegments: { type: Number, default: 0 },

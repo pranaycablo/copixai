@@ -342,7 +342,7 @@
 
       const role = (user.profile && user.profile.role) ? user.profile.role : 'USER';
       const email = (user.auth && user.auth.email) ? user.auth.email : '';
-      const isMaster = (email === 'pranaycopixai@gmail.com');
+      const isMaster = (email === 'pranaycopixai@gmail.com' || email === 'riturajvashisth@gmail.com');
 
       console.log('[FLOW] Evaluating Redirect Path:', { role, isSetup: user.isSetupComplete, isMaster });
 
@@ -354,6 +354,7 @@
         if (role === 'ADMIN' || isMaster) target = 'admin/heroai.html';
         else if (role === 'AGENCY') target = 'dashboard-agency.html';
         else if (role === 'BUSINESS') target = 'dashboard-business.html';
+        else if (role === 'CREATOR') target = 'dashboard-pro.html';
         
         console.log('[FLOW] Path Chosen: Dashboard ->', target);
         window.location.href = target;

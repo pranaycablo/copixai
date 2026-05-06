@@ -89,7 +89,8 @@ const API = {
     engine: {
         generate: async (type, title) => safeFetch(`${CONFIG.API_BASE_URL}/engine/generate`, { method: 'POST', body: JSON.stringify({ type, title }) }),
         status: async (taskId) => safeFetch(`${CONFIG.API_BASE_URL}/engine/status/${taskId}`),
-        history: async (userId) => safeFetch(`${CONFIG.API_BASE_URL}/engine/history/${userId}`)
+        history: async (userId) => safeFetch(`${CONFIG.API_BASE_URL}/engine/history/${userId}`),
+        approve: async (taskId) => safeFetch(`${CONFIG.API_BASE_URL}/engine/approve/${taskId}`, { method: 'POST' })
     }
 };
 
@@ -165,6 +166,16 @@ class ProductionTracker {
         if (job.status === 'SCRIPTING' || job.status === 'RENDERING' || job.status === 'POSTED_LIVE') {
             this.syncPipelineCards(job);
         }
+
+        // Manual Approval Check
+        if (job.status === 'SCRIPTING' && job.autoPilot === false) {
+            const approveBtn = document.getElementById('approve-script-btn');
+            if (approveBtn) approveBtn.style.display = 'block';
+            if (engineTxt) engineTxt.textContent = 'Awaiting Script Approval...';
+        } else {
+            const approveBtn = document.getElementById('approve-script-btn');
+            if (approveBtn) approveBtn.style.display = 'none';
+        }
     }
 
     syncPipelineCards(job) {
@@ -184,6 +195,16 @@ class ProductionTracker {
 }
 
 const tracker = new ProductionTracker();
+
+async function approveScript() {
+    if (!tracker.currentTaskId) return;
+    const res = await API.engine.approve(tracker.currentTaskId);
+    if (res) {
+        toast('success', 'Script Approved', 'Production is resuming...');
+        const btn = document.getElementById('approve-script-btn');
+        if (btn) btn.style.display = 'none';
+    }
+}
 
 function logout() {
     storage.clear();

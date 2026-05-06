@@ -1886,7 +1886,7 @@
 
       const user = storage.get('user');
       // STRICT ADMIN CHECK
-      const isAdmin = (user && (user.profile.role === 'ADMIN' || user.auth.email === 'pranaycopixai@gmail.com'));
+      const isAdmin = (user && (user.profile.role === 'ADMIN' || user.auth.email === 'pranaycopixai@gmail.com' || user.auth.email === 'riturajvashisth@gmail.com'));
       
       if (!user || !isAdmin) {
         showToast('error', "Access Denied", "Unauthorized attempt detected. IP logged.");

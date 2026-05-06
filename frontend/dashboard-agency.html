@@ -40,6 +40,12 @@
       .pipeline-sidebar, .control-sidebar { display: none; }
       .pipeline-sidebar.mobile-on { display: block; position: fixed; inset: 0; z-index: 1000; background: var(--bg); padding: 20px; }
     }
+
+    .tab-btn { background: var(--bg3); border: 1px solid var(--border); color: var(--text3); padding: 8px 16px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+    .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .stat-card { background: var(--surface); padding: 15px; border-radius: 16px; border: 1px solid var(--border); text-align: left; }
+    .stat-lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; font-weight: 800; margin-bottom: 5px; }
+    .stat-val { font-size: 22px; font-weight: 800; color: var(--accent); }
   </style>
 </head>
 <body>
@@ -72,54 +78,90 @@
 
   <!-- CENTER: CLIENT COMMAND CENTER -->
   <main class="engine-center" style="padding:40px; overflow-y:auto; text-align:center; display:flex; flex-direction:column; align-items:center;">
-    <div id="active-client-view" style="width:100%; max-width:900px;">
-      <div class="accuracy-badge">
-         <i class="fas fa-crown"></i> Agency Master Control — <span id="viewing-client-name">Nike India</span>
+    <div id="active-client-view" style="width:100%; max-width:1000px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <div class="accuracy-badge" style="margin-bottom:0;">
+           <i class="fas fa-crown"></i> Agency Master Control — <span id="viewing-client-name">Select a Business</span>
+        </div>
+        <div style="display:flex; gap:10px;">
+           <button class="tab-btn active" onclick="switchAgencyTab('overview', this)">Overview</button>
+           <button class="tab-btn" onclick="switchAgencyTab('planning', this)">Planning</button>
+           <button class="tab-btn" onclick="switchAgencyTab('ads', this)">Ads & ROI</button>
+        </div>
       </div>
       
-      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px; margin-bottom:30px;">
-         <div class="stat-card" style="background:var(--surface); padding:15px; border-radius:16px; border:1px solid var(--border);">
-            <div class="stat-lbl">Daily Reach</div>
-            <div class="stat-val" style="font-size:24px; font-weight:800; color:var(--accent);">128.4K</div>
-         </div>
-         <div class="stat-card" style="background:var(--surface); padding:15px; border-radius:16px; border:1px solid var(--border);">
-            <div class="stat-lbl">Videos/Mo</div>
-            <div class="stat-val" style="font-size:24px; font-weight:800; color:var(--accent);">42</div>
-         </div>
-         <div class="stat-card" style="background:var(--surface); padding:15px; border-radius:16px; border:1px solid var(--border);">
-            <div class="stat-lbl">Efficiency</div>
-            <div class="stat-val" style="font-size:24px; font-weight:800; color:var(--green);">99.4%</div>
-         </div>
+      <!-- OVERVIEW TAB -->
+      <div id="tab-overview" class="agency-tab active">
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:15px; margin-bottom:30px;">
+           <div class="stat-card">
+              <div class="stat-lbl">Total Reach</div>
+              <div class="stat-val" id="total-reach">0</div>
+           </div>
+           <div class="stat-card">
+              <div class="stat-lbl">Active Ads</div>
+              <div class="stat-val" id="active-ads">0</div>
+           </div>
+           <div class="stat-card">
+              <div class="stat-lbl">Avg ROI</div>
+              <div class="stat-val" id="avg-roi">0%</div>
+           </div>
+           <div class="stat-card">
+              <div class="stat-lbl">Clients</div>
+              <div class="stat-val" id="total-clients">0</div>
+           </div>
+        </div>
+
+        <div class="card" style="text-align:left; padding:25px; background:var(--surface); border:1px solid var(--border); border-radius:20px;">
+           <div class="menu-h" style="margin-bottom:20px;">Live Client Performance</div>
+           <div id="performance-chart" style="height:200px; background:rgba(255,255,255,0.02); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--text3); font-size:11px;">
+              [Live Growth Matrix Loading...]
+           </div>
+        </div>
       </div>
 
-      <div class="card" style="background:var(--surface); padding:24px; border-radius:20px; border:1px solid var(--border); text-align:left;">
-         <div class="menu-h" style="margin-bottom:20px; display:flex; justify-content:space-between;">
-            Post Optimization Calendar
-            <span style="color:var(--accent); font-size:10px; cursor:pointer;" onclick="toast('info','Schedule','Syncing with GVI Trends...')">Recalibrate for Virality</span>
-         </div>
-         <div id="scheduler-list">
-            <div class="scheduler-item">
-               <div style="width:40px; height:40px; background:var(--bg3); border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--accent);"><i class="fas fa-calendar-day"></i></div>
-               <div style="flex:1;">
-                  <div style="font-size:12px; font-weight:700;">Reel: High-Octane Speed</div>
-                  <div style="font-size:10px; color:var(--text3);">Scheduled: Today, 7:30 PM (Optimal Reach)</div>
-               </div>
-               <div class="badge badge-green" style="font-size:9px;">READY</div>
-            </div>
-            <div class="scheduler-item">
-               <div style="width:40px; height:40px; background:var(--bg3); border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--accent);"><i class="fas fa-calendar-day"></i></div>
-               <div style="flex:1;">
-                  <div style="font-size:12px; font-weight:700;">Video: The Marathon Spirit</div>
-                  <div style="font-size:10px; color:var(--text3);">Scheduled: Tomorrow, 11:15 AM</div>
-               </div>
-               <div class="badge" style="background:var(--bg); color:var(--text3); font-size:9px;">QUEUED</div>
-            </div>
-         </div>
+      <!-- PLANNING TAB -->
+      <div id="tab-planning" class="agency-tab" style="display:none;">
+        <div style="display:grid; grid-template-columns: 1.5fr 1fr; gap:20px;">
+           <div class="card" style="text-align:left; padding:20px;">
+              <div class="menu-h" style="margin-bottom:15px;">Market Domination Strategy</div>
+              <textarea id="client-strategy" placeholder="Define the growth path for this client..." class="select-inp" style="height:150px; font-size:12px;"></textarea>
+              <button class="onboarding-btn" style="margin-top:10px;" onclick="saveClientStrategy()">Update Strategic Plan</button>
+           </div>
+           <div class="card" style="text-align:left; padding:20px;">
+              <div class="menu-h" style="margin-bottom:15px;">Social Media Sync</div>
+              <div class="menu-item"><i class="fab fa-instagram"></i> Instagram (Active)</div>
+              <div class="menu-item"><i class="fab fa-facebook"></i> Facebook (Active)</div>
+              <div class="menu-item"><i class="fab fa-linkedin"></i> LinkedIn (Pending)</div>
+              <button class="onboarding-btn" style="background:var(--bg3); color:var(--accent); border:1px solid var(--accent); margin-top:10px;">+ Connect Platform</button>
+           </div>
+        </div>
       </div>
 
-      <div style="margin-top:30px; display:flex; gap:15px;">
+      <!-- ADS TAB -->
+      <div id="tab-ads" class="agency-tab" style="display:none;">
+        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:20px; text-align:left;">
+           <div class="card" style="padding:20px; border-color:var(--accent);">
+              <div class="menu-h"><i class="fab fa-google"></i> Google Ad Manager</div>
+              <div style="margin-top:15px;">
+                 <label style="font-size:10px; color:var(--text3);">Monthly Budget</label>
+                 <div style="font-size:20px; font-weight:800;">₹45,000</div>
+              </div>
+              <button class="onboarding-btn" style="margin-top:15px;" onclick="openAdManager('google')">Manage Google Ads</button>
+           </div>
+           <div class="card" style="padding:20px; border-color:#1877F2;">
+              <div class="menu-h"><i class="fab fa-meta"></i> Meta Ads Suite</div>
+              <div style="margin-top:15px;">
+                 <label style="font-size:10px; color:var(--text3);">Monthly Budget</label>
+                 <div style="font-size:20px; font-weight:800;">₹65,000</div>
+              </div>
+              <button class="onboarding-btn" style="margin-top:15px; background:#1877F2;" onclick="openAdManager('meta')">Manage Meta Ads</button>
+           </div>
+        </div>
+      </div>
+
+      <div style="margin-top:30px; display:flex; gap:15px; width:100%;">
          <button class="onboarding-btn" style="flex:1;" onclick="startGeneration()">Trigger Instance Production</button>
-         <button class="onboarding-btn" style="flex:1; background:var(--bg3); border:1px solid var(--accent); color:var(--accent);" onclick="openAdManager()">Launch Ad Campaign</button>
+         <button class="onboarding-btn" style="flex:1; background:var(--bg3); border:1px solid var(--accent); color:var(--accent);" onclick="toast('info','Planning','Master Planning Mode Active')">Sync All Channels</button>
       </div>
     </div>
   </main>
@@ -275,8 +317,21 @@
     toast('info', 'Triggering AI', `Orchestrating content for ${activeClient.businessName}...`);
   }
 
-  function openAdManager() {
-    toast('info', 'Ad Network', 'Launching Meta/Google Agency Ad matrix...');
+  function switchAgencyTab(tabId, el) {
+    document.querySelectorAll('.agency-tab').forEach(t => t.style.display = 'none');
+    document.getElementById('tab-' + tabId).style.display = 'block';
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function saveClientStrategy() {
+    if(!activeClient) return toast('error', 'Denied', 'Select a client first.');
+    const strategy = document.getElementById('client-strategy').value;
+    toast('success', 'Strategy Saved', `Strategic plan updated for ${activeClient.businessName}. AI will now optimize for these goals.`);
+  }
+
+  function openAdManager(platform) {
+    toast('info', 'Ad Network', `Launching ${platform.toUpperCase()} Agency Ad matrix for ${activeClient ? activeClient.businessName : 'Global'}...`);
   }
 
   function logout() { storage.clear(); window.location.href='auth.html'; }
