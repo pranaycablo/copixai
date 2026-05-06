@@ -185,12 +185,12 @@
           <h1>Enter OTP</h1>
           <p class="subtitle" id="otpTarget">Sent to your device.</p>
           <div class="otp-wrap">
-            <input type="text" maxlength="1" class="otp-box" onkeyup="otpMove(this,0)">
-            <input type="text" maxlength="1" class="otp-box" onkeyup="otpMove(this,1)">
-            <input type="text" maxlength="1" class="otp-box" onkeyup="otpMove(this,2)">
-            <input type="text" maxlength="1" class="otp-box" onkeyup="otpMove(this,3)">
-            <input type="text" maxlength="1" class="otp-box" onkeyup="otpMove(this,4)">
-            <input type="text" maxlength="1" class="otp-box" onkeyup="otpMove(this,5)">
+            <input type="text" maxlength="1" class="otp-box" oninput="otpMove(this,0)" onkeydown="otpBack(event,0)" onpaste="otpPaste(event)">
+            <input type="text" maxlength="1" class="otp-box" oninput="otpMove(this,1)" onkeydown="otpBack(event,1)" onpaste="otpPaste(event)">
+            <input type="text" maxlength="1" class="otp-box" oninput="otpMove(this,2)" onkeydown="otpBack(event,2)" onpaste="otpPaste(event)">
+            <input type="text" maxlength="1" class="otp-box" oninput="otpMove(this,3)" onkeydown="otpBack(event,3)" onpaste="otpPaste(event)">
+            <input type="text" maxlength="1" class="otp-box" oninput="otpMove(this,4)" onkeydown="otpBack(event,4)" onpaste="otpPaste(event)">
+            <input type="text" maxlength="1" class="otp-box" oninput="otpMove(this,5)" onkeydown="otpBack(event,5)" onpaste="otpPaste(event)">
           </div>
           <button class="btn btn-primary" id="verifyBtn" onclick="verifyFinal()">
             <span>Verify & Connect <i class="fas fa-check-circle"></i></span>
@@ -343,6 +343,22 @@
 
     function otpMove(el, idx) {
       if (el.value && idx < 5) document.querySelectorAll('.otp-box')[idx + 1].focus();
+      checkOtpFinal();
+    }
+    function otpBack(e, idx) {
+      if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+        document.querySelectorAll('.otp-box')[idx - 1].focus();
+      }
+    }
+    function otpPaste(e) {
+      const data = e.clipboardData.getData('text').trim();
+      if (data.length === 6) {
+        const boxes = document.querySelectorAll('.otp-box');
+        data.split('').forEach((char, i) => { if(boxes[i]) boxes[i].value = char; });
+        checkOtpFinal();
+      }
+    }
+    function checkOtpFinal() {
       const otp = Array.from(document.querySelectorAll('.otp-box')).map(b => b.value).join('');
       if (otp.length === 6) verifyFinal();
     }
