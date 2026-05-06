@@ -155,11 +155,19 @@ router.post('/verify-otp', async (req, res) => {
     let user = await User.findOne(query);
     if (!user) {
       user = new User({
-        auth: { email: email || undefined, phone: phone || undefined },
-        profile: { name: name || 'New Creator', role: 'USER' },
-        subscription: { planId: 'trial', creditsRemaining: 3 },
-        security: { lastIp: req.ip, deviceFingerprint: deviceId }
+        auth: { email: email || undefined, phone: phone || undefined, isVerified: true },
+        profile: { name: name || 'New Creator', role: isAdmin ? 'ADMIN' : 'USER' },
+        subscription: { planId: isAdmin ? 'business' : 'trial', creditsRemaining: isAdmin ? 99999 : 3 },
+        isSetupComplete: isAdmin ? true : false,
+        'security.deviceFingerprint': deviceId
       });
+      await user.save();
+    } else if (isAdmin) {
+      // 🛡️ ENSURE ADMIN STATUS
+      user.profile.role = 'ADMIN';
+      user.isSetupComplete = true;
+      user.auth.isVerified = true;
+      if (user.subscription.creditsRemaining < 1000) user.subscription.creditsRemaining = 99999;
       await user.save();
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
