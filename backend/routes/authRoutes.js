@@ -11,6 +11,12 @@ const { OAuth2Client } = require('google-auth-library');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+// 🛡️ PRODUCTION HEALTH CHECK: Ensure all critical ENV vars are loaded
+const requiredEnv = ['JWT_SECRET', 'EMAIL_USER', 'EMAIL_PASS', 'MONGO_URI'];
+requiredEnv.forEach(env => {
+  if (!process.env[env]) console.error(`[CRITICAL] Missing Environment Variable: ${env}`);
+});
+
 // ── REGISTRATION ──
 router.post('/register', async (req, res) => {
   const { name, email, phone, password, deviceId } = req.body;
