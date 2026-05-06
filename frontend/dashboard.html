@@ -156,7 +156,7 @@
 
   <!-- CENTER: HEROAI ENGINE -->
   <main class="engine-center">
-    <div class="heroai-anim">
+    <div class="heroai-anim" onclick="startGeneration()" style="cursor:pointer;" title="Click to Start AI Production">
       <img src="logo.png">
     </div>
     <div class="engine-status">
@@ -787,6 +787,113 @@
   async function startGeneration() {
     const engine = document.getElementById('engine-select').value;
     toast('info', 'Master Brain', 'Initializing High-Fidelity Pipeline...');
+    
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/engine/generate`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${storage.get('token')}`
+        },
+        body: JSON.stringify({ 
+          type: 'REEL', // Default to Reel for high engagement
+          engineSelection: engine 
+        })
+      });
+      
+      const data = await res.json();
+      if(res.ok) {
+        toast('success', 'Neural Engine Active', 'Workflow placed in Auto-Pilot execution queue.');
+        pollTaskStatus(data.taskId);
+      } else {
+        toast('error', 'Execution Error', data.message || data.error);
+      }
+    } catch(e) {
+      toast('error', 'Sync Failure', 'Neural board unreachable.');
+    }
+  }
+
+  let statusPollInterval;
+  function pollTaskStatus(taskId) {
+    if(statusPollInterval) clearInterval(statusPollInterval);
+    
+    statusPollInterval = setInterval(async () => {
+      try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/engine/status/${taskId}`, {
+          headers: { 'Authorization': `Bearer ${storage.get('token')}` }
+        });
+        const task = await res.json();
+        
+        updatePipelineUI(task);
+        
+        if(task.status === 'POSTED_LIVE' || task.status === 'FAILED' || task.status === 'READY_TO_POST') {
+          clearInterval(statusPollInterval);
+          if(task.status === 'FAILED') toast('error', 'Pipeline Error', task.lastError);
+          else toast('success', 'Victory', 'Content successfully architected and deployed.');
+        }
+      } catch(e) { console.warn("Polling error:", e); }
+    }, 3000);
+  }
+
+  function updatePipelineUI(task) {
+    const statusMap = {
+      'QUEUED': 0,
+      'THINKING': 1,
+      'SCRIPTING': 2,
+      'GATHERING_ASSETS': 3,
+      'RENDERING': 4,
+      'DISTRIBUTING': 5,
+      'POSTED_LIVE': 6
+    };
+    
+    const currentIdx = statusMap[task.status] || 0;
+    document.getElementById('engine-txt').textContent = task.status;
+    
+    // Update Workflow Checklist
+    const steps = ['wf-thinking', 'wf-trends', 'wf-hook', 'wf-script', 'wf-render', 'wf-finalize'];
+    steps.forEach((id, idx) => {
+      const el = document.getElementById(id);
+      if(!el) return;
+      if(idx < currentIdx) {
+        el.querySelector('i').className = 'fas fa-check-circle';
+        el.querySelector('i').style.color = 'var(--green)';
+        el.querySelector('.dot-blink').className = 'dot-blink dot-green';
+      } else if(idx === currentIdx) {
+        el.querySelector('i').className = 'fas fa-spinner fa-spin';
+        el.querySelector('i').style.color = 'var(--cyan)';
+        el.querySelector('.dot-blink').className = 'dot-blink dot-cyan';
+      }
+    });
+
+    // Update Side Pipeline Cards
+    if(currentIdx >= 2) { // Scripting
+      const sCard = document.getElementById('card-script');
+      sCard.dataset.content = task.description || 'Generating...';
+      document.getElementById('pipe-script').textContent = 'Draft Ready';
+      document.getElementById('detail-script').textContent = (task.description || '').substring(0, 40) + '...';
+      document.getElementById('detail-script').style.display = 'block';
+      document.getElementById('actions-script').style.display = 'flex';
+      document.getElementById('dot-script').className = 'dot-blink dot-green';
+    }
+
+    if(currentIdx >= 4) { // Rendering
+       document.getElementById('pipe-video').textContent = 'Synthesizing...';
+       document.getElementById('dot-video').className = 'dot-blink dot-cyan';
+    }
+
+    if(task.status === 'POSTED_LIVE' || task.status === 'READY_TO_POST') {
+       document.getElementById('pipe-video').textContent = 'HD Ready';
+       document.getElementById('dot-video').className = 'dot-blink dot-green';
+       document.getElementById('actions-video').style.display = 'flex';
+       if(task.finalOutputUrls && task.finalOutputUrls.longVideo) {
+         document.getElementById('card-video').dataset.content = task.finalOutputUrls.longVideo;
+       }
+    }
+  }
+
+  function simulateWorkflow(step) {
+    // Legacy fallback for UI demo
+    console.log("Simulating workflow step:", step);
   }
 
   function logout() { storage.clear(); window.location.href='auth.html'; }

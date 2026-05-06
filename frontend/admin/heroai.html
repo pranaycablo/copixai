@@ -1841,6 +1841,50 @@
       showToast('info', "System Online", "Admin Session Secured. Welcome back.");
     };
 
+    async function viewCredentials(userId) {
+      try {
+        const token = storage.get('token');
+        const res = await fetch(`${CONFIG.API_BASE_URL}/admin/users/${userId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const user = await res.json();
+        
+        let content = `<div style="text-align:left; font-family:var(--font-mono); font-size:12px; color:var(--cyan); line-height:1.6;">`;
+        content += `<strong>USER:</strong> ${user.profile.name}<br>`;
+        content += `<strong>EMAIL:</strong> ${user.auth.email || 'N/A'}<br>`;
+        content += `<strong>PHONE:</strong> ${user.auth.phone || 'N/A'}<br><hr style="border:0; border-top:1px solid var(--border); margin:10px 0;">`;
+        
+        if (user.socialLinks && user.socialLinks.length > 0) {
+          user.socialLinks.forEach(link => {
+            content += `<div style="margin-bottom:10px; padding:10px; background:var(--bg3); border-radius:8px; border:1px solid var(--border);">`;
+            content += `<span style="color:var(--amber);">[${link.platform.toUpperCase()}]</span><br>`;
+            content += `URL: ${link.url}<br>`;
+            if (link.accessToken) content += `TOKEN: <span style="filter:blur(4px);" onclick="this.style.filter='none'">*** ${link.accessToken.slice(-8)}</span><br>`;
+            content += `STATUS: ${link.isConnected ? 'CONNECTED' : 'DISCONNECTED'}`;
+            content += `</div>`;
+          });
+        } else {
+          content += `<p style="color:var(--text-muted);">No social links connected.</p>`;
+        }
+        content += `</div>`;
+
+        // We use a custom overlay for this
+        const overlay = document.createElement('div');
+        overlay.style = "position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px;";
+        overlay.onclick = (e) => { if(e.target === overlay) overlay.remove(); };
+        
+        const modal = document.createElement('div');
+        modal.style = "width:100%; max-width:500px; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:32px; box-shadow:0 20px 50px rgba(0,0,0,0.5);";
+        modal.innerHTML = `<h2 style="font-family:var(--font-head); margin-bottom:20px; color:var(--text);">User Secure Vault</h2>${content}<button class="btn btn-cyan" style="width:100%; margin-top:20px;" onclick="this.parentElement.parentElement.remove()">Close Vault</button>`;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+      } catch (err) {
+        showToast('error', 'Security Error', 'Failed to access user vault.');
+      }
+    }
+
     // Missing Function Implementations
     function downloadTodayArchive() {
       showToast('info', 'Archive', 'Generating daily bundle... This may take a moment.');
