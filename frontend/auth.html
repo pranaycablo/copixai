@@ -208,6 +208,11 @@
   <script>
     let authMode = 'signup', userData = {}, detectedCountryCode = '+91', resendTimer = 0;
 
+    window.onerror = function(msg, url, line) {
+      showToast('error', 'Runtime Error', msg + ' (Line: ' + line + ')');
+      return false;
+    };
+
     window.onload = async () => {
       syncHeight();
       
@@ -215,11 +220,13 @@
       if (typeof google !== 'undefined') {
         google.accounts.id.initialize({
           client_id: CONFIG.GOOGLE_CLIENT_ID,
-          callback: handleGoogleLogin
+          callback: (response) => googleLoginBackend(response)
         });
       }
 
-      storage.clear(); // Hard Reset local cache on landing for this session
+      // storage is defined in ui.js which is loaded before this script
+      if (typeof storage !== 'undefined') storage.clear(); 
+
       try {
         const res = await fetch('https://ipapi.co/json/');
         const data = await res.json();
@@ -231,11 +238,22 @@
       } catch (e) {}
     };
 
-    function syncHeight() {
-      const card = document.getElementById('authCard');
-      card.style.height = 'auto';
-      const height = card.scrollHeight;
-      card.style.height = height + 'px';
+    async function googleLoginBackend(response) {
+      try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/auth/google`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken: response.credential })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          handleUserRedirect(data.user, data.token);
+        } else {
+          showToast('error', 'Auth Failed', data.error);
+        }
+      } catch (e) {
+        showToast('error', 'Connection Error', 'Backend unreachable');
+      }
     }
 
     function showScreen(id) {
@@ -271,11 +289,15 @@
       if (authMode === 'signup') {
         const name = document.getElementById('nameInput').value.trim(), 
               phone = document.getElementById('phoneInput').value.trim();
-        if (!name || phone.length < 10) {
-            if(!name) showError('name', 'Name required');
-            if(phone.length < 10) showError('phone', 'Valid phone required');
-            return;
-        }
+        
+        // Reset errors
+        document.querySelectorAll('.form-group').forEach(g => g.classList.remove('has-error'));
+
+        let hasError = false;
+        if (!name) { showError('name', 'Name is required for setup'); hasError = true; }
+        if (phone.length < 10) { showError('phone', '10-digit mobile required'); hasError = true; }
+        if (hasError) return;
+
         userData = { name, phone, identifier: id };
       } else { userData = { identifier: id }; }
       
@@ -322,6 +344,10 @@
     }
 
     async function sendAction(type) {
+      if (!userData || !userData.identifier) {
+        showToast('error', 'Incomplete', 'Please provide your details first.');
+        return showScreen('inputScreen');
+      }
       const btn = document.getElementById('verifyBtn');
       document.getElementById('otpTarget').innerText = `Sent to ${userData.identifier}`;
       showScreen('otpScreen');

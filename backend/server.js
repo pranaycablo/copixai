@@ -82,6 +82,7 @@ app.use((err, req, res, next) => {
 
 // 6. CATCH-ALL FOR SPA
 app.use((req, res) => {
+  console.log(`[CATCH-ALL] ${req.method} ${req.originalUrl}`);
   const frontendPath = path.join(__dirname, '../frontend');
   if (!req.path.startsWith('/api')) {
     res.sendFile(path.join(frontendPath, 'index.html'));

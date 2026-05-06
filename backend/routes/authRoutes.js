@@ -178,6 +178,42 @@ router.post('/verify-otp', async (req, res) => {
   }
 });
 
+// ── GOOGLE AUTH ──
+router.post('/google', async (req, res) => {
+  const { idToken } = req.body;
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+    const { email, name, picture, sub: googleId } = ticket.getPayload();
+
+    let user = await User.findOne({ 'auth.email': email });
+    const isAdmin = (email === 'pranaycopixai@gmail.com');
+
+    if (!user) {
+      user = new User({
+        auth: { email, isVerified: true },
+        profile: { name, avatar: picture, role: isAdmin ? 'ADMIN' : 'USER' },
+        subscription: { planId: isAdmin ? 'business' : 'trial', creditsRemaining: isAdmin ? 99999 : 3 },
+        isSetupComplete: isAdmin ? true : false,
+        'security.googleId': googleId
+      });
+      await user.save();
+    } else if (isAdmin) {
+      user.profile.role = 'ADMIN';
+      user.isSetupComplete = true;
+      if (user.subscription.creditsRemaining < 1000) user.subscription.creditsRemaining = 99999;
+      await user.save();
+    }
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    res.json({ message: 'Google login successful', token, user });
+  } catch (err) {
+    res.status(401).json({ error: 'Google authentication failed: ' + err.message });
+  }
+});
+
 // ── GET USER PROFILE ──
 router.get('/me/:userId', async (req, res) => {
   try {
