@@ -29,7 +29,8 @@ app.use('/api/', limiter);
 
 // 2. LOGGING (Find the error)
 app.use((req, res, next) => {
-  console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.url}`);
+  console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.originalUrl}`);
+  if (req.method === 'POST') console.log('Payload:', JSON.stringify(req.body));
   next();
 });
 
