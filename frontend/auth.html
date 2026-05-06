@@ -361,10 +361,11 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
+        const data = await res.json();
         if(res.ok) showToast('success', 'Code Sent', 'Check your device for the OTP code.');
-        else showToast('error', 'Failed', 'Could not send code.');
+        else showToast('error', 'Failed', data.error || 'Could not send code.');
       } catch (e) {
-        showToast('error', 'Error', 'Server offline.');
+        showToast('error', 'Error', 'Server engine unresponsive.');
       }
     }
 
