@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>HeroAi — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="brand.css">
+  <script src="config.js"></script>
+  <script src="ui.js"></script>
+  <style>
+    /* Inline overrides if needed */
+    .onboarding-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
+    .onboarding-overlay.active { display: flex; }
+    .select-wrap { margin-top: 20px; text-align: left; }
+    .select-wrap label { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; display: block; }
+    .select-inp { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: var(--text); font-family: var(--fb); }
+  </style>
+</head>
+<body>
+
+<div class="onboarding-overlay" id="onboardingModal">
+  <div class="glass-modal">
+    <div class="logo-icon mx-auto" style="width:60px;height:60px;margin-bottom:20px;"><img src="logo.png" style="width:100%;height:100%;object-fit:contain"></div>
+    <h1 style="font-family:var(--fh)">Welcome to HeroAi</h1>
+    <p style="color:var(--text2); margin-top:10px">I am your AI Growth Pilot. Let's personalize your dashboard.</p>
+    
+    <div class="select-wrap">
+      <label>Preferred Language</label>
+      <select id="on-lang" class="select-inp">
+        <option value="en">English</option>
+        <option value="hi">Hindi</option>
+        <option value="es">Spanish</option>
+      </select>
+    </div>
+    
+    <div class="select-wrap">
+      <label>Your Location</label>
+      <input type="text" id="on-loc" class="select-inp" placeholder="e.g. Mumbai, India">
+    </div>
+    
+    <button class="onboarding-btn" onclick="finishOnboarding()">Complete Initialization</button>
+  </div>
+</div>
+
+<div class="mobile-dash-nav">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <i class="fas fa-tasks" onclick="toggleMobileSidebar('pipeline-sidebar')" style="font-size:20px; color:var(--text3)"></i>
+    <div class="logo-text" style="font-size:18px;"><span class="logo-hero">Hero</span><span class="logo-ai">Ai</span></div>
+  </div>
+  <i class="fas fa-th-large" onclick="toggleMobileSidebar('control-sidebar')" style="font-size:20px; color:var(--text3)"></i>
+</div>
+
+<div class="dash-container" id="dashRoot" style="display:none;">
+  
+  <!-- LEFT: PIPELINE & WORK STATUS -->
+  <aside class="pipeline-sidebar">
+    <div style="margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+        <div class="avatar" id="side-avatar">U</div>
+        <div>
+          <div id="side-name" style="font-weight:700; font-size:14px;">User Name</div>
+          <div id="side-email" style="font-size:11px; color:var(--text3)">email@example.com</div>
+        </div>
+      </div>
+      <div id="channel-links" style="display:flex; flex-direction:column; gap:8px;">
+        <div class="menu-item" onclick="toast('info','Link','Channel linker coming soon')"><i class="fas fa-plus-circle"></i> Link Channel (1/2)</div>
+      </div>
+      <div class="menu-item" id="pwa-install-btn" style="color:var(--cyan); border:1px solid rgba(16,245,161,0.2); margin-top:15px; background:rgba(16,245,161,0.05);" onclick="installPWA()">
+        <i class="fas fa-mobile-alt"></i> Install HeroAi App
+      </div>
+    </div>
+
+    <div id="workflow-checklist" style="margin-bottom:25px;">
+       <!-- Will be populated by JS -->
+    </div>
+
+    <div class="menu-h">Creative Pipeline</div>
+    <div id="work-pipeline">
+      <!-- Script Card -->
+      <div class="pipeline-card" id="card-script">
+        <h4>Script</h4>
+        <div class="pipeline-val" id="pipe-script">Initializing...</div>
+        <div class="pipe-details" id="detail-script" style="font-size:10px; color:var(--text3); margin-top:5px; display:none;"></div>
+        <textarea id="edit-script-area" style="display:none; width:100%; height:80px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:11px; padding:8px; margin-top:8px;"></textarea>
+        <div class="pipe-actions" id="actions-script" style="display:none; gap:10px; margin-top:10px;">
+           <button class="icon-btn" onclick="copyPipe('script')" title="Copy"><i class="fas fa-copy"></i></button>
+           <button class="icon-btn" id="edit-script-btn" onclick="enableScriptEdit()" title="Edit"><i class="fas fa-edit"></i></button>
+           <button class="onboarding-btn" id="approve-script-btn" style="padding:6px 12px; font-size:10px; margin-top:0; display:none;" onclick="approveScript()">Approve & Continue</button>
+        </div>
+        <div class="dot-blink dot-red" id="dot-script"></div>
+      </div>
+
+      <!-- Title Card -->
+      <div class="pipeline-card" id="card-title">
+        <h4>Title</h4>
+        <div class="pipeline-val" id="pipe-title">Queued</div>
+        <div class="pipe-details" id="detail-title" style="font-size:10px; color:var(--text3); margin-top:5px; display:none;"></div>
+        <div class="pipe-actions" id="actions-title" style="display:none; gap:10px; margin-top:10px;">
+           <button class="icon-btn" onclick="copyPipe('title')" title="Copy"><i class="fas fa-copy"></i></button>
+        </div>
+        <div class="dot-blink" id="dot-title"></div>
+      </div>
+
+      <!-- Description Card -->
+      <div class="pipeline-card" id="card-desc">
+        <h4>Description</h4>
+        <div class="pipeline-val" id="pipe-desc">Queued</div>
+        <div class="pipe-details" id="detail-desc" style="font-size:10px; color:var(--text3); margin-top:5px; display:none;"></div>
+        <div class="pipe-actions" id="actions-desc" style="display:none; gap:10px; margin-top:10px;">
+           <button class="icon-btn" onclick="copyPipe('desc')" title="Copy"><i class="fas fa-copy"></i></button>
+        </div>
+        <div class="dot-blink" id="dot-desc"></div>
+      </div>
+
+      <!-- Hashtags Card -->
+      <div class="pipeline-card" id="card-tags">
+        <h4>Hashtags/Tags</h4>
+        <div class="pipeline-val" id="pipe-tags">Queued</div>
+        <div class="pipe-details" id="detail-tags" style="font-size:10px; color:var(--text3); margin-top:5px; display:none;"></div>
+        <div class="pipe-actions" id="actions-tags" style="display:none; gap:10px; margin-top:10px;">
+           <button class="icon-btn" onclick="copyPipe('tags')" title="Copy"><i class="fas fa-copy"></i></button>
+        </div>
+        <div class="dot-blink" id="dot-tags"></div>
+      </div>
+
+      <!-- Reels Card -->
+      <div class="pipeline-card" id="card-reels">
+        <h4>Reels/Shorts</h4>
+        <div class="pipeline-val" id="pipe-reels">Waiting</div>
+        <div class="pipe-actions" id="actions-reels" style="display:none; gap:10px; margin-top:10px;">
+           <button class="icon-btn" onclick="copyPipe('reels')" title="Copy Link"><i class="fas fa-copy"></i></button>
+           <button class="icon-btn" onclick="downloadPipe('reels')" title="Download MP4"><i class="fas fa-video"></i></button>
+        </div>
+        <div class="dot-blink" id="dot-reels"></div>
+      </div>
+
+      <!-- Video Card -->
+      <div class="pipeline-card" id="card-video">
+        <h4>Final Video</h4>
+        <div class="pipeline-val" id="pipe-video">Waiting</div>
+        <div class="pipe-actions" id="actions-video" style="display:none; gap:10px; margin-top:10px;">
+           <button class="icon-btn" onclick="copyPipe('video')" title="Copy Link"><i class="fas fa-copy"></i></button>
+           <button class="icon-btn" onclick="downloadPipe('video')" title="Download MP4"><i class="fas fa-video"></i></button>
+        </div>
+        <div class="dot-blink" id="dot-video"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:auto; padding:15px; background:var(--surface2); border-radius:12px; text-align:center;">
+      <div style="font-size:10px; color:var(--text3); text-transform:uppercase; font-weight:700;">Est. Time Remaining</div>
+      <div id="eta-timer" style="font-family:var(--fm); font-size:18px; color:var(--amber); margin-top:5px;">00:00:00</div>
+    </div>
+  </aside>
+
+  <!-- CENTER: HEROAI ENGINE -->
+  <main class="engine-center">
+    <div class="heroai-anim" onclick="startGeneration()" style="cursor:pointer;" title="Click to Start AI Production">
+      <img src="logo.png">
+    </div>
+    <div class="engine-status">
+      <div class="dot-blink dot-green" id="engine-dot"></div>
+      HeroAi Engine: <span id="engine-txt" style="color:var(--cyan)">Thinking...</span>
+    </div>
+
+    <div class="accuracy-badge">
+       <i class="fas fa-shield-check"></i> 99.4% AI Content Match Verified
+    </div>
+
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:30px;">
+      <span style="font-size:11px; font-weight:700; color:var(--text3)">MANUAL</span>
+      <label class="switch"><input type="checkbox" id="auto-switch" onchange="toggleAutoMode(this)"><span class="slider"></span></label>
+      <span style="font-size:11px; font-weight:700; color:var(--text3)">AUTO-PILOT</span>
+    </div>
+
+    <div class="workflow-list" id="workflow-checklist">
+      <div class="menu-h" style="margin-bottom:10px;">HeroAi</div>
+      <!-- Checklist items -->
+    </div>
+  </main>
+
+  <!-- RIGHT: GLOBAL CONTROL MENU -->
+  <aside class="control-sidebar">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; padding-bottom:15px; border-bottom:1px solid var(--border);">
+      <div style="font-family:var(--fh); font-weight:800; font-size:16px; color:var(--text);">HeroAi Studio</div>
+      <i class="fas fa-bars" style="color:var(--text3); cursor:pointer;" onclick="window.location.href='/'"></i>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-h">System Mode</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--surface2); border-radius:12px;">
+         <div style="font-size:12px; font-weight:700;">Auto-Pilot Mode</div>
+         <label class="switch">
+            <input type="checkbox" id="auto-switch" onchange="toggleAutoMode(this)">
+            <span class="slider round"></span>
+         </label>
+      </div>
+      <div style="font-size:9px; color:var(--text3); margin-top:8px;">*Manual mode allows you to approve scripts before production.</div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-h">Intelligent Tools (24/7 Workers)</div>
+      <div class="menu-item" onclick="showWorkerInfo('Analyzer')">
+        <i class="fas fa-chart-pie"></i> Analyzer <div class="dot-blink dot-red" style="width:6px; height:6px; margin-left:8px;"></div>
+      </div>
+      <div class="menu-item" onclick="showWorkerInfo('Niche Thinker')">
+        <i class="fas fa-brain"></i> Niche Thinker <div class="dot-blink dot-yellow" style="width:6px; height:6px; margin-left:8px;"></div>
+      </div>
+      <div class="menu-item" onclick="showWorkerInfo('Growth Thinker')">
+        <i class="fas fa-bullseye"></i> Growth Thinker <div class="dot-blink dot-red" style="width:6px; height:6px; margin-left:8px;"></div>
+      </div>
+      <div class="menu-item" onclick="showWorkerInfo('Growth Guard')">
+        <i class="fas fa-shield-alt"></i> Growth Guard <div class="dot-blink dot-yellow" style="width:6px; height:6px; margin-left:8px;"></div>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-h">Growth Center</div>
+      <div class="menu-item" onclick="toast('info','Link','Opening Channel Linker...')"><i class="fas fa-plus-circle"></i> Add Channel/Page</div>
+      <div class="menu-item" onclick="openModelModal()"><i class="fas fa-user-astronaut"></i> Active My Model</div>
+      <div class="menu-item" onclick="openVoiceModal()"><i class="fas fa-microphone-alt"></i> Use My Voice</div>
+      <div class="menu-item" onclick="checkPaidAccess('SEO', openStudioModal)"><i class="fas fa-magic"></i> SEO</div>
+      <div class="menu-item" onclick="checkPaidAccess('Google Ads', () => toast('info','Ads','Google Ads integration coming soon'))"><i class="fas fa-ad"></i> Google Ads</div>
+      <div class="menu-item" onclick="checkPaidAccess('Meta Ads', () => toast('info','Ads','Meta Ads integration coming soon'))"><i class="fas fa-share-alt"></i> Meta Ads</div>
+      <div class="menu-item" onclick="openChat()"><i class="fas fa-comments"></i> AI Support Chat</div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-h">Master Brain Intelligence</div>
+      <select id="engine-select" style="width:100%; padding:10px; background:var(--surface2); border:1px solid var(--border); border-radius:12px; color:var(--text); font-size:11px; font-weight:700;" onchange="updateEngineMode()">
+        <option value="HYBRID_AUTO">🚀 Hybrid Auto (Best Results)</option>
+        <option value="WAN_CINEMATIC">💎 WanVideo (Cinematic 4K)</option>
+        <option value="LTX2_ULTRA">⚡ LTX-2 (Synced Audio-Visual)</option>
+        <option value="STANDARD">⚙️ Standard (Fastest)</option>
+      </select>
+      <div style="font-size:9px; color:var(--text3); margin-top:8px;" id="engine-desc">Master Brain will choose the best model for your niche.</div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-h">Performance</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div class="stat-card" style="padding:10px;"><div class="stat-lbl">Views</div><div class="stat-val" style="font-size:18px;" id="stat-views">0</div></div>
+        <div class="stat-card" style="padding:10px;"><div class="stat-lbl">Eng %</div><div class="stat-val" style="font-size:18px;" id="stat-engagement">0%</div></div>
+      </div>
+    </div>
+
+    <div class="menu-section">
+       <div class="menu-h">Auto Recycle Bin</div>
+       <div style="padding:15px; background:rgba(255,255,255,0.02); border:1px dashed var(--border); border-radius:16px;">
+          <div style="font-size:10px; color:var(--text3); margin-bottom:10px;"><i class="fas fa-history"></i> Resets every 24h</div>
+          <div id="recycle-list" style="display:flex; flex-direction:column; gap:8px;">
+             <div style="font-size:11px; color:var(--text3); text-align:center;">Empty</div>
+          </div>
+       </div>
+    </div>
+
+    <div class="menu-section">
+       <div class="menu-h">Your Plan</div>
+       <div style="padding:15px; background:var(--surface2); border:1px solid var(--border); border-radius:16px; cursor:pointer; transition:0.3s;" onclick="openPlanModal()" class="plan-trigger">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-weight:700; color:var(--purple); font-size:13px; text-transform:uppercase;" id="current-plan-name">Free Trial</div>
+            <i class="fas fa-chevron-right" style="font-size:10px; color:var(--text3)"></i>
+          </div>
+          <div style="font-size:10px; color:var(--text2); margin-top:6px;" id="plan-expiry"><i class="fas fa-clock"></i> Checking status...</div>
+          <div style="margin-top:10px; font-size:9px; font-weight:800; color:var(--amber); text-transform:uppercase; letter-spacing:1px;" id="plan-cta">Upgrade to unlock Auto-Pilot</div>
+       </div>
+       <div class="menu-item" style="color:var(--rose); margin-top:10px;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+    </div>
+
+    <div style="margin-top:20px; font-size:10px; color:var(--text3); line-height:1.4;">
+       *Upgrade to Pro for Full Auto-Pilot and 100 Days Monetization Blueprint.
+    </div>
+  </aside>
+
+</div>
+
+<!-- Professional Plan Modal -->
+<div class="onboarding-overlay" id="planModal">
+  <div class="glass-modal" style="max-width:800px; padding:30px;">
+    <button class="modal-close" onclick="closePlanModal()">&times;</button>
+    <div class="menu-h" style="color:var(--amber); text-align:center; font-size:14px; margin-bottom:30px;">HeroAi Content Growth Infrastructure</div>
+    
+    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px;">
+      <!-- Plan 1 -->
+      <div class="widget" style="margin-bottom:0; text-align:left; border-color:var(--border2);">
+         <div style="font-size:18px; font-weight:800; font-family:var(--fh); color:var(--text);">GRO</div>
+         <div style="font-size:24px; font-weight:800; margin:10px 0;">₹999<span style="font-size:12px; color:var(--text3)">/mo</span></div>
+         <ul style="list-style:none; font-size:12px; color:var(--text2); display:grid; gap:8px;">
+           <li><i class="fas fa-check-circle" style="color:var(--green)"></i> 3 Channels/Pages</li>
+           <li><i class="fas fa-check-circle" style="color:var(--green)"></i> 1 Daily 4K Video</li>
+           <li><i class="fas fa-check-circle" style="color:var(--green)"></i> 2 Daily Viral Reels</li>
+           <li><i class="fas fa-check-circle" style="color:var(--green)"></i> 1 Manual Daily Post</li>
+         </ul>
+         <button class="onboarding-btn" style="width:100%; font-size:12px; margin-top:20px;" onclick="handleSelectPlan('gro', 999)">Select Gro</button>
+         <div id="paypal-button-container-gro" style="display:none; margin-top:10px;"></div>
+      </div>
+
+      <!-- Plan 2: Best Value -->
+      <div class="widget" style="margin-bottom:0; text-align:left; border-color:var(--amber); background:rgba(245,166,35,0.05);">
+         <div style="display:flex; justify-content:space-between;">
+           <div style="font-size:18px; font-weight:800; font-family:var(--fh); color:var(--amber);">PRO</div>
+           <span class="badge badge-amber">Popular</span>
+         </div>
+         <div style="font-size:24px; font-weight:800; margin:10px 0;">₹1499<span style="font-size:12px; color:var(--text3)">/mo</span></div>
+         <ul style="list-style:none; font-size:12px; color:var(--text2); display:grid; gap:8px;">
+           <li><i class="fas fa-check-circle" style="color:var(--green)"></i> 4 Channels/Pages</li>
+           <li><i class="fas fa-check-circle" style="color:var(--green)"></i> 2 Daily 4K Videos</li>
+           <li><i class="fas fa-check-circle" style="color:var(--green)"></i> 4 Daily Viral Reels</li>
+           <li><i class="fas fa-check-circle" style="color:var(--green)"></i> <b>Full Auto-Pilot</b></li>
+         </ul>
+         <button class="onboarding-btn" style="width:100%; font-size:12px; margin-top:20px; background:var(--amber);" onclick="handleSelectPlan('pro', 1499)">Select Pro</button>
+         <div id="paypal-button-container-pro" style="display:none; margin-top:10px;"></div>
+      </div>
+
+      <!-- Plan 3 -->
+      <div class="widget" style="margin-bottom:0; text-align:left; border-color:var(--purple); background:rgba(167,139,250,0.05);">
+         <div style="font-size:18px; font-weight:800; font-family:var(--fh); color:var(--purple);">PREMIUM</div>
+         <div style="font-size:24px; font-weight:800; margin:10px 0;">₹2499<span style="font-size:12px; color:var(--text3)">/mo</span></div>
+         <ul style="list-style:none; font-size:12px; color:var(--text2); display:grid; gap:8px;">
+           <li><i class="fas fa-check-circle" style="color:var(--green)"></i> 5+ Channels/Pages</li>
+           <li><i class="fas fa-check-circle" style="color:var(--green)"></i> 3 Daily 4K Videos</li>
+           <li><i class="fas fa-check-circle" style="color:var(--green)"></i> 8 Daily Viral Reels</li>
+           <li><i class="fas fa-check-circle" style="color:var(--green)"></i> <b>Unlimited AI Support</b></li>
+         </ul>
+         <button class="onboarding-btn" style="width:100%; font-size:12px; margin-top:20px; background:var(--purple); color:#fff;" onclick="handleSelectPlan('premium', 2499)">Select Premium</button>
+         <div id="paypal-button-container-premium" style="display:none; margin-top:10px;"></div>
+      </div>
+    </div>
+    
+
+    <div style="margin-top:30px; text-align:center; padding:15px; background:var(--amber-d); border-radius:16px; border:1px solid rgba(245,166,35,0.2);">
+      <div style="font-size:14px; font-weight:800; color:var(--amber);"><i class="fas fa-trophy"></i> 100 DAYS MONETIZER BLUEPRINT INCLUDED</div>
+      <p style="font-size:11px; color:var(--text2); margin-top:4px;">Available on all paid plans. Guaranteed growth tracking and strategy pivot.</p>
+    </div>
+  </div>
+<!-- Active My Model Modal -->
+<div class="onboarding-overlay" id="modelModal">
+  <div class="glass-modal" style="max-width:500px;">
+    <button class="modal-close" onclick="closeModelModal()">&times;</button>
+    <div style="text-align:left;">
+      <h2 style="font-family:var(--fh); color:var(--amber);">Active My Model</h2>
+      <p style="color:var(--text2); font-size:12px; margin-top:5px;">Upload 5-10 clear photos of your face. HeroAi will generate 3 professional digital twins for your content.</p>
+      
+      <div style="margin-top:20px; border:2px dashed var(--border); border-radius:16px; padding:30px; text-align:center; cursor:pointer;" onclick="document.getElementById('model-upload').click()">
+         <i class="fas fa-cloud-upload-alt" style="font-size:30px; color:var(--text3)"></i>
+         <div style="font-size:12px; color:var(--text2); margin-top:10px;">Click to Upload (Min. 5 Photos)</div>
+         <input type="file" id="model-upload" multiple style="display:none;" onchange="handleModelUpload()">
+      </div>
+      
+      <div style="margin-top:20px; font-size:10px; color:var(--text3);">
+        <i class="fas fa-info-circle"></i> Models are stored securely. If you clear cache, HeroAi will re-sync or ask for new photos.
+      </div>
+      
+      <div style="margin-top:20px; display:flex; align-items:center; gap:10px; padding:12px; background:var(--surface3); border-radius:12px;">
+         <input type="checkbox" id="sell-consent-model">
+         <label for="sell-consent-model" style="font-size:11px; color:var(--text2);">I want to sell my digital twin (Monetize). <a href="/licensing.html" style="color:var(--amber); font-weight:700;">View Agreement</a></label>
+      </div>
+
+      <button class="onboarding-btn" style="width:100%;" onclick="submitModel()">Generate Digital Twins</button>
+    </div>
+  </div>
+</div>
+
+<!-- Use My Voice Modal -->
+<div class="onboarding-overlay" id="voiceModal">
+  <div class="glass-modal" style="max-width:500px;">
+    <button class="modal-close" onclick="closeVoiceModal()">&times;</button>
+    <div style="text-align:left;">
+      <h2 style="font-family:var(--fh); color:var(--cyan);">Clone My Voice</h2>
+      <p style="color:var(--text2); font-size:12px; margin-top:5px;">Select your native language and record the 10-line script provided.</p>
+      
+      <select id="voice-lang" style="width:100%; padding:12px; background:var(--surface2); border:1px solid var(--border); border-radius:12px; color:var(--text); margin-top:15px;">
+        <option value="auto">AI Auto (Sync with Location)</option>
+        <option value="hindi">Hindi</option>
+        <option value="english">English</option>
+        <option value="bengali">Bengali</option>
+        <option value="marathi">Marathi</option>
+      </select>
+
+      <div style="margin-top:20px; padding:15px; background:var(--bg); border:1px solid var(--border2); border-radius:12px; font-size:11px; color:var(--text); line-height:1.6; max-height:150px; overflow-y:auto;">
+        <strong>Script to Read:</strong><br>
+        1. Welcome to the future of content.<br>
+        2. HeroAi is my digital assistant.<br>
+        3. I am cloning my voice for viral reels.<br>
+        4. Consistency is the key to growth.<br>
+        5. Scaling my agency has never been easier...<br>
+        (Read all 10 lines clearly)
+      </div>
+
+      <div style="margin-top:20px; text-align:center;">
+         <button class="icon-btn" style="width:60px; height:60px; border-radius:50%; background:var(--rose-d); color:var(--rose);" onclick="toggleRecording()">
+           <i class="fas fa-microphone" id="mic-icon"></i>
+         </button>
+         <div id="rec-status" style="font-size:10px; color:var(--text3); margin-top:8px;">Click to Start Recording</div>
+      </div>
+
+      <div style="margin-top:20px; display:flex; align-items:center; gap:10px; padding:12px; background:var(--surface3); border-radius:12px;">
+         <input type="checkbox" id="sell-consent-voice">
+         <label for="sell-consent-voice" style="font-size:11px; color:var(--text2);">I want to license my voice to other creators. <a href="/licensing.html" style="color:var(--cyan); font-weight:700;">View Agreement</a></label>
+      </div>
+
+      <button class="onboarding-btn" style="width:100%; background:var(--cyan);" onclick="submitVoice()">Save & Clone Voice</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+<script>
+  // Using storage from config.js
+
+  // Toast Function
+  function toast(type, title, msg) {
+    const stack = document.getElementById('toastStack');
+    if(!stack) return;
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.innerHTML = `<strong>${title}</strong><p>${msg}</p>`;
+    stack.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+  let currentUser = storage.get('user') || { profile: { name: 'Creator' }, auth: { email: '' }, subscription: { planId: 'trial' }, socialLinks: [] };
+  let currentWorkStep = 0;
+  let etaSeconds = 3600 * 2; 
+
+  const workflowSteps = [
+    { id: 'read', label: 'Read Channel & Niche' },
+    { id: 'think', label: 'Analyze Page Requirements' },
+    { id: 'strategy', label: 'Draft Strategy Plan' },
+    { id: 'seo', label: 'Trending SEO & Keywords' },
+    { id: 'script', label: 'Optimize Script (Human/AI)' },
+    { id: 'thumb', label: 'Generate Viral Thumbnails' },
+    { id: 'render', label: 'Production: Scenes 1-40' },
+    { id: 'finalize', label: 'Final Output Ready' }
+  ];
+
+  async function loadDashboard() {
+    if(!currentUser || !storage.get('token')) { window.location.href='auth.html'; return; }
+    
+    // Sync with Backend for fresh data
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/auth/me/${currentUser._id}`, {
+        headers: { 'Authorization': `Bearer ${storage.get('token')}` }
+      });
+      if(res.ok) {
+        const freshUser = await res.json();
+        currentUser = freshUser;
+        storage.set('user', currentUser);
+      }
+    } catch(e) { console.warn("Backend sync failed, using cached data."); }
+
+    // Show Root
+    document.getElementById('dashRoot').style.display = 'grid';
+    
+    if(!currentUser.isSetupComplete) {
+      document.getElementById('onboardingModal').classList.add('active');
+      autoSyncLocation(); // Trigger auto-sync
+    } else {
+      const role = currentUser.profile.role;
+      if(role === 'AGENCY' && !window.location.href.includes('agency')) { window.location.href = 'dashboard-agency.html'; return; }
+      if(role === 'BUSINESS' && !window.location.href.includes('business')) { window.location.href = 'dashboard-business.html'; return; }
+      
+      initUserUI();
+      startETATimer();
+    }
+  }
+
+  function enableScriptEdit() {
+    const area = document.getElementById('edit-script-area');
+    const detail = document.getElementById('detail-script');
+    area.value = document.getElementById('card-script').dataset.content || '';
+    detail.style.display = 'none';
+    area.style.display = 'block';
+    const btn = document.getElementById('edit-script-btn');
+    if(btn) btn.style.color = 'var(--amber)';
+  }
+
+  function openChat() {
+    toast('info', 'AI Chat', 'Connecting to HeroAi support matrix...');
+  }
+
+  async function autoSyncLocation() {
+    const locInp = document.getElementById('on-loc');
+    if(!locInp) return;
+    
+    locInp.placeholder = "Syncing location...";
+    try {
+      const res = await fetch('https://ipapi.co/json/');
+      const data = await res.json();
+      if(data.city && data.country_name) {
+        locInp.value = `${data.city}, ${data.country_name}`;
+        toast('success', 'Location Synced', `Detected: ${data.city}`);
+      }
+    } catch(e) {
+      locInp.placeholder = "City, Country (Manual)";
+      console.warn("Location sync failed.");
+    }
+  }
+
+  function initUserUI() {
+    try {
+      const name = (currentUser.profile && currentUser.profile.name) ? currentUser.profile.name : 'Creator';
+      const email = (currentUser.auth && currentUser.auth.email) ? currentUser.auth.email : 'No Email';
+      
+      const sideName = document.getElementById('side-name');
+      const sideEmail = document.getElementById('side-email');
+      const sideAvatar = document.getElementById('side-avatar');
+      
+      if(sideName) sideName.textContent = name;
+      if(sideEmail) sideEmail.textContent = email;
+      if(sideAvatar) sideAvatar.textContent = name[0].toUpperCase();
+
+      // Update Plan Info
+      const planName = document.getElementById('current-plan-name');
+      if(planName) planName.textContent = currentUser.subscription.planId;
+      
+      const planExpiry = document.getElementById('plan-expiry');
+      if(planExpiry) {
+        if(currentUser.subscription.expiresAt) {
+          const days = Math.ceil((new Date(currentUser.subscription.expiresAt) - new Date()) / (1000 * 60 * 60 * 24));
+          planExpiry.innerHTML = `<i class="fas fa-clock"></i> Expires in ${days > 0 ? days : 0} days`;
+        } else {
+          planExpiry.innerHTML = `<i class="fas fa-clock"></i> Active (Credits: ${currentUser.subscription.creditsRemaining})`;
+        }
+      }
+
+      const planCTA = document.getElementById('plan-cta');
+      if(planCTA) {
+        if(currentUser.subscription.planId !== 'trial') planCTA.style.display = 'none';
+      }
+
+      // Update Stats
+      if(document.getElementById('stat-views')) document.getElementById('stat-views').textContent = (currentUser.usageStats.dailyAiMinutes * 120).toLocaleString(); // Simulated views
+      if(document.getElementById('stat-engagement')) document.getElementById('stat-engagement').textContent = '4.8%';
+      
+      const list = document.getElementById('workflow-checklist');
+      if(list) {
+        list.innerHTML = '<div class="menu-h" style="margin-bottom:10px;">HeroAi Tasks</div>';
+        const steps = [
+          { id: 'wf-thinking', label: 'AI Master Brain: Deep Analysis' },
+          { id: 'wf-trends', label: 'GVI: Live Trend Integration' },
+          { id: 'wf-hook', label: 'SEO: 3s Pattern Interruption' },
+          { id: 'wf-script', label: 'Neural Scripting (₹0 Cost)' },
+          { id: 'wf-render', label: '4K High-Fidelity Rendering' },
+          { id: 'wf-finalize', label: 'Final Output Ready' }
+        ];
+        steps.forEach(s => {
+          const el = document.createElement('div');
+          el.className = 'workflow-item';
+          el.id = s.id;
+          el.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> ${s.label} <div class="dot-blink dot-red" style="margin-left:auto; width:6px; height:6px;"></div>`;
+          list.appendChild(el);
+        });
+      }
+
+      const ROLE_LIMITS = { beginner: 1, creator: 3, business: 5, agency: 15, trial: 1 };
+      const userPlan = currentUser.subscription.planId || 'trial';
+      const limit = ROLE_LIMITS[userPlan] || 1;
+      const linkedCount = (currentUser.socialLinks || []).length;
+
+      const cList = document.getElementById('channel-links');
+      if(cList) {
+        cList.innerHTML = `<div class="menu-item" onclick="toast('info','Link','Channel linker coming soon')"><i class="fas fa-plus-circle"></i> Link Channel (${linkedCount}/${limit})</div>`;
+        if(currentUser.socialLinks && currentUser.socialLinks.length > 0) {
+          currentUser.socialLinks.forEach(link => {
+            const div = document.createElement('div');
+            div.className = 'menu-item';
+            div.innerHTML = `<i class="fab fa-${(link.platform || 'link').toLowerCase()}"></i> ${link.handle || link.platform}`;
+            cList.prepend(div);
+          });
+        }
+      }
+    } catch(e) { console.error('UI Init Error:', e); }
+  }
+
+  function openPlanModal() { document.getElementById('planModal').classList.add('active'); }
+  function closePlanModal() { document.getElementById('planModal').classList.remove('active'); }
+  function openStudioModal() { document.getElementById('studioModal').classList.add('active'); }
+  function closeStudioModal() { document.getElementById('studioModal').classList.remove('active'); }
+  function openModelModal() { document.getElementById('modelModal').classList.add('active'); }
+  function closeModelModal() { document.getElementById('modelModal').classList.remove('active'); }
+  function openVoiceModal() { document.getElementById('voiceModal').classList.add('active'); }
+  function closeVoiceModal() { document.getElementById('voiceModal').classList.remove('active'); }
+
+  function handleModelUpload() {
+    const files = document.getElementById('model-upload').files;
+    if(files.length < 5) return toast('warning', 'Photos', 'Please select at least 5 photos.');
+    toast('success', 'Upload Success', `${files.length} photos ready for AI training.`);
+  }
+
+  function submitModel() {
+    const sell = document.getElementById('sell-consent-model').checked;
+    if(sell) {
+      toast('info', 'Monetization', 'Redirecting to Licensing Agreement...');
+      setTimeout(() => window.location.href = '/licensing.html', 1500);
+      return;
+    }
+    toast('info', 'Processing', 'AI is creating your 3 digital twins...');
+    setTimeout(() => {
+      toast('success', 'Models Active', 'Your digital models are ready for production.');
+      closeModelModal();
+    }, 3000);
+  }
+
+  function toggleRecording() {
+    const icon = document.getElementById('mic-icon');
+    const status = document.getElementById('rec-status');
+    if(icon.classList.contains('fa-microphone')) {
+      icon.className = 'fas fa-stop-circle';
+      status.textContent = 'Recording... Speak now.';
+      status.style.color = 'var(--rose)';
+    } else {
+      icon.className = 'fas fa-microphone';
+      status.textContent = 'Recording saved.';
+      status.style.color = 'var(--green)';
+    }
+  }
+
+  function submitVoice() {
+    const sell = document.getElementById('sell-consent-voice').checked;
+    if(sell) {
+       toast('info', 'Monetization', 'Redirecting to Voice Licensing...');
+       setTimeout(() => window.location.href = '/licensing.html', 1500);
+       return;
+    }
+    toast('info', 'Cloning', 'AI is processing your voice signature...');
+    setTimeout(() => {
+      toast('success', 'Voice Active', 'Your voice clone is ready to use.');
+      closeVoiceModal();
+    }, 3000);
+  }
+
+  async function finishOnboarding() {
+    const lang = document.getElementById('on-lang').value;
+    const loc = document.getElementById('on-loc').value;
+    if(!loc) return toast('warning', 'Location', 'Please provide your location.');
+    
+    toast('info', 'Calibrating...', `HeroAi is optimizing for ${loc}...`);
+    
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/auth/update-profile`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${storage.get('token')}`
+        },
+        body: JSON.stringify({ 
+          userId: currentUser._id,
+          language: lang,
+          location: loc,
+          isSetupComplete: true 
+        })
+      });
+      if(res.ok) {
+        const data = await res.json();
+        currentUser = data.user;
+        storage.set('user', currentUser);
+        toast('success', 'Ready', 'System Initialization Complete.');
+        document.getElementById('onboardingModal').classList.remove('active');
+        initUserUI();
+        startETATimer();
+      }
+    } catch(e) { 
+      toast('error', 'Sync Failed', 'Could not save preferences. Using local mode.');
+      currentUser.isSetupComplete = true;
+      storage.set('user', currentUser);
+      document.getElementById('onboardingModal').classList.remove('active');
+      initUserUI();
+    }
+  }
+
+  function toggleMobileSidebar(className) {
+    const el = document.querySelector('.' + className);
+    if(el) el.classList.toggle('mobile-on');
+  }
+
+  function checkPaidAccess(feature, callback) {
+    if(currentUser.subscription.planId === 'trial') {
+      toast('warning', 'Upgrade Required', `${feature} is available on Gro, Pro, and Premium plans.`);
+      openPlanModal();
+    } else {
+      callback();
+    }
+  }
+
+  function showWorkerInfo(worker) {
+    if(!currentUser.socialLinks || currentUser.socialLinks.length === 0) {
+      toast('warning', 'Channel Required', `Please link at least one channel/page to activate ${worker}.`);
+      return;
+    }
+
+    const lastCall = storage.get(`last_call_${worker}`);
+    const now = Date.now();
+    const twentyFourHours = 24 * 60 * 60 * 1000;
+
+    if (lastCall && (now - lastCall < twentyFourHours)) {
+      const remaining = Math.ceil((twentyFourHours - (now - lastCall)) / (1000 * 60 * 60));
+      toast('info', worker, `I have already completed my daily task for your channel. Next update in ${remaining} hours.`);
+      return;
+    }
+
+    const info = {
+      'Analyzer': "I am on your work. My work is analyzing your channel metrics and competitor trends 24/7.",
+      'Niche Thinker': "I am on your work. My work is scanning global viral topics to find your next niche.",
+      'Growth Thinker': "I am on your work. My work is optimizing your reach and planning your content schedule.",
+      'Growth Guard': "I am on your work. My work is monitoring your account security and safety around the clock."
+    };
+
+    toast('success', worker, info[worker]);
+    storage.set(`last_call_${worker}`, now);
+  }
+
+
+  function copyPipe(id) {
+    const content = document.getElementById('card-' + id).dataset.content;
+    navigator.clipboard.writeText(content);
+    toast('success', 'Copied', `${id.toUpperCase()} copied.`);
+  }
+
+  function downloadPipe(id) {
+    toast('success', 'Downloading', `Starting download for ${id}...`);
+  }
+
+  function approveScript() {
+    const area = document.getElementById('edit-script-area');
+    const detail = document.getElementById('detail-script');
+    const newContent = area.value;
+    document.getElementById('card-script').dataset.content = newContent;
+    detail.textContent = newContent.substring(0, 40) + '...';
+    area.style.display = 'none';
+    detail.style.display = 'block';
+    document.getElementById('approve-script-btn').style.display = 'none';
+    document.getElementById('actions-script').style.display = 'none';
+    toast('success', 'Approved', 'Continuing production...');
+    simulateWorkflow(currentWorkflowStepIdx + 1);
+  }
+
+  function showFinalPrompt() {
+    document.getElementById('engine-txt').textContent = 'Waiting for Permission';
+    const btn = document.createElement('button');
+    btn.className = 'onboarding-btn';
+    btn.innerHTML = 'Allow Posting & Start Monitoring';
+    btn.onclick = () => {
+      btn.remove();
+      document.getElementById('engine-txt').textContent = 'Monitoring Active';
+      toast('success', 'Active', 'You can post on time.');
+    };
+    document.querySelector('.engine-center').appendChild(btn);
+  }
+
+  function toggleAutoMode(el) {
+    if(el.checked && currentUser.subscription.planId === 'trial') {
+      toast('warning', 'Upgrade Required', 'Auto-Pilot requires a Gro or Pro plan.');
+      el.checked = false;
+    }
+  }
+
+  function startETATimer() {
+    setInterval(() => {
+      if(etaSeconds > 0) etaSeconds--;
+      const h = Math.floor(etaSeconds / 3600).toString().padStart(2, '0');
+      const m = Math.floor((etaSeconds % 3600) / 60).toString().padStart(2, '0');
+      const s = (etaSeconds % 60).toString().padStart(2, '0');
+      document.getElementById('eta-timer').textContent = `${h}:${m}:${s}`;
+    }, 1000);
+  }
+
+  function updateEngineMode() {
+    const val = document.getElementById('engine-select').value;
+    const desc = document.getElementById('engine-desc');
+    const dot = document.getElementById('engine-dot');
+    
+    if(val === 'WAN_CINEMATIC') {
+      desc.textContent = 'WanVideo: 100% Output Priority (Cinematic 4K).';
+      dot.style.background = 'var(--cyan)';
+    } else if(val === 'LTX2_ULTRA') {
+      desc.textContent = 'LTX-2: Ultra-Realistic Synced Dialogue.';
+      dot.style.background = 'var(--purple)';
+    } else {
+      desc.textContent = 'Master Brain will choose the best model for your niche.';
+      dot.style.background = 'var(--amber)';
+    }
+    toast('info', 'Engine Updated', `Switched to ${val} Mode.`);
+  }
+
+  async function startGeneration() {
+    const engine = document.getElementById('engine-select').value;
+    toast('info', 'Master Brain', 'Initializing High-Fidelity Pipeline...');
+    
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/engine/generate`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${storage.get('token')}`
+        },
+        body: JSON.stringify({ 
+          type: 'REEL', // Default to Reel for high engagement
+          engineSelection: engine 
+        })
+      });
+      
+      const data = await res.json();
+      if(res.ok) {
+        toast('success', 'Neural Engine Active', 'Workflow placed in Auto-Pilot execution queue.');
+        pollTaskStatus(data.taskId);
+      } else {
+        toast('error', 'Execution Error', data.message || data.error);
+      }
+    } catch(e) {
+      toast('error', 'Sync Failure', 'Neural board unreachable.');
+    }
+  }
+
+  let statusPollInterval;
+  function pollTaskStatus(taskId) {
+    if(statusPollInterval) clearInterval(statusPollInterval);
+    
+    statusPollInterval = setInterval(async () => {
+      try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/engine/status/${taskId}`, {
+          headers: { 'Authorization': `Bearer ${storage.get('token')}` }
+        });
+        const task = await res.json();
+        
+        updatePipelineUI(task);
+        
+        if(task.status === 'POSTED_LIVE' || task.status === 'FAILED' || task.status === 'READY_TO_POST') {
+          clearInterval(statusPollInterval);
+          if(task.status === 'FAILED') toast('error', 'Pipeline Error', task.lastError);
+          else toast('success', 'Victory', 'Content successfully architected and deployed.');
+        }
+      } catch(e) { console.warn("Polling error:", e); }
+    }, 3000);
+  }
+
+  function updatePipelineUI(task) {
+    const statusMap = {
+      'QUEUED': 0,
+      'THINKING': 1,
+      'SCRIPTING': 2,
+      'GATHERING_ASSETS': 3,
+      'RENDERING': 4,
+      'DISTRIBUTING': 5,
+      'POSTED_LIVE': 6
+    };
+    
+    const currentIdx = statusMap[task.status] || 0;
+    document.getElementById('engine-txt').textContent = task.status;
+    
+    // Update Workflow Checklist
+    const steps = ['wf-thinking', 'wf-trends', 'wf-hook', 'wf-script', 'wf-render', 'wf-finalize'];
+    steps.forEach((id, idx) => {
+      const el = document.getElementById(id);
+      if(!el) return;
+      if(idx < currentIdx) {
+        el.querySelector('i').className = 'fas fa-check-circle';
+        el.querySelector('i').style.color = 'var(--green)';
+        el.querySelector('.dot-blink').className = 'dot-blink dot-green';
+      } else if(idx === currentIdx) {
+        el.querySelector('i').className = 'fas fa-spinner fa-spin';
+        el.querySelector('i').style.color = 'var(--cyan)';
+        el.querySelector('.dot-blink').className = 'dot-blink dot-cyan';
+      }
+    });
+
+    // Update Side Pipeline Cards
+    if(currentIdx >= 2) { // Scripting
+      const sCard = document.getElementById('card-script');
+      sCard.dataset.content = task.description || 'Generating...';
+      document.getElementById('pipe-script').textContent = 'Draft Ready';
+      document.getElementById('detail-script').textContent = (task.description || '').substring(0, 40) + '...';
+      document.getElementById('detail-script').style.display = 'block';
+      document.getElementById('actions-script').style.display = 'flex';
+      document.getElementById('dot-script').className = 'dot-blink dot-green';
+    }
+
+    if(currentIdx >= 4) { // Rendering
+       document.getElementById('pipe-video').textContent = 'Synthesizing...';
+       document.getElementById('dot-video').className = 'dot-blink dot-cyan';
+    }
+
+    if(task.status === 'POSTED_LIVE' || task.status === 'READY_TO_POST') {
+       document.getElementById('pipe-video').textContent = 'HD Ready';
+       document.getElementById('dot-video').className = 'dot-blink dot-green';
+       document.getElementById('actions-video').style.display = 'flex';
+       if(task.finalOutputUrls && task.finalOutputUrls.longVideo) {
+         document.getElementById('card-video').dataset.content = task.finalOutputUrls.longVideo;
+       }
+    }
+  }
+
+  function simulateWorkflow(step) {
+    // Legacy fallback for UI demo
+    console.log("Simulating workflow step:", step);
+  }
+
+  function logout() { storage.clear(); window.location.href='auth.html'; }
+
+  // PWA Install Logic
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const btn = document.getElementById('pwa-install-btn');
+    if(btn) btn.style.display = 'flex';
+  });
+
+  async function installPWA() {
+    if(!deferredPrompt) {
+      toast('info', 'How to Install', 'To download: Click your browser menu (3 dots) and select "Install App" or "Add to Home Screen".');
+      return;
+    }
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if(outcome === 'accepted') {
+      document.getElementById('pwa-install-btn').style.display = 'none';
+    }
+    deferredPrompt = null;
+  }
+
+  window.onload = loadDashboard;
+</script>
+  <script src="pay.js"></script>
+  <script src="core-ui.js" defer></script>
+</body>
+</html>

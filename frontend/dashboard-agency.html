@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>HeroAi Agency — Command Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="brand.css">
+  <script src="config.js"></script>
+  <style>
+    :root { 
+      --accent: #A78BFA; /* Professional Purple */
+      --accent-glow: rgba(167, 139, 250, 0.4);
+    }
+    .client-card { 
+      background: var(--surface); 
+      border: 1px solid var(--border); 
+      border-radius: 16px; 
+      padding: 16px; 
+      margin-bottom: 12px; 
+      cursor: pointer; 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .client-card:hover { border-color: var(--accent); background: var(--surface2); transform: translateY(-2px); }
+    .client-card.active { border-color: var(--accent); background: rgba(167, 139, 250, 0.08); box-shadow: 0 0 20px var(--accent-glow); }
+    .client-card .status-dot { width: 8px; height: 8px; border-radius: 50%; position: absolute; top: 16px; right: 16px; }
+    
+    .onboarding-btn { background: var(--accent); color: #fff; width: 100%; border: none; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+    .accuracy-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(167, 139, 250, 0.1); border: 1px solid var(--accent); color: var(--accent); padding: 6px 12px; border-radius: 20px; font-size: 10px; font-weight: 800; margin-bottom: 20px; }
+    
+    .client-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+    .scheduler-item { display: flex; align-items: center; gap: 15px; padding: 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; }
+    
+    /* Responsive overrides */
+    @media (max-width: 1024px) {
+      .dash-container { grid-template-columns: 1fr; }
+      .pipeline-sidebar, .control-sidebar { display: none; }
+      .pipeline-sidebar.mobile-on { display: block; position: fixed; inset: 0; z-index: 1000; background: var(--bg); padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="dash-container" id="dashRoot" style="display:grid; grid-template-columns: 280px 1fr 300px; height: 100vh;">
+  
+  <!-- LEFT: CLIENT LIST -->
+  <aside class="pipeline-sidebar" style="background:var(--bg2); border-right:1px solid var(--border); padding:20px; overflow-y:auto;">
+    <div style="margin-bottom:20px; padding-bottom:15px; border-bottom:1px solid var(--border);">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+        <div class="avatar" style="background:var(--accent); color:#fff; width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:800;">A</div>
+        <div>
+          <div id="agency-name" style="font-weight:800; font-size:14px; color:var(--text);">Agency Hub</div>
+          <div id="agency-credits" style="font-size:10px; color:var(--accent); font-weight:700;">Credits: 4,280</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-h" style="margin-bottom:15px;">Managed Businesses</div>
+    <div id="client-list">
+       <!-- Dynamic Clients -->
+       <div class="client-card active">
+          <div style="font-weight:700; font-size:13px;">Nike India</div>
+          <div style="font-size:10px; color:var(--text3); margin-top:4px;">Niche: Sports • Active</div>
+          <div class="status-dot" style="background:var(--green);"></div>
+       </div>
+    </div>
+    <button class="onboarding-btn" onclick="openAddClientModal()" style="margin-top:10px; font-size:11px;">+ Register New Business</button>
+  </aside>
+
+  <!-- CENTER: CLIENT COMMAND CENTER -->
+  <main class="engine-center" style="padding:40px; overflow-y:auto; text-align:center; display:flex; flex-direction:column; align-items:center;">
+    <div id="active-client-view" style="width:100%; max-width:900px;">
+      <div class="accuracy-badge">
+         <i class="fas fa-crown"></i> Agency Master Control — <span id="viewing-client-name">Nike India</span>
+      </div>
+      
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px; margin-bottom:30px;">
+         <div class="stat-card" style="background:var(--surface); padding:15px; border-radius:16px; border:1px solid var(--border);">
+            <div class="stat-lbl">Daily Reach</div>
+            <div class="stat-val" style="font-size:24px; font-weight:800; color:var(--accent);">128.4K</div>
+         </div>
+         <div class="stat-card" style="background:var(--surface); padding:15px; border-radius:16px; border:1px solid var(--border);">
+            <div class="stat-lbl">Videos/Mo</div>
+            <div class="stat-val" style="font-size:24px; font-weight:800; color:var(--accent);">42</div>
+         </div>
+         <div class="stat-card" style="background:var(--surface); padding:15px; border-radius:16px; border:1px solid var(--border);">
+            <div class="stat-lbl">Efficiency</div>
+            <div class="stat-val" style="font-size:24px; font-weight:800; color:var(--green);">99.4%</div>
+         </div>
+      </div>
+
+      <div class="card" style="background:var(--surface); padding:24px; border-radius:20px; border:1px solid var(--border); text-align:left;">
+         <div class="menu-h" style="margin-bottom:20px; display:flex; justify-content:space-between;">
+            Post Optimization Calendar
+            <span style="color:var(--accent); font-size:10px; cursor:pointer;" onclick="toast('info','Schedule','Syncing with GVI Trends...')">Recalibrate for Virality</span>
+         </div>
+         <div id="scheduler-list">
+            <div class="scheduler-item">
+               <div style="width:40px; height:40px; background:var(--bg3); border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--accent);"><i class="fas fa-calendar-day"></i></div>
+               <div style="flex:1;">
+                  <div style="font-size:12px; font-weight:700;">Reel: High-Octane Speed</div>
+                  <div style="font-size:10px; color:var(--text3);">Scheduled: Today, 7:30 PM (Optimal Reach)</div>
+               </div>
+               <div class="badge badge-green" style="font-size:9px;">READY</div>
+            </div>
+            <div class="scheduler-item">
+               <div style="width:40px; height:40px; background:var(--bg3); border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--accent);"><i class="fas fa-calendar-day"></i></div>
+               <div style="flex:1;">
+                  <div style="font-size:12px; font-weight:700;">Video: The Marathon Spirit</div>
+                  <div style="font-size:10px; color:var(--text3);">Scheduled: Tomorrow, 11:15 AM</div>
+               </div>
+               <div class="badge" style="background:var(--bg); color:var(--text3); font-size:9px;">QUEUED</div>
+            </div>
+         </div>
+      </div>
+
+      <div style="margin-top:30px; display:flex; gap:15px;">
+         <button class="onboarding-btn" style="flex:1;" onclick="startGeneration()">Trigger Instance Production</button>
+         <button class="onboarding-btn" style="flex:1; background:var(--bg3); border:1px solid var(--accent); color:var(--accent);" onclick="openAdManager()">Launch Ad Campaign</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT: GLOBAL AGENCY SETTINGS -->
+  <aside class="control-sidebar" style="background:var(--bg2); border-left:1px solid var(--border); padding:20px; overflow-y:auto;">
+    <div class="menu-section">
+      <div class="menu-h">Agency Master Control</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--surface2); border-radius:12px; margin-top:10px;">
+         <div style="font-size:12px; font-weight:700;">Global Auto-Pilot</div>
+         <label class="switch">
+            <input type="checkbox" checked id="global-auto">
+            <span class="slider round"></span>
+         </label>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-h">Smart Post Manager</div>
+      <div class="menu-item"><i class="fas fa-clock"></i> Intelligent Gap Timer (4h)</div>
+      <div class="menu-item"><i class="fas fa-magic"></i> Bulk SEO Rewriter</div>
+      <div class="menu-item"><i class="fas fa-chart-line"></i> ROI Comparison Tool</div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-h">Managed Services</div>
+      <div class="menu-item"><i class="fas fa-ad"></i> Agency Ad Network (Meta)</div>
+      <div class="menu-item"><i class="fas fa-ad"></i> Agency Ad Network (Google)</div>
+      <div class="menu-item"><i class="fas fa-wallet"></i> Agency Payouts</div>
+    </div>
+
+    <div class="menu-section" style="margin-top:auto;">
+       <div style="padding:15px; background:var(--surface2); border:1px solid var(--border); border-radius:16px;">
+          <div style="font-size:10px; color:var(--text3); text-transform:uppercase; font-weight:800;">Global Agency Balance</div>
+          <div style="font-size:24px; font-weight:800; color:var(--accent); margin-top:5px;">₹1,42,500</div>
+          <div style="font-size:9px; color:var(--text2); margin-top:4px;">*Deducted automatically for Ad Spend & Credits</div>
+       </div>
+       <div class="menu-item" style="color:var(--rose); margin-top:15px;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Secure Logout</div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- Add Client Modal -->
+<div class="onboarding-overlay" id="addClientModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:10000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(20px);">
+  <div class="glass-modal" style="width:100%; max-width:400px; background:var(--surface2); padding:30px; border-radius:24px; border:1px solid var(--border);">
+    <h2 style="font-family:var(--fh); color:var(--accent);">Register Business</h2>
+    <div style="margin-top:20px; text-align:left;">
+      <label style="font-size:11px; color:var(--text3); text-transform:uppercase;">Business Name</label>
+      <input type="text" id="cl-name" style="width:100%; background:var(--bg); border:1px solid var(--border); padding:12px; border-radius:10px; color:#fff; margin-bottom:15px;">
+      
+      <label style="font-size:11px; color:var(--text3); text-transform:uppercase;">Niche</label>
+      <select id="cl-niche" style="width:100%; background:var(--bg); border:1px solid var(--border); padding:12px; border-radius:10px; color:#fff; margin-bottom:15px;">
+        <option>E-commerce</option>
+        <option>Personal Branding</option>
+        <option>SaaS/Tech</option>
+        <option>Health & Fitness</option>
+      </select>
+      
+      <button class="onboarding-btn" onclick="submitNewClient()">Link to Command Center</button>
+      <button class="onboarding-btn" style="background:transparent; color:var(--text3); margin-top:10px;" onclick="closeAddClientModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="ui.js"></script>
+<script>
+  let currentUser = storage.get('user');
+  let clients = [];
+  let activeClient = null;
+
+  async function loadAgencyDashboard() {
+    if(!currentUser || !storage.get('token')) { window.location.href='auth.html'; return; }
+    
+    document.getElementById('agency-name').textContent = currentUser.profile.name;
+    document.getElementById('agency-credits').textContent = `Credits: ${currentUser.subscription.creditsRemaining}`;
+
+    fetchClients();
+  }
+
+  async function fetchClients() {
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/clients/my-clients/${currentUser._id}`, {
+        headers: { 'Authorization': `Bearer ${storage.get('token')}` }
+      });
+      clients = await res.json();
+      renderClientList();
+    } catch(e) {
+      console.warn("Client fetch failed. Using demo data.");
+    }
+  }
+
+  function renderClientList() {
+    const list = document.getElementById('client-list');
+    if(clients.length === 0) {
+      list.innerHTML = '<div style="font-size:11px; color:var(--text3); text-align:center; padding:20px;">No businesses linked yet.</div>';
+      return;
+    }
+    list.innerHTML = '';
+    clients.forEach(client => {
+      const div = document.createElement('div');
+      div.className = `client-card ${activeClient && activeClient._id === client._id ? 'active' : ''}`;
+      div.onclick = () => selectClient(client);
+      div.innerHTML = `
+        <div style="font-weight:700; font-size:13px;">${client.businessName}</div>
+        <div style="font-size:10px; color:var(--text3); margin-top:4px;">Niche: ${client.niche} • ${client.status}</div>
+        <div class="status-dot" style="background:${client.status === 'ACTIVE' ? 'var(--green)' : 'var(--text3)'};"></div>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function selectClient(client) {
+    activeClient = client;
+    document.getElementById('viewing-client-name').textContent = client.businessName;
+    renderClientList();
+    toast('success', 'Profile Switched', `Switched to ${client.businessName} Command View.`);
+  }
+
+  function openAddClientModal() { document.getElementById('addClientModal').style.display = 'flex'; }
+  function closeAddClientModal() { document.getElementById('addClientModal').style.display = 'none'; }
+
+  async function submitNewClient() {
+    const name = document.getElementById('cl-name').value;
+    const niche = document.getElementById('cl-niche').value;
+    if(!name) return;
+
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/clients/add`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${storage.get('token')}`
+        },
+        body: JSON.stringify({
+          agencyId: currentUser._id,
+          businessName: name,
+          niche: niche
+        })
+      });
+      if(res.ok) {
+        toast('success', 'Linked', 'Business registered successfully.');
+        closeAddClientModal();
+        fetchClients();
+      }
+    } catch(e) { toast('error', 'Error', 'Connection failed.'); }
+  }
+
+  function startGeneration() {
+    if(!activeClient) return toast('warning', 'Select Client', 'Please select a business to trigger production.');
+    toast('info', 'Triggering AI', `Orchestrating content for ${activeClient.businessName}...`);
+  }
+
+  function openAdManager() {
+    toast('info', 'Ad Network', 'Launching Meta/Google Agency Ad matrix...');
+  }
+
+  function logout() { storage.clear(); window.location.href='auth.html'; }
+  function toast(type, title, msg) {
+    const stack = document.getElementById('toastStack');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.innerHTML = `<strong>${title}</strong><p>${msg}</p>`;
+    stack.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+  window.onload = loadAgencyDashboard;
+</script>
+</body>
+</html>

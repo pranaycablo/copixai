@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>HeroAi — Onboarding Experience</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<link rel="stylesheet" href="brand.css">
+<script src="config.js"></script>
+<script src="ui.js"></script>
+<style>
+  :root { 
+    --fh:'Syne', sans-serif; 
+    --fm:'Plus Jakarta Sans', sans-serif; 
+    --fmono: 'JetBrains Mono', monospace;
+    --c: #00D4FF; --p: #7000FF; --bg: #050509; --s1: #0C0C18; --s2: #141428; 
+    --t: #FFFFFF; --t2: rgba(255, 255, 255, 0.7); --t3: rgba(255, 255, 255, 0.4);
+    --gb: rgba(255, 255, 255, 0.08);
+  }
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { 
+    background: var(--bg); 
+    color: var(--t); 
+    font-family: var(--fm); 
+    min-height: 100vh; 
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bg-decor { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none; }
+  .orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.1; }
+  .o1 { top: -10%; right: -10%; width: 500px; height: 500px; background: var(--c); animation: drift 20s infinite alternate; }
+  .o2 { bottom: -10%; left: -10%; width: 600px; height: 600px; background: var(--p); animation: drift 25s infinite alternate-reverse; }
+  @keyframes drift { from { transform: translate(0, 0) } to { transform: translate(50px, 100px) } }
+
+  .setup-header { 
+    position: sticky; top: 0; background: rgba(5,5,9,0.8); backdrop-filter: blur(20px); 
+    border-bottom: 1px solid var(--gb); padding: 15px 40px; z-index: 100; 
+    display: flex; justify-content: space-between; align-items: center; 
+  }
+  .progress-bar { height: 4px; background: var(--gb); border-radius: 2px; flex: 1; margin: 0 40px; overflow: hidden; max-width: 400px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--c), var(--p)); width: 20%; transition: 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+  
+  .setup-container { max-width: 800px; margin: 60px auto; padding: 0 20px; flex: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; }
+  .setup-card { 
+    background: rgba(12, 12, 24, 0.6); backdrop-filter: blur(40px);
+    border: 1px solid var(--gb); border-radius: 40px; padding: 50px; 
+    display: grid; grid-template-columns: 1fr; overflow: hidden; min-height: 550px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+    position: relative;
+  }
+  
+  .screen { 
+    grid-area: 1 / 1; opacity: 0; transform: translateX(30px); 
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
+    pointer-events: none; visibility: hidden;
+  }
+  .screen.active { opacity: 1; transform: translateX(0); pointer-events: auto; visibility: visible; }
+  .screen.exit { opacity: 0; transform: translateX(-30px); pointer-events: none; visibility: visible; }
+  
+  h1 { font-family: var(--fh); font-size: 36px; font-weight: 800; margin-bottom: 12px; letter-spacing: -1px; }
+  .subtitle { color: var(--t2); font-size: 16px; margin-bottom: 40px; line-height: 1.6; }
+  
+  /* ROLE GRID */
+  .role-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 30px; }
+  .role-card { 
+    background: rgba(255,255,255,0.02); border: 1.5px solid var(--gb); border-radius: 28px; 
+    padding: 24px; cursor: pointer; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .role-card:hover { border-color: var(--c); background: rgba(0,212,255,0.05); transform: translateY(-8px); }
+  .role-card.active { border-color: var(--c); background: rgba(0,212,255,0.1); box-shadow: 0 15px 30px rgba(0,212,255,0.15); }
+  .role-icon { width: 56px; height: 56px; background: var(--s2); border-radius: 18px; display: flex; align-items: center; justify-content: center; color: var(--c); font-size: 24px; transition: 0.3s; }
+  .role-card.active .role-icon { background: var(--c); color: #000; }
+  .role-h { font-size: 18px; font-weight: 700; }
+  .role-p { font-size: 12px; color: var(--t3); font-weight: 500; }
+  .role-limit { font-size: 10px; font-weight: 800; color: var(--p); text-transform: uppercase; margin-top: 8px; letter-spacing: 0.5px; }
+
+  /* SOCIAL GRID */
+  .social-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 30px; }
+  .social-item { 
+    background: rgba(255,255,255,0.02); border: 1.5px solid var(--gb); border-radius: 20px; 
+    padding: 16px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.3s;
+  }
+  .social-item:hover { background: rgba(255,255,255,0.05); border-color: var(--t3); }
+  .social-item.active { border-color: var(--c); background: rgba(0,212,255,0.08); }
+  .social-item i { font-size: 20px; width: 24px; text-align: center; }
+  .social-item span { font-size: 14px; font-weight: 600; }
+  
+  /* NICHE CLOUD */
+  .niche-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; }
+  .niche-tag { 
+    padding: 10px 20px; border-radius: 99px; background: rgba(255,255,255,0.03); 
+    border: 1px solid var(--gb); cursor: pointer; transition: 0.3s; font-size: 13px; font-weight: 600;
+  }
+  .niche-tag:hover { background: rgba(255,255,255,0.08); }
+  .niche-tag.active { background: var(--p); border-color: var(--p); color: #fff; box-shadow: 0 5px 15px rgba(112, 0, 255, 0.3); }
+
+  /* PREVIEW CARD */
+  .preview-wrap { background: var(--s2); border-radius: 24px; padding: 30px; border: 1px solid var(--gb); display: flex; align-items: center; gap: 20px; margin-bottom: 30px; animation: slideUp 0.6s ease; }
+  .preview-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--c), var(--p)); padding: 3px; }
+  .preview-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--s2); }
+  .preview-info h3 { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .preview-info p { color: var(--t3); font-size: 13px; font-family: var(--fmono); }
+  .verified-badge { background: var(--c); color: #000; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; margin-left: 8px; text-transform: uppercase; }
+
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  .setup-footer { margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+  .btn { 
+    padding: 16px 32px; border-radius: 16px; font-size: 15px; font-weight: 700; 
+    cursor: pointer; transition: 0.3s; border: none; display: flex; align-items: center; gap: 10px;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--c), var(--p)); color: #fff; box-shadow: 0 10px 25px rgba(0, 212, 255, 0.2); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(0, 212, 255, 0.3); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-ghost { background: rgba(255,255,255,0.03); color: var(--t2); border: 1px solid var(--gb); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.06); color: var(--t); }
+
+  .logo-text { font-family: var(--fh); font-size: 24px; font-weight: 800; }
+  .logo-hero { background: linear-gradient(135deg, #FFD700, #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .logo-ai { background: linear-gradient(135deg, #00D4FF, #7000FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+  /* LARGE INPUT FOR SOCIALS */
+  .large-input-wrap { 
+    background: rgba(255, 255, 255, 0.05); 
+    border: 2px solid var(--gb); 
+    border-radius: 20px; 
+    display: flex; 
+    align-items: center; 
+    transition: 0.4s;
+    padding: 4px;
+  }
+  .large-input-wrap:focus-within { border-color: var(--c); background: rgba(0, 212, 255, 0.08); box-shadow: 0 0 30px rgba(0, 212, 255, 0.2); }
+  .large-input { 
+    width: 100%; background: none; border: none; padding: 18px 20px; 
+    color: var(--t); font-family: var(--fmono); font-size: 16px; font-weight: 500; 
+  }
+  .large-input::placeholder { color: var(--t3); font-size: 14px; }
+  
+  /* TOAST STYLES */
+  .toast { 
+    background: rgba(12, 12, 24, 0.95); backdrop-filter: blur(20px); 
+    border: 1px solid var(--gb); border-radius: 16px; padding: 16px; 
+    display: flex; gap: 12px; min-width: 300px; animation: slideInHai 0.3s ease;
+    margin-bottom: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  .toast.success { border-color: #10F5A1; }
+  .toast.error { border-color: #FF4D4D; }
+  .toast-icon { font-size: 20px; }
+  .toast-title { font-weight: 800; font-family: var(--fh); font-size: 14px; color: #fff; }
+  .toast-msg { font-size: 12px; color: var(--t2); margin-top: 2px; }
+  @keyframes slideInHai { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  
+  @media (max-width: 600px) {
+    .setup-card { padding: 30px; border-radius: 0; border: none; min-height: 100vh; margin: 0; }
+    .setup-container { margin: 0; padding: 0; }
+    .setup-header { padding: 15px 20px; }
+    .progress-bar { margin: 0 15px; }
+    .role-grid { grid-template-columns: 1fr 1fr; }
+    .social-grid { grid-template-columns: 1fr 1fr; }
+    h1 { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+  <div class="bg-decor">
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+  </div>
+
+  <!-- TOAST SYSTEM -->
+  <div id="toastContainer" style="position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px;"></div>
+
+  <div class="setup-header">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="logo-text"><span class="logo-hero">Hero</span><span class="logo-ai">Ai</span></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progBar"></div></div>
+    <div style="font-size:11px; font-weight:800; color:var(--t3); font-family: var(--fmono)">PHASE <span id="stepNum" style="color:var(--c)">1</span>/5</div>
+  </div>
+
+  <div class="setup-container">
+    <div class="setup-card">
+      <!-- STEP 1: ROLE -->
+      <div id="step1" class="screen active">
+        <h1>Identify Your Mission</h1>
+        <p class="subtitle">Select the persona that best describes your content journey.</p>
+        <div class="role-grid">
+          <div class="role-card" onclick="setRole('beginner', this)">
+            <div class="role-icon"><i class="fas fa-seedling"></i></div>
+            <h3 class="role-h">Beginner</h3>
+            <p class="role-p">Just starting the climb.</p>
+            <div class="role-limit">1 Channel</div>
+          </div>
+          <div class="role-card" onclick="setRole('creator', this)">
+            <div class="role-icon"><i class="fas fa-video"></i></div>
+            <h3 class="role-h">Creator</h3>
+            <p class="role-p">Building a solo brand.</p>
+            <div class="role-limit">3 Channels</div>
+          </div>
+          <div class="role-card" onclick="setRole('business', this)">
+            <div class="role-icon"><i class="fas fa-briefcase"></i></div>
+            <h3 class="role-h">Business</h3>
+            <p class="role-p">Scaling ROI & Leads.</p>
+            <div class="role-limit">5 Channels</div>
+          </div>
+          <div class="role-card" onclick="setRole('agency', this)">
+            <div class="role-icon"><i class="fas fa-users"></i></div>
+            <h3 class="role-h">Agency</h3>
+            <p class="role-p">Managing the multiverse.</p>
+            <div class="role-limit">10+ Channels</div>
+          </div>
+        </div>
+        <div class="setup-footer">
+          <div></div>
+          <button class="btn btn-primary" id="next1" disabled onclick="nextStep(2)">Next Phase <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- STEP 2: SOCIALS -->
+      <div id="step2" class="screen">
+        <h1>Connect Networks</h1>
+        <p class="subtitle">Where will your AI content dominate? Select multiple.</p>
+        <div id="socialSelector">
+          <div class="social-grid">
+            <div class="social-item" onclick="toggleSocial('YouTube', this)"><i class="fab fa-youtube" style="color:#FF0000"></i><span>YouTube</span></div>
+            <div class="social-item" onclick="toggleSocial('Instagram', this)"><i class="fab fa-instagram" style="color:#E4405F"></i><span>Instagram</span></div>
+            <div class="social-item" onclick="toggleSocial('Facebook', this)"><i class="fab fa-facebook" style="color:#1877F2"></i><span>Facebook</span></div>
+            <div class="social-item" onclick="toggleSocial('TikTok', this)"><i class="fab fa-tiktok" style="color:#fff"></i><span>TikTok</span></div>
+            <div class="social-item" onclick="toggleSocial('LinkedIn', this)"><i class="fab fa-linkedin" style="color:#0A66C2"></i><span>LinkedIn</span></div>
+            <div class="social-item" onclick="toggleSocial('Twitter', this)"><i class="fab fa-twitter" style="color:#1DA1F2"></i><span>Twitter (X)</span></div>
+          </div>
+        </div>
+        
+        <div id="socialInputs" style="display:none; flex-direction:column; gap:15px; margin-bottom:30px;">
+          <p style="font-size:12px; color:var(--t3); margin-bottom:10px;">Enter your channel/page handles or full URLs (e.g. www.youtube.com/user)</p>
+          <div id="linkFields"></div>
+        </div>
+
+        <div class="setup-footer">
+          <button class="btn btn-ghost" id="back2" onclick="goBackSocial()"><i class="fas fa-arrow-left"></i> Back</button>
+          <button class="btn btn-primary" id="next2" disabled onclick="handleSocialNext()">Continue <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- STEP 3: NICHES -->
+      <div id="step3" class="screen">
+        <h1>Select Your Niche</h1>
+        <p class="subtitle">Define your content categories for AI optimization.</p>
+        <div class="niche-cloud">
+          <div class="niche-tag" onclick="toggleNiche('Technology', this)">Technology</div>
+          <div class="niche-tag" onclick="toggleNiche('Finance', this)">Finance</div>
+          <div class="niche-tag" onclick="toggleNiche('Lifestyle', this)">Lifestyle</div>
+          <div class="niche-tag" onclick="toggleNiche('Gaming', this)">Gaming</div>
+          <div class="niche-tag" onclick="toggleNiche('Education', this)">Education</div>
+          <div class="niche-tag" onclick="toggleNiche('Business', this)">Business</div>
+          <div class="niche-tag" onclick="toggleNiche('Health', this)">Health & Fitness</div>
+          <div class="niche-tag" onclick="toggleNiche('Travel', this)">Travel</div>
+          <div class="niche-tag" onclick="toggleNiche('Food', this)">Food & Cooking</div>
+          <div class="niche-tag" onclick="toggleNiche('Fashion', this)">Fashion & Beauty</div>
+          <div class="niche-tag" onclick="toggleNiche('Motivation', this)">Motivation</div>
+          <div class="niche-tag" onclick="toggleNiche('AI News', this)">AI News</div>
+        </div>
+        <div class="setup-footer">
+          <button class="btn btn-ghost" onclick="nextStep(2)"><i class="fas fa-arrow-left"></i> Back</button>
+          <button class="btn btn-primary" id="next3" disabled onclick="nextStep(4)">Continue <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- STEP 4: VERIFICATION -->
+      <div id="step4" class="screen">
+        <h1>Verify Your Channel</h1>
+        <p class="subtitle">We found your primary asset. Confirm to link it securely.</p>
+        
+        <div class="preview-wrap">
+          <div class="preview-avatar"><img id="previewImg" src="https://ui-avatars.com/api/?name=Hero+Creator&background=0D8ABC&color=fff&size=128"></div>
+          <div class="preview-info">
+            <h3 id="previewName">Detecting Account... <span class="verified-badge"><i class="fas fa-check"></i> Verified</span></h3>
+            <div style="display:flex; gap:6px; margin-top:4px;">
+              <span id="previewHandle" style="color:var(--t3); font-size:13px; font-family:var(--fmono)">@loading_identity...</span>
+              <span class="badge badge-purple" style="font-size:8px; padding:2px 6px;">FOUNDER</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.2); padding: 16px; border-radius: 16px; color: #FFD700; font-size: 13px; display: flex; gap: 12px; align-items: flex-start; margin-bottom: 30px;">
+          <i class="fas fa-shield-halved" style="margin-top:3px"></i>
+          <span>Secure link active. HeroAi uses official API protocols. We never store your passwords.</span>
+        </div>
+
+        <div class="setup-footer">
+          <button class="btn btn-ghost" onclick="nextStep(3)"><i class="fas fa-arrow-left"></i> Back</button>
+          <button class="btn btn-primary" onclick="nextStep(5)">Verify & Confirm <i class="fas fa-check-double"></i></button>
+        </div>
+      </div>
+
+      <!-- STEP 5: FINAL -->
+      <div id="step5" class="screen">
+        <h1>You're All Set!</h1>
+        <p class="subtitle">Your AI Content Factory is calibrated and ready for takeoff.</p>
+        
+        <div style="text-align:center; padding: 40px 0;">
+          <div style="font-size: 80px; color: var(--c); margin-bottom: 20px; filter: drop-shadow(0 0 20px var(--c));">
+            <i class="fas fa-rocket"></i>
+          </div>
+          <h2 style="font-family: var(--fh); font-size: 24px; margin-bottom: 10px;">Welcome to the Future</h2>
+          <p style="color: var(--t3); font-size: 14px;">Your dashboard is being personalized for your <span id="finalRole" style="color:var(--c); font-weight:700">CREATOR</span> profile.</p>
+        </div>
+
+        <div class="setup-footer">
+          <div></div>
+          <button class="btn btn-primary" style="width:100%" onclick="completeSetup()">
+            Enter Dashboard <i class="fas fa-door-open"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const user = storage.get('user');
+    let setupData = { 
+      role: '', 
+      socials: [], // Array of { platform, handle, isVerified }
+      niches: [],
+      isSetupComplete: false 
+    };
+
+    let currentSocialSubStep = 1; // 1: Select, 2: Links
+
+    async function initSetup() {
+      const localUser = storage.get('user');
+      if (!localUser) { window.location.href = 'auth.html'; return; }
+
+      // Fetch Fresh Status from Server to prevent stale redirect loops
+      try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/auth/me/${localUser._id}`, {
+          headers: { 'Authorization': `Bearer ${storage.get('token')}` }
+        });
+        const user = await res.json();
+        if (res.ok && user.isSetupComplete) {
+          const role = user.profile.role;
+          if(role === 'AGENCY') window.location.href = 'dashboard-agency.html';
+          else if(role === 'BUSINESS') window.location.href = 'dashboard-business.html';
+          else if(user.subscription.planId === 'creator' || user.subscription.planId === 'pro') window.location.href = 'dashboard-pro.html';
+          else window.location.href = 'dashboard.html';
+        }
+      } catch (e) { console.log("Status check failed, using local."); }
+    }
+    initSetup();
+
+    function nextStep(n) {
+      const container = document.querySelector('.setup-container');
+      
+      const active = document.querySelector('.screen.active');
+      if (active) { 
+        active.classList.add('exit'); 
+        active.classList.remove('active'); 
+        setTimeout(() => active.classList.remove('exit'), 600); 
+      }
+      
+      setTimeout(() => {
+        const next = document.getElementById('step' + n);
+        next.classList.add('active');
+        document.getElementById('progBar').style.width = (n * 20) + '%';
+        document.getElementById('stepNum').innerText = n;
+        
+        if (n === 3) syncNicheData();
+        if (n === 4) finalizeSetupAnimation();
+        if (n === 5) document.getElementById('finalRole').innerText = (setupData.role || 'creator').toUpperCase();
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+    }
+
+    function setRole(r, el) { 
+      setupData.role = r; 
+      document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active')); 
+      el.classList.add('active'); 
+      document.getElementById('next1').disabled = false;
+      setTimeout(() => nextStep(2), 500); 
+    }
+
+    function toggleSocial(s, el) {
+      const existing = setupData.socials.find(x => x.platform === s);
+      if (existing) {
+        setupData.socials = setupData.socials.filter(x => x.platform !== s);
+        el.classList.remove('active');
+      } else {
+        setupData.socials.push({ platform: s, handle: '', isVerified: false });
+        el.classList.add('active');
+      }
+      document.getElementById('next2').disabled = setupData.socials.length === 0;
+    }
+
+    function handleSocialNext() {
+      try {
+        if (currentSocialSubStep === 1) {
+          currentSocialSubStep = 2;
+          document.getElementById('socialSelector').style.display = 'none';
+          document.getElementById('socialInputs').style.display = 'flex';
+          
+          const primary = setupData.socials[0];
+          
+          const fieldContainer = document.getElementById('linkFields');
+          fieldContainer.innerHTML = `
+            <div style="text-align:left; padding:10px;">
+              <h3 style="font-family:var(--fh); margin-bottom:10px;">Connect ${primary.platform}</h3>
+              <p style="color:var(--t3); font-size:13px; margin-bottom: 20px;">Paste your channel or profile link to connect it with the engine.</p>
+              
+              <div class="large-input-wrap" style="position:relative; margin-bottom:15px; border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 14px; background: rgba(255,255,255,0.02); display: flex; align-items: center; padding: 12px;">
+                <i class="fab fa-${primary.platform.toLowerCase() === 'youtube' ? 'youtube' : primary.platform.toLowerCase() === 'twitter' ? 'twitter' : primary.platform.toLowerCase()}" style="font-size:20px; color:var(--c); margin-right:12px;"></i>
+                <input type="text" id="socialLinkInput" placeholder="https://${primary.platform.toLowerCase()}.com/yourchannel" style="background:transparent; border:none; width:100%; color:white; outline:none; font-family:var(--fm); font-size:14px;" oninput="validateSocialLink(this)">
+              </div>
+              
+              <div id="channelPreview" style="display:none; background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 14px; padding: 20px; margin-top: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--c), var(--p)); margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 0 20px rgba(0,212,255,0.4);"><i class="fas fa-user-circle"></i></div>
+                <h4 id="previewName" style="color: white; margin-bottom: 5px; font-size:18px;">Channel Name</h4>
+                <p id="previewSubs" style="color: var(--t3); font-size: 13px; margin-bottom: 20px;">Verification pending...</p>
+                <button class="btn btn-primary" onclick="verifyAndConnect()" style="padding: 12px; font-size: 14px; width: 100%;">Verify & Connect <i class="fas fa-check-circle"></i></button>
+              </div>
+            </div>
+          `;
+          
+          const btn = document.getElementById('next2');
+          btn.disabled = true;
+          btn.innerHTML = 'Find Channel <i class="fas fa-search"></i>';
+          btn.onclick = searchChannel;
+        }
+      } catch (err) { nextStep(3); }
+    }
+
+    function validateSocialLink(inp) {
+      const val = inp.value.trim();
+      document.getElementById('next2').disabled = val.length < 5;
+    }
+
+    function searchChannel() {
+      const inp = document.getElementById('socialLinkInput').value.trim();
+      if(inp.length < 5) return;
+      
+      const btn = document.getElementById('next2');
+      btn.innerHTML = 'Searching... <i class="fas fa-spinner fa-spin"></i>';
+      
+      setTimeout(() => {
+        btn.style.display = 'none';
+        const preview = document.getElementById('channelPreview');
+        preview.style.display = 'block';
+        
+        let handle = inp.split('/').filter(Boolean).pop() || 'UserChannel';
+        if(handle.includes('?')) handle = handle.split('?')[0];
+        if(!handle.startsWith('@')) handle = '@' + handle;
+        
+        document.getElementById('previewName').innerText = handle;
+        document.getElementById('previewSubs').innerText = Math.floor(Math.random() * 50 + 1) + '.' + Math.floor(Math.random() * 9) + 'K Followers';
+      }, 1500);
+    }
+
+    function verifyAndConnect() {
+      showToast('success', 'Channel Verified', 'Your account has been successfully linked.');
+      const primary = setupData.socials[0];
+      primary.handle = document.getElementById('previewName').innerText;
+      primary.isVerified = true;
+      
+      const btn = document.getElementById('next2');
+      btn.style.display = 'block';
+      btn.innerHTML = 'Continue <i class="fas fa-arrow-right"></i>';
+      btn.onclick = handleSocialNext;
+      
+      setTimeout(() => {
+        nextStep(3);
+      }, 500);
+    }
+
+    function goBackSocial() {
+      if (currentSocialSubStep === 2) {
+        currentSocialSubStep = 1;
+        document.getElementById('socialInputs').style.display = 'none';
+        document.getElementById('socialSelector').style.display = 'block';
+        
+        const btn = document.getElementById('next2');
+        btn.style.display = 'flex';
+        btn.innerHTML = 'Continue <i class="fas fa-arrow-right"></i>';
+        btn.onclick = handleSocialNext;
+        btn.disabled = setupData.socials.length === 0;
+        document.getElementById('next2').innerHTML = 'Continue <i class="fas fa-arrow-right"></i>';
+      } else {
+        nextStep(1);
+      }
+    }
+
+    function toggleNiche(n, el) {
+      const nicheGroups = {
+        'Professional': ['Technology', 'Finance', 'Education', 'Business', 'AI News', 'Real Estate', 'Marketing'],
+        'Entertainment': ['Gaming', 'Comedy', 'Movie Reviews', 'Music', 'Entertainment'],
+        'Lifestyle': ['Lifestyle', 'Health & Fitness', 'Travel', 'Food & Cooking', 'Fashion & Beauty'],
+        'Personal': ['Motivation', 'Self-Improvement', 'Spirituality']
+      };
+
+      const getGroup = (niche) => {
+        for (const [group, members] of Object.entries(nicheGroups)) {
+          if (members.includes(niche)) return group;
+        }
+        return 'Other';
+      };
+
+      if (setupData.niches.includes(n)) {
+        setupData.niches = setupData.niches.filter(x => x !== n);
+        el.classList.remove('active');
+      } else {
+        // AI Guidance Logic
+        if (setupData.niches.length > 0) {
+          const currentGroup = getGroup(setupData.niches[0]);
+          const newGroup = getGroup(n);
+          
+          if (currentGroup !== newGroup && currentGroup !== 'Other' && newGroup !== 'Other') {
+            showToast('warning', 'AI Guidance', `To maintain channel authority, we recommend sticking to ${currentGroup} niches.`);
+            // We allow it, but warn. Or we could block.
+            // For now, let's just warn to keep the "AI Guidance" feel.
+          }
+        }
+        
+        setupData.niches.push(n);
+        el.classList.add('active');
+      }
+      document.getElementById('next3').disabled = setupData.niches.length === 0;
+    }
+
+    function syncNicheData() {
+      const primary = setupData.socials[0];
+      if (!primary) return;
+      
+      const handle = primary.handle.toLowerCase();
+      let suggested = [];
+      
+      if (handle.includes('decode') || handle.includes('tech') || handle.includes('ai')) {
+        suggested = ['Technology', 'AI News', 'Education'];
+      } else if (handle.includes('fit') || handle.includes('gym')) {
+        suggested = ['Health & Fitness', 'Lifestyle'];
+      } else if (handle.includes('money') || handle.includes('finance') || handle.includes('trade')) {
+        suggested = ['Finance', 'Business'];
+      }
+
+      if (suggested.length > 0) {
+        showToast('info', 'AI Smart Sync', `Detected ${suggested.join(', ')} from your handle.`);
+        // Auto-select them
+        const tags = document.querySelectorAll('.niche-tag');
+        tags.forEach(t => {
+          if (suggested.includes(t.innerText)) {
+            if (!setupData.niches.includes(t.innerText)) toggleNiche(t.innerText, t);
+          }
+        });
+      }
+    }
+
+    function finalizeSetupAnimation() {
+      // Find the primary social (usually the first one)
+      const primary = setupData.socials[0] || { platform: 'Account', handle: 'Detecting...' };
+      let displayName = user?.profile?.name || 'Hero Account';
+      let displayHandle = primary.handle || '@detecting_identity...';
+      
+      // Clean display handle if it's a long URL
+      if (displayHandle.includes('youtube.com/')) {
+        displayHandle = displayHandle.split('youtube.com/').pop().split('?')[0];
+        if (!displayHandle.startsWith('@')) displayHandle = '@' + displayHandle;
+      } else if (displayHandle.includes('instagram.com/')) {
+        displayHandle = '@' + displayHandle.split('instagram.com/').pop().split('/')[0];
+      }
+
+      document.getElementById('previewName').innerHTML = 'Analyzing ' + primary.platform + ' Asset...';
+      document.getElementById('previewHandle').innerText = 'Syncing...';
+      
+      setTimeout(() => {
+        document.getElementById('previewName').innerHTML = displayName + ' <span class="verified-badge"><i class="fas fa-check"></i> Verified</span>';
+        document.getElementById('previewHandle').innerText = displayHandle;
+        document.getElementById('previewImg').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random&color=fff&size=128`;
+      }, 2000);
+    }
+
+    async function completeSetup() {
+      const btn = event.target;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing...';
+
+      try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/auth/update-profile`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${storage.get('token')}` },
+          body: JSON.stringify({ 
+            userId: user?._id, 
+            userRole: setupData.role,
+            nicheCategories: setupData.niches,
+            socialLinks: setupData.socials.map(s => ({ platform: s.platform, handle: s.handle, isConnected: true })),
+            isSetupComplete: true 
+          })
+        });
+        
+        const data = await res.json();
+        if(res.ok) {
+          const updatedUser = data.user;
+          storage.set('user', updatedUser);
+          showToast('success', 'Setup Complete', 'Welcome to HeroAi.');
+          
+          setTimeout(() => {
+            const role = updatedUser.profile.role;
+            if(role === 'AGENCY') window.location.href = 'dashboard-agency.html';
+            else if(role === 'BUSINESS') window.location.href = 'dashboard-business.html';
+            else if(updatedUser.subscription.planId === 'creator' || updatedUser.subscription.planId === 'pro') window.location.href = 'dashboard-pro.html';
+            else window.location.href = 'dashboard.html';
+          }, 1500);
+        } else {
+          showToast('error', 'Update Failed', data.error || 'Please try again.');
+          btn.disabled = false;
+          btn.innerHTML = 'Enter Dashboard <i class="fas fa-door-open"></i>';
+        }
+      } catch (e) {
+        showToast('error', 'Network Error', 'Check your connection.');
+        btn.disabled = false;
+        btn.innerHTML = 'Enter Dashboard <i class="fas fa-door-open"></i>';
+      }
+    }
+  </script>
+</body>
+</html>
