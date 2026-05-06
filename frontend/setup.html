@@ -322,6 +322,7 @@
   </div>
 
   <script>
+    const user = storage.get('user');
     let setupData = { 
       role: '', 
       socials: [], // Array of { platform, handle, isVerified }
@@ -398,7 +399,7 @@
 
     function handleSocialNext() {
       try {
-        console.log("[SETUP] Auto-Syncing with Email:", user.email);
+        console.log("[SETUP] Auto-Syncing with Email:", user?.auth?.email);
         if (currentSocialSubStep === 1) {
           // Show Syncing Animation
           currentSocialSubStep = 2;
@@ -409,7 +410,7 @@
           fieldContainer.innerHTML = `
             <div style="text-align:center; padding:20px;">
               <div class="heroai-glow" style="font-size:40px; margin-bottom:20px;"><i class="fas fa-sync fa-spin"></i></div>
-              <h3 style="font-family:var(--fh); margin-bottom:10px;">Auto-Syncing with ${user.email}</h3>
+              <h3 style="font-family:var(--fh); margin-bottom:10px;">Auto-Syncing with ${user?.auth?.email || 'Identity'}</h3>
               <p style="color:var(--t3); font-size:13px;">Linking your primary ${setupData.socials[0].platform} account found on this identity.</p>
             </div>
           `;
@@ -420,7 +421,8 @@
           setTimeout(() => {
             // Auto-populate the handle based on email
             const primary = setupData.socials[0];
-            primary.handle = '@' + user.email.split('@')[0];
+            const email = user?.auth?.email || 'hero@example.com';
+            primary.handle = '@' + email.split('@')[0];
             primary.isVerified = true;
             
             showToast('success', 'Auto-Sync Successful', `Primary ${primary.platform} channel linked.`);
@@ -549,7 +551,7 @@
     function finalizeSetupAnimation() {
       // Find the primary social (usually the first one)
       const primary = setupData.socials[0] || { platform: 'Account', handle: 'Detecting...' };
-      let displayName = user.profile.name || 'Hero Account';
+      let displayName = user?.profile?.name || 'Hero Account';
       let displayHandle = primary.handle || '@detecting_identity...';
       
       // Clean display handle if it's a long URL
@@ -580,7 +582,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${storage.get('token')}` },
           body: JSON.stringify({ 
-            userId: user._id, 
+            userId: user?._id, 
             userRole: setupData.role,
             nicheCategories: setupData.niches,
             socialLinks: setupData.socials.map(s => ({ platform: s.platform, handle: s.handle, isConnected: true })),
