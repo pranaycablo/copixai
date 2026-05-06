@@ -213,6 +213,12 @@
       console.log('[UI] Syncing layout height...');
     }
 
+    function resendOtp() {
+      if (!userData || !userData.identifier) return;
+      showToast('info', 'Resending...', 'Sending a new code to ' + userData.identifier);
+      sendAction('otp');
+    }
+
     window.onerror = function(msg, url, line) {
       showToast('error', 'Runtime Error', msg + ' (Line: ' + line + ')');
       return false;
@@ -428,7 +434,7 @@
       console.log('[FLOW] Verifying OTP:', otp);
 
       try {
-        let payload = { otp, name: userData.name, phone: userData.phone, password: userData.password, deviceId: 'browser' };
+        let payload = { otp, name: userData.name, phone: userData.phone, deviceId: 'browser' };
         if (userData.identifier.includes('@')) payload.email = userData.identifier;
         else payload.phone = userData.identifier;
 
