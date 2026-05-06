@@ -6,7 +6,6 @@ const SecurityService = require('../services/SecurityService');
 const MailService = require('../services/MailService');
 const jwt = require('jsonwebtoken');
 const OTP = require('../models/OTP');
-const MailService = require('../services/MailService');
 const { OAuth2Client } = require('google-auth-library');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
