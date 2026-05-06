@@ -111,6 +111,18 @@ mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 5000 })
       });
       await defaultSettings.save();
       console.log('🌱 [INIT] Default plans seeded successfully.');
+    } else {
+      // Ensure settings exist even if not initializing
+      const SystemSettings = require('./models/SystemSettings');
+      const settings = await SystemSettings.findOne({ configType: 'GLOBAL' });
+      if (!settings) {
+        const defaultSettings = new SystemSettings({
+          configType: 'GLOBAL',
+          niches: ['Technology', 'Finance', 'Lifestyle', 'Gaming', 'Education', 'Business', 'Health & Fitness', 'Travel', 'Food & Cooking', 'Fashion & Beauty', 'Motivation', 'AI News']
+        });
+        await defaultSettings.save();
+        console.log('🌱 [BOOT] Created default system settings.');
+      }
     }
 
     startServer();

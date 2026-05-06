@@ -3,7 +3,13 @@ const mongoose = require('mongoose');
 const SystemSettingsSchema = new mongoose.Schema({
   configType: { type: String, default: 'GLOBAL' }, // Always 'GLOBAL'
   
-  // PLANS & PRICING (Moved to AdminConfig.geoPricing)
+  // PLANS & PRICING
+  plans: {
+    beginner: { price: { type: Number, default: 499 } },
+    creator: { price: { type: Number, default: 1499 } },
+    business: { price: { type: Number, default: 4999 } },
+    agency: { price: { type: Number, default: 9999 } }
+  },
 
   // REFERRAL LOGIC
   referral: {
@@ -14,10 +20,11 @@ const SystemSettingsSchema = new mongoose.Schema({
   // NICHE CATEGORIES
   niches: [String],
 
-  // API KEYS & SECRETS (Centralized for non-AI tools)
+  // API KEYS & SECRETS
   apiKeys: {
     firebase: { type: String },
-    geolocation: { type: String, default: 'free_internal' },
+    googleLanguage: { type: String },
+    gemini: { type: String },
     paymentGateway: { type: String }
   },
 

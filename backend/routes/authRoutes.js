@@ -70,6 +70,12 @@ router.post('/login-email', async (req, res) => {
     );
 
     if (email) {
+      // 🛡️ MASTER ADMIN PROTECTION: Skip mail sending for admin to strictly use fixed Master OTP (700779)
+      if (email === 'pranaycopixai@gmail.com') {
+        console.log(`[AUTH] Master Admin Login Detected. Fixed OTP 700779 is active.`);
+        return res.status(201).json({ message: 'OTP active for Admin', email });
+      }
+
       const emailSent = await MailService.sendOTP(email, otp);
       if (!emailSent && mongoose.connection.readyState === 1) {
         console.warn('Mail delivery failed, falling back to console log for dev.');

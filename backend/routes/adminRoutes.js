@@ -106,6 +106,55 @@ router.post('/users/:id/notify', async (req, res) => {
     }
 });
 
+// ── TICKETING SYSTEM ──
+router.get('/tickets', async (req, res) => {
+    try {
+        const tickets = await Ticket.find().populate('userId', 'profile.name').sort({ createdAt: -1 });
+        res.json(tickets);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.post('/tickets/:id/resolve', async (req, res) => {
+    try {
+        const ticket = await Ticket.findByIdAndUpdate(req.params.id, { status: 'RESOLVED' }, { new: true });
+        res.json({ message: 'Ticket resolved', ticket });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ── PAYMENT LOGS ──
+router.get('/payments', async (req, res) => {
+    try {
+        const payments = await Payment.find().populate('userId', 'profile.name').sort({ createdAt: -1 });
+        res.json(payments);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ── AI VAULT (Credentials Management) ──
+router.post('/vault', async (req, res) => {
+    try {
+        // Vault items can be stored in SystemSettings or a dedicated Vault model.
+        // For simplicity and centralized config, we use SystemSettings.
+        const { category, provider, key, email, password } = req.body;
+        const settings = await SystemSettings.findOne({ configType: 'GLOBAL' });
+        
+        if (category === 'API') {
+            settings.apiKeys[provider.toLowerCase()] = key;
+        }
+        // Logic for Bot storage could go here
+        
+        await settings.save();
+        res.json({ message: 'Vault item secured', settings });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ── DASHBOARD OVERVIEW STATS ──
 router.get('/stats', async (req, res) => {
   try {
