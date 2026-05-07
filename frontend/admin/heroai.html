@@ -58,9 +58,30 @@
       color: var(--text);
       font-family: var(--font-body);
       display: flex;
+      flex-direction: row; /* Explicitly set row */
       height: 100vh;
+      width: 100vw;
       overflow: hidden;
       font-size: 14px;
+    }
+
+    aside {
+      width: 280px;
+      height: 100%;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0; /* Don't let sidebar shrink */
+    }
+
+    main {
+      flex: 1;
+      height: 100%;
+      overflow-y: auto;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
     }
 
     /* Splash Screen Override */
@@ -1861,19 +1882,21 @@
     }
 
     window.onload = () => {
-      // Splash sequence
-      setTimeout(() => {
-        const wm = document.getElementById('splash-wm');
-        if (wm) { wm.style.opacity = '1'; wm.style.transform = 'scale(1)'; }
-      }, 100);
-
-      setTimeout(() => {
+      // Splash sequence - Ensure it clears even if there's an error
+      const clearSplash = () => {
         const splash = document.getElementById('splash-screen');
         if (splash) {
           splash.style.opacity = '0';
-          setTimeout(() => splash.style.display = 'none', 800);
+          setTimeout(() => {
+            splash.style.display = 'none';
+            splash.remove(); // Remove from DOM completely
+          }, 800);
         }
-      }, 2000);
+      };
+
+      setTimeout(clearSplash, 2000);
+      // Safety backup
+      setTimeout(clearSplash, 5000);
 
       const user = storage.get('user');
       // STRICT ADMIN CHECK

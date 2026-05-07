@@ -30,7 +30,14 @@ router.post('/register', async (req, res) => {
 
     const existingEmail = await User.findOne({ 'auth.email': email });
     if (existingEmail) {
-      return res.status(400).json({ error: 'Email already registered.' });
+      return res.status(400).json({ error: 'Email already registered.', code: 'DUPLICATE_EMAIL' });
+    }
+
+    if (phone) {
+      const existingPhone = await User.findOne({ 'auth.phone': phone });
+      if (existingPhone) {
+        return res.status(400).json({ error: 'Phone number already registered.', code: 'DUPLICATE_PHONE' });
+      }
     }
 
     const newUser = new User({
