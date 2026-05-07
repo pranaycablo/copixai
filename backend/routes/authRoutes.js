@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const OTP = require('../models/OTP');
 const { OAuth2Client } = require('google-auth-library');
+const { verifyToken } = require('../middleware/authMiddleware');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || 'dummy-client-id');
 
@@ -197,6 +198,9 @@ router.post('/verify-otp', async (req, res) => {
 // ── GET USER PROFILE ──
 router.get('/me/:userId', async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.userId)) {
+      return res.status(400).json({ error: 'Invalid User ID format' });
+    }
     const user = await User.findById(req.params.userId);
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user);
@@ -275,21 +279,6 @@ router.post('/update-profile', async (req, res) => {
           await referrer.save();
         }
       }
-    }
-        }
-
-        // 2. High-Level Verification Logic:
-        // Ensure platform is valid and URL is a real link format
-        const isLinkValid = link.url && (link.url.startsWith('http') || link.url.includes('.com') || link.url.includes('@'));
-        
-        if (link.platform && isLinkValid) {
-          link.isConnected = true;
-        } else {
-          link.isConnected = false;
-        }
-
-        return link;
-      });
     }
 
     const creditsMap = { beginner: 10, creator: 25, business: 50, agency: 100, trial: 3 };

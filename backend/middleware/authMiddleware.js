@@ -30,5 +30,13 @@ const verifyToken = async (req, res, next) => {
   }
 };
 
-module.exports = verifyToken;
+const verifyAdmin = (req, res, next) => {
+  if (req.user && req.user.profile && (req.user.profile.role === 'ADMIN' || req.user.auth.email === 'pranayHeroAi@gmail.com' || req.user.auth.email === 'riturajvashisth@gmail.com')) {
+    next();
+  } else {
+    res.status(403).json({ error: 'Access Denied: Master Admin privileges required' });
+  }
+};
+
+module.exports = { verifyToken, verifyAdmin };
 

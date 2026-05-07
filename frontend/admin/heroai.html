@@ -65,20 +65,16 @@
       font-size: 14px;
     }
 
-    @media (max-width: 900px) {
-      body { flex-direction: column; overflow: auto; height: auto; }
-      aside { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
-      main { height: auto; overflow: visible; }
-    }
-
-    aside {
-      width: 280px;
-      height: 100%;
-      background: var(--bg2);
-      border-right: 1px solid var(--border);
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
       display: flex;
-      flex-direction: column;
-      flex-shrink: 0; /* Don't let sidebar shrink */
+      flex-direction: row;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      font-size: 14px;
     }
 
     main {
@@ -88,61 +84,37 @@
       background: var(--bg);
       display: flex;
       flex-direction: column;
+      position: relative;
     }
 
-    /* Splash Screen Override */
-    #splash-screen {
-      background: #06060A;
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.8s ease;
-    }
-
-    .wordmark img {
-      animation: pulse-logo 2s infinite ease-in-out;
-      filter: drop-shadow(0 0 15px var(--cyan));
-    }
-
-    @keyframes pulse-logo {
-
-      0%,
-      100% {
-        transform: scale(1);
-        filter: drop-shadow(0 0 15px var(--cyan));
+    /* ── MOBILE OVERRIDES ── */
+    @media (max-width: 1024px) {
+      aside {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 2000;
+        transform: translateX(-100%);
       }
-
-      50% {
-        transform: scale(1.05);
-        filter: drop-shadow(0 0 30px var(--purple));
+      aside.open {
+        transform: translateX(0);
+      }
+      .sidebar-toggle {
+        display: flex !important;
+      }
+      .topbar {
+        padding: 0 16px;
       }
     }
 
-    .gradient-text {
-      background: linear-gradient(135deg, var(--amber), #FCD34D);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .gradient-cyan {
-      background: linear-gradient(135deg, var(--cyan), #A5F3FC);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    /* ── SIDEBAR ── */
-    .sidebar {
-      width: 260px;
-      background: var(--bg2);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      z-index: 100;
+    @media (max-width: 768px) {
+      .grid-4, .grid-3, .grid-2 {
+        grid-template-columns: 1fr !important;
+      }
+      .content-area {
+        padding: 16px;
+      }
     }
 
     .sidebar-header {
@@ -590,36 +562,64 @@
       background-color: var(--cyan);
     }
 
-    /* ── MOBILE RESPONSIVENESS ── */
+    /* ── SPLASH SCREEN ── */
+    #splash-screen {
+      background: #06060A;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.8s ease;
+    }
+
+    .wordmark img {
+      animation: pulse-logo 2s infinite ease-in-out;
+      filter: drop-shadow(0 0 15px var(--cyan));
+    }
+
+    @keyframes pulse-logo {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px var(--cyan)); }
+      50% { transform: scale(1.05); filter: drop-shadow(0 0 30px var(--purple)); }
+    }
+
+    /* ── SIDEBAR DRAWER ── */
+    .sidebar {
+      width: 280px;
+      height: 100%;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+      z-index: 2000;
+    }
+
     @media (max-width: 1024px) {
       .sidebar {
         position: fixed;
-        left: -260px;
+        left: 0;
         top: 0;
         bottom: 0;
-        transition: left 0.3s ease;
-        z-index: 2000;
+        transform: translateX(-100%);
       }
       .sidebar.open {
-        left: 0;
-      }
-      .grid-4, .grid-3 {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .topbar {
-        padding: 0 16px;
+        transform: translateX(0);
       }
       .sidebar-toggle {
         display: flex !important;
+      }
+      .topbar {
+        padding: 0 16px;
       }
     }
 
     @media (max-width: 768px) {
       .grid-4, .grid-3, .grid-2 {
-        grid-template-columns: 1fr;
-      }
-      .topbar-right span {
-        display: none;
+        grid-template-columns: 1fr !important;
       }
       .content-area {
         padding: 16px;
@@ -642,7 +642,7 @@
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.7);
       backdrop-filter: blur(4px);
       z-index: 1500;
       display: none;
@@ -651,9 +651,6 @@
       display: block;
     }
   </style>
-  <link rel="stylesheet" href="../brand.css">
-  <script src="../config.js"></script>
-  <script src="../ui.js"></script>
 </head>
 
 <body>
@@ -1880,18 +1877,19 @@
       if (navItem) navItem.classList.add('active');
 
       const titles = {
-        'overview': 'System Overview',
+        'overview': 'Global Production Dashboard',
         'aivault': 'AI & Bot Vault',
         'csuite': 'AI Executive Team',
         'managers': 'AI Support Managers',
         'tickets': 'Escalated Tickets',
         'finance': 'Monetization & Plans',
-        'overview': 'Global Production Dashboard',
         'users': 'User Network',
         'security': 'Data Storage Server',
         'cto': 'CTO Command Terminal',
         'queue': 'FFmpeg Production Queue',
-        'territory': 'Territory & Niche Master'
+        'territory': 'Territory & Niche Master',
+        'optimization': 'Asset Optimization Engine',
+        'settings': 'Global System Settings'
       };
       document.getElementById('topTitle').innerText = titles[id] || 'Admin Console';
 
@@ -1901,6 +1899,11 @@
       if (id === 'settings') fetchSettings();
       if (id === 'territory') fetchTerritories();
       if (id === 'aivault') fetchVault();
+      
+      // Auto-close sidebar on mobile
+      if(window.innerWidth <= 1024) {
+        toggleSidebar();
+      }
     }
 
     async function fetchSettings() {
@@ -2158,151 +2161,78 @@
       if(ov) ov.classList.toggle('open');
     }
 
-    function switchPanel(panelId) {
-      document.querySelectorAll('.panel-section').forEach(p => p.classList.remove('active'));
-      document.getElementById('panel-' + panelId).classList.add('active');
-      
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      const activeNav = document.querySelector(`a[onclick="switchPanel('${panelId}')"]`);
-      if(activeNav) activeNav.classList.add('active');
-
-      const titles = {
-        overview: 'System Overview',
-        aivault: 'AI & Bot Vault',
-        cto: 'CTO Command Center',
-        csuite: 'C-Suite Intelligence',
-        managers: 'Sales Managers',
-        tickets: 'Support Tickets',
-        finance: 'Monetization & Plans',
-        users: 'User Network',
-        security: 'Security & Fraud',
-        optimization: 'Asset Optimization Engine',
-        queue: 'FFmpeg Job Queue',
-        settings: 'Global System Settings'
-      };
-      document.getElementById('topTitle').textContent = titles[panelId] || 'HeroAi Admin';
-      
-      // Auto-close sidebar on mobile after switching
-      if(window.innerWidth <= 1024) {
-        toggleSidebar();
-      }
-    }
-
     function logout() {
       storage.clear();
-      window.location.href = 'auth.html';
+      window.location.href = '../auth.html';
     }
 
+    async function fetchFinancials() {
+      try {
+        const token = storage.get('token');
+        const res = await fetch(`${CONFIG.API_BASE_URL}/admin/financials`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+           document.getElementById('fin-gm').innerText = `₹${data.summary.totalRevenue.toLocaleString()}`;
+           document.getElementById('fin-tax').innerText = `₹${data.summary.totalTax.toLocaleString()}`;
+           document.getElementById('fin-net').innerText = `₹${data.summary.totalNetProfit.toLocaleString()}`;
+           
+           const tbody = document.getElementById('finance-tbody');
+           tbody.innerHTML = '';
+           data.transactions.forEach(t => {
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td>#${t._id.slice(-6)}</td>
+                <td>₹${t.amount.toLocaleString()}</td>
+                <td><span class="badge badge-green">${t.status}</span></td>
+                <td>₹${t.netProfit.toLocaleString()}</td>
+              `;
+              tbody.appendChild(tr);
+           });
+        }
+      } catch (err) { console.log("Financial fetch failed:", err); }
+    }
+
+    function toggleTheme() {
+       document.body.classList.toggle('light-mode');
+    }
+  </script>
+  <script src="../config.js"></script>
+  <script src="../ui.js"></script>
+  <script>
     window.onload = () => {
-      // Splash sequence - Ensure it clears even if there's an error
+      const splash = document.getElementById('splash-screen');
+      const wm = document.getElementById('splash-wm');
+      if(wm) wm.style.opacity = '1';
+
       const clearSplash = () => {
-        const splash = document.getElementById('splash-screen');
         if (splash) {
           splash.style.opacity = '0';
           setTimeout(() => {
             splash.style.display = 'none';
-            splash.remove(); // Remove from DOM completely
           }, 800);
         }
       };
 
-      setTimeout(clearSplash, 2000);
-      // Safety backup
-      setTimeout(clearSplash, 5000);
+      setTimeout(clearSplash, 1500);
 
       const user = storage.get('user');
-      // STRICT ADMIN CHECK
-      const isAdmin = (user && (user.profile.role === 'ADMIN' || user.auth.email === 'pranayHeroAi@gmail.com' || user.auth.email === 'riturajvashisth@gmail.com'));
+      const isAdmin = user && user.profile && (
+        user.profile.role === 'ADMIN' || 
+        user.auth?.email === 'pranayHeroAi@gmail.com' || 
+        user.auth?.email === 'riturajvashisth@gmail.com'
+      );
       
       if (!user || !isAdmin) {
         showToast('error', "Access Denied", "Unauthorized attempt detected. IP logged.");
-        setTimeout(() => window.location.href = '../auth.html', 1500);
+        setTimeout(() => window.location.href = '../auth.html', 2000);
         return;
       }
 
       fetchStats();
-      showToast('info', "System Online", "Admin Session Secured. Welcome back.");
     };
 
-    async function viewCredentials(userId) {
-      try {
-        const token = storage.get('token');
-        const res = await fetch(`${CONFIG.API_BASE_URL}/admin/users/${userId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const user = await res.json();
-        
-        let content = `<div style="text-align:left; font-family:var(--font-mono); font-size:12px; color:var(--cyan); line-height:1.6;">`;
-        content += `<strong>USER:</strong> ${user.profile.name}<br>`;
-        content += `<strong>EMAIL:</strong> ${user.auth.email || 'N/A'}<br>`;
-        content += `<strong>PHONE:</strong> ${user.auth.phone || 'N/A'}<br><hr style="border:0; border-top:1px solid var(--border); margin:10px 0;">`;
-        
-        if (user.socialLinks && user.socialLinks.length > 0) {
-          user.socialLinks.forEach(link => {
-            content += `<div style="margin-bottom:10px; padding:10px; background:var(--bg3); border-radius:8px; border:1px solid var(--border);">`;
-            content += `<span style="color:var(--amber);">[${link.platform.toUpperCase()}]</span><br>`;
-            content += `URL: ${link.url}<br>`;
-            if (link.accessToken) content += `TOKEN: <span style="filter:blur(4px);" onclick="this.style.filter='none'">*** ${link.accessToken.slice(-8)}</span><br>`;
-            content += `STATUS: ${link.isConnected ? 'CONNECTED' : 'DISCONNECTED'}`;
-            content += `</div>`;
-          });
-        } else {
-          content += `<p style="color:var(--text-muted);">No social links connected.</p>`;
-        }
-        content += `</div>`;
-
-        // We use a custom overlay for this
-        const overlay = document.createElement('div');
-        overlay.style = "position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px;";
-        overlay.onclick = (e) => { if(e.target === overlay) overlay.remove(); };
-        
-        const modal = document.createElement('div');
-        modal.style = "width:100%; max-width:500px; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:32px; box-shadow:0 20px 50px rgba(0,0,0,0.5);";
-        modal.innerHTML = `<h2 style="font-family:var(--font-head); margin-bottom:20px; color:var(--text);">User Secure Vault</h2>${content}<button class="btn btn-cyan" style="width:100%; margin-top:20px;" onclick="this.parentElement.parentElement.remove()">Close Vault</button>`;
-        
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-
-      } catch (err) {
-        showToast('error', 'Security Error', 'Failed to access user vault.');
-      }
-    }
-
-    // Missing Function Implementations
-    function downloadTodayArchive() {
-      showToast('info', 'Archive', 'Generating daily bundle... This may take a moment.');
-      setTimeout(() => {
-        showToast('success', 'Ready', 'Daily Archive (HeroAi_Archive_Today.zip) is ready for download.');
-      }, 2000);
-    }
-
-    async function resolveTicket(ticketId) {
-      showToast('info', 'Ticketing', `Attempting to resolve ticket ${ticketId}...`);
-      try {
-        const token = storage.get('token');
-        const res = await fetch(`${CONFIG.API_BASE_URL}/admin/tickets/${ticketId}/resolve`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-          showToast('success', 'Resolved', 'Ticket status updated to RESOLVED.');
-          fetchTickets();
-        } else {
-          showToast('error', 'Failed', 'Could not update ticket status.');
-        }
-      } catch (e) {
-        showToast('warning', 'Offline', 'Ticket resolved in local cache.');
-      }
-    }
-
-    function exportUserData() {
-      showToast('info', 'Export', 'Preparing User Network data for CSV export...');
-      setTimeout(() => {
-        showToast('success', 'Export Complete', 'user_network_export.csv has been generated.');
-      }, 1500);
-    }
-  </script>
-  <script>
     // Anti-Scraping Protection
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.onkeydown = function (e) {
@@ -2313,66 +2243,6 @@
       if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
     }
   </script>
-  <script src="../ui.js"></script>
-  <script>
-    async function optimizeAsset(input) {
-      const res = document.getElementById('optimize-result');
-      const file = input.files[0];
-      if (!file) return;
-
-      res.style.display = 'block';
-      res.innerHTML = `<i class="fas fa-spinner fa-spin"></i> HeroAi Neural Compression in progress...`;
-
-      try {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const img = new Image();
-          img.onload = function () {
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-
-            // Neural Downscaling Logic (Target 1920 max)
-            const MAX_WIDTH = 1920;
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-
-            // High Fidelity Compression (0.7 quality)
-            canvas.toBlob((blob) => {
-              const oldSize = (file.size / 1024).toFixed(2);
-              const newSize = (blob.size / 1024).toFixed(2);
-              const savings = (((file.size - blob.size) / file.size) * 100).toFixed(1);
-              
-              const optimizedUrl = URL.createObjectURL(blob);
-
-              res.innerHTML = `
-                <div style="color:var(--green); font-weight:700; margin-bottom:8px;">✅ Neural Optimization Complete</div>
-                <div style="font-size:12px; color:var(--text-sub);">
-                  Original: ${oldSize} KB<br>
-                  HeroAi Optimized: ${newSize} KB (${width}x${parseInt(height)})
-                </div>
-                <div style="color:var(--cyan); margin-top:8px; font-weight:600;">Savings: ${savings}%</div>
-                <a href="${optimizedUrl}" download="heroai_optimized_${file.name}" class="btn btn-cyan btn-sm" style="width:100%; margin-top:12px; text-decoration:none; display:inline-block; text-align:center;">Download Optimized Asset</a>
-              `;
-              showToast('success', 'Optimized', `Compressed by ${savings}% with zero quality loss.`);
-            }, 'image/jpeg', 0.7);
-          };
-          img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      } catch (err) {
-        res.innerHTML = `<div style="color:var(--red);">Neural Engine Error: Could not process asset.</div>`;
-      }
-    }
-  </script>
 </body>
-
 </html>
 

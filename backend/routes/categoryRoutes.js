@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Category = require('../models/Category');
-const verifyToken = require('../middleware/authMiddleware');
+const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware');
 
 // Get all categories and niches
 router.get('/all', async (req, res) => {
@@ -14,8 +14,7 @@ router.get('/all', async (req, res) => {
 });
 
 // Admin: Add Category
-router.post('/add', verifyToken, async (req, res) => {
-  if (req.user.profile.role !== 'ADMIN') return res.status(403).json({ error: 'Access denied' });
+router.post('/add', verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { name, icon, niches, isMonetizable, isViral } = req.body;
     const newCat = new Category({ name, icon, niches, isMonetizable, isViral });
@@ -27,8 +26,7 @@ router.post('/add', verifyToken, async (req, res) => {
 });
 
 // Admin: Update Category
-router.put('/:id', verifyToken, async (req, res) => {
-  if (req.user.profile.role !== 'ADMIN') return res.status(403).json({ error: 'Access denied' });
+router.put('/:id', verifyToken, verifyAdmin, async (req, res) => {
   try {
     const updated = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(updated);
@@ -38,8 +36,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 });
 
 // Admin: Delete Category
-router.delete('/:id', verifyToken, async (req, res) => {
-  if (req.user.profile.role !== 'ADMIN') return res.status(403).json({ error: 'Access denied' });
+router.delete('/:id', verifyToken, verifyAdmin, async (req, res) => {
   try {
     await Category.findByIdAndDelete(req.params.id);
     res.json({ message: 'Category deleted' });
@@ -47,6 +44,5 @@ router.delete('/:id', verifyToken, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 module.exports = router;
 

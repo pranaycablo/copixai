@@ -1,4 +1,4 @@
-const VaultService = require('./VaultService');
+const VaultService = require('./AiVaultService');
 
 /**
  * Stateful Video Production Service

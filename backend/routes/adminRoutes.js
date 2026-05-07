@@ -8,16 +8,7 @@ const Transaction = require('../models/Transaction');
 const SystemSettings = require('../models/SystemSettings');
 const SecurityService = require('../services/SecurityService');
 const VideoPipeline = require('../models/VideoPipeline');
-const verifyToken = require('../middleware/authMiddleware');
-
-// ── ADMIN ROLE CHECK MIDDLEWARE ──
-const verifyAdmin = (req, res, next) => {
-  if (req.user && req.user.profile.role === 'ADMIN') {
-    next();
-  } else {
-    res.status(403).json({ error: 'Access Denied: Admin privileges required' });
-  }
-};
+const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware');
 
 router.use(verifyToken);
 router.use(verifyAdmin);
@@ -73,7 +64,13 @@ router.get('/financials', async (req, res) => {
   }
 });
 
-// ── USER MANAGEMENT ──
+router.get('/users/:id', async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid User ID format' });
+    }
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -82,6 +79,9 @@ router.get('/financials', async (req, res) => {
 
 router.get('/users/:id/credentials', async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid User ID format' });
+    }
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
     
@@ -102,6 +102,9 @@ router.get('/users/:id/credentials', async (req, res) => {
 
 router.get('/users/:id/history', async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid User ID format' });
+    }
     const history = await VideoPipeline.find({ userId: req.params.id }).sort({ createdAt: -1 });
     res.json(history);
   } catch (err) {
@@ -120,6 +123,9 @@ router.get('/users', async (req, res) => {
 
 router.post('/users/:id/block', async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid User ID format' });
+    }
     const { isBlocked, reason } = req.body;
     const user = await User.findByIdAndUpdate(req.params.id, {
       'security.isBlocked': isBlocked,
