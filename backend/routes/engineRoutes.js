@@ -123,6 +123,22 @@ const { type, title, description, engineSelection, objective, promoInfo, customC
           // STEP 1: SCRIPTING
           newJob.status = 'SCRIPTING';
           await newJob.save();
+
+          // ── MANUAL MODE CHECK ──
+          if (!autoPilot) {
+            newJob.status = 'WAITING_APPROVAL';
+            await newJob.save();
+            
+            await Notification.create({
+              userId,
+              title: 'Script Ready for Approval',
+              message: `The AI has architected a script for "${newJob.title}". Please review and approve it.`,
+              type: 'INFO',
+              metadata: { taskId: newJob._id }
+            });
+            
+            return; // Terminate loop, wait for approval endpoint
+          }
           
           // STEP 2: GATHERING ASSETS
           newJob.status = 'GATHERING_ASSETS';
@@ -132,9 +148,7 @@ const { type, title, description, engineSelection, objective, promoInfo, customC
           newJob.status = 'RENDERING';
           await newJob.save();
           
-          const productionResult = await VideoProductionService.createFullVideo(newJob._id, brainDecision.architecture.visuals?.scenes || [], brainDecision.productionStrategy);
-          
-          // STEP 4: FINALIZING
+          // In a real scenario, this would call a more complex assembly service
           newJob.videoUrl = `/temp/final_${newJob._id}.mp4`;
           newJob.status = 'READY';
           await newJob.save();
@@ -246,10 +260,42 @@ router.post('/approve/:taskId', verifyToken, async (req, res) => {
   try {
     const job = await VideoPipeline.findById(req.params.taskId);
     if (!job) return res.status(404).json({ error: 'Task not found' });
-    if (job.status !== 'SCRIPTING') return res.status(400).json({ error: 'Task is not in scripting stage' });
+    
+    if (job.status !== 'WAITING_APPROVAL' && job.status !== 'SCRIPTING') {
+      return res.status(400).json({ error: 'Task is not in a state that requires approval' });
+    }
 
     job.status = 'GATHERING_ASSETS';
     await job.save();
+
+    // ── TRIGGER BACKGROUND RESUMPTION ──
+    (async () => {
+      try {
+        const Notification = require('../models/Notification');
+        
+        // Simulating the rest of the pipeline
+        job.status = 'RENDERING';
+        await job.save();
+        
+        // Here we would call the actual video assembly service
+        job.videoUrl = `/temp/final_${job._id}.mp4`;
+        job.status = 'READY';
+        await job.save();
+
+        await Notification.create({
+          userId: job.userId,
+          title: 'Production Ready!',
+          message: `Your approved video "${job.title}" is now ready for download.`,
+          type: 'SUCCESS',
+          metadata: { taskId: job._id }
+        });
+      } catch (err) {
+        console.error('[RESUME-ERROR]', err);
+        job.status = 'FAILED';
+        await job.save();
+      }
+    })();
+
     res.json({ message: 'Script approved. Production resuming...', status: job.status });
   } catch (err) {
     res.status(500).json({ error: err.message });

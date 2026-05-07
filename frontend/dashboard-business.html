@@ -11,25 +11,71 @@
   <script src="ui.js"></script>
   <style>
     :root { 
-      --accent: #10B981; /* Emerald for Business */
+      --accent: #10B981; 
       --accent-glow: rgba(16, 185, 129, 0.4);
+      --amber: #F5A623;
+      --amber-dim: rgba(245, 166, 35, 0.1);
+      --red: #EF4444;
+      --cyan: #06B6D4;
     }
+    
     .onboarding-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
     .onboarding-overlay.active { display: flex; }
     .select-wrap { margin-top: 20px; text-align: left; }
     .select-wrap label { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; display: block; }
-    .select-inp { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: var(--text); font-family: var(--fb); }
-    .objective-btn { padding: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; font-size: 11px; font-weight: 700; text-align: center; cursor: pointer; transition: 0.3s; }
+    .select-inp { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: var(--text); font-family: var(--font-body); outline: none; transition: 0.3s; }
+    .select-inp:focus { border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+    
+    .objective-btn { padding: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; font-size: 11px; font-weight: 700; text-align: center; cursor: pointer; transition: 0.3s; color: var(--text3); }
     .objective-btn.active { border-color: var(--accent); background: rgba(16, 185, 129, 0.1); color: var(--accent); }
+
+    /* RESPONSIVENESS OVERRIDES */
+    @media (max-width: 1024px) {
+      .dash-container { grid-template-columns: 1fr !important; }
+      .pipeline-sidebar, .control-sidebar { 
+        position: fixed; top: 70px; bottom: 0; width: 280px; z-index: 5000; 
+        transform: translateX(-100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        background: var(--bg); border: 1px solid var(--border);
+      }
+      .control-sidebar { left: auto; right: 0; transform: translateX(100%); }
+      .pipeline-sidebar.active { transform: translateX(0); }
+      .control-sidebar.active { transform: translateX(0); }
+      .engine-center { padding: 20px !important; }
+    }
   </style>
 </head>
 <body>
 
+<!-- MASTER BRAIN CHAT OVERLAY -->
+<div id="chatOverlay" class="onboarding-overlay" style="background:rgba(0,0,0,0.8); backdrop-filter:blur(30px);">
+  <div class="glass-modal" style="width:100%; max-width:500px; height:80vh; display:flex; flex-direction:column; padding:0; overflow:hidden; border:1px solid var(--accent);">
+    <div style="padding:20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:rgba(16,185,129,0.05);">
+       <div style="display:flex; align-items:center; gap:12px;">
+         <div style="width:32px; height:32px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center;"><i class="fas fa-briefcase" style="color:black; font-size:16px;"></i></div>
+         <div>
+           <h3 style="font-family:var(--font-head); font-size:16px;">Business Architect Chat</h3>
+           <p style="font-size:10px; color:var(--accent);">Enterprise Growth Consultant • Online</p>
+         </div>
+       </div>
+       <i class="fas fa-times" onclick="closeMasterChat()" style="cursor:pointer; color:var(--text3);"></i>
+    </div>
+    <div id="chatMessages" style="flex:1; padding:20px; overflow-y:auto; display:flex; flex-direction:column; gap:15px; font-size:13px;">
+       <div class="ai-msg" style="align-self:flex-start; background:var(--surface); padding:12px 16px; border-radius:0 15px 15px 15px; max-width:85%; line-height:1.5;">
+          Welcome, Partner. I am your Business Growth Architect. Share your marketing goals or upload a product brief, and I will design a high-converting video strategy for you.
+       </div>
+    </div>
+    <div style="padding:20px; border-top:1px solid var(--border); background:rgba(0,0,0,0.3); display:flex; gap:10px;">
+       <input type="text" id="chatInput" class="select-inp" placeholder="Discuss growth strategy..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+       <button class="onboarding-btn" style="margin-top:0; width:auto; padding:0 20px; background:var(--accent); color:white;" onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+</div>
+
 <div class="onboarding-overlay" id="onboardingModal">
   <div class="glass-modal">
     <div class="logo-icon mx-auto" style="width:60px;height:60px;margin-bottom:20px;"><img src="logo.png" style="width:100%;height:100%;object-fit:contain"></div>
-    <h1 style="font-family:var(--fh)">Welcome to HeroAi Business</h1>
-    <p style="color:var(--text2); margin-top:10px">I am your Enterprise Growth Pilot. Let's calibrate your Business studio.</p>
+    <h1 style="font-family:var(--font-head)">Initialize HeroAi Business</h1>
+    <p style="color:var(--text2); margin-top:10px">Your Enterprise Growth Pilot is ready. Let's calibrate your Business studio.</p>
     
     <div class="select-wrap">
       <label>Preferred Language</label>
@@ -42,24 +88,67 @@
     
     <div class="select-wrap">
       <label>Headquarters</label>
-      <input type="text" id="on-loc" class="select-inp" placeholder="e.g. London, UK">
+      <input type="text" id="on-loc" class="select-inp" placeholder="e.g. New York, USA">
     </div>
     
-    <button class="onboarding-btn" style="background:var(--accent); color:#fff;" onclick="finishOnboarding()">Initialize Business Suite</button>
+    <button class="onboarding-btn" style="background:var(--accent); color:#fff;" onclick="finishOnboarding()">Complete Business Setup</button>
   </div>
 </div>
 
+    .notif-modal {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 90%; max-width: 450px; background: var(--surface); 
+      border: 1px solid var(--accent); border-radius: 24px; z-index: 10001; 
+      display: none; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+      backdrop-filter: blur(20px); overflow: hidden;
+    }
+    .notif-modal.active { display: flex; animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    @keyframes modalPop { from { opacity: 0; transform: translate(-50%, -45%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+    
+    .notif-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(16,185,129,0.05); }
+    .notif-body { max-height: 400px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+    .notif-item { padding: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; position: relative; }
+    .notif-item.unread { border-color: var(--accent); background: rgba(16,185,129,0.02); }
+    
+    .sidebar-toggle { display: none; }
+  </style>
+</head>
+<body>
+
+<!-- NOTIFICATION CENTER MODAL -->
+<div id="notifCenter" class="onboarding-overlay" style="background:rgba(0,0,0,0.6);">
+  <div class="notif-modal" id="notifModal">
+    <div class="notif-header">
+       <div style="display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-bell" style="color:var(--accent);"></i>
+          <span style="font-weight:800; font-family:var(--font-head);">Notification Center</span>
+       </div>
+       <button onclick="closeNotifCenter()" style="background:none; border:none; color:var(--text3); cursor:pointer; font-size:18px;"><i class="fas fa-times-circle"></i></button>
+    </div>
+    <div class="notif-body" id="notifList">
+       <div style="text-align:center; padding:30px; color:var(--text3); font-size:12px;">No new alerts at the moment.</div>
+    </div>
+    <div style="padding:15px; text-align:center; border-top:1px solid var(--border);">
+       <button class="onboarding-btn" style="margin:0; width:100%; font-size:11px;" onclick="closeNotifCenter()">Close Center</button>
+    </div>
+  </div>
+</div>
+  
 <div class="mobile-dash-nav">
   <div style="display:flex; align-items:center; gap:10px;">
     <i class="fas fa-tasks" onclick="toggleMobileSidebar('pipeline-sidebar')" style="font-size:20px; color:var(--text3)"></i>
     <div class="logo-text" style="font-size:18px;"><span class="logo-hero">Hero</span><span class="logo-ai">Ai</span></div>
   </div>
-  <i class="fas fa-th-large" onclick="toggleMobileSidebar('control-sidebar')" style="font-size:20px; color:var(--text3)"></i>
+  <div style="display:flex; align-items:center; gap:15px;">
+    <div onclick="openNotifCenter()" style="position:relative; cursor:pointer;">
+      <i class="fas fa-bell" style="font-size:20px; color:var(--text3)"></i>
+      <span id="notif-badge" style="display:none; position:absolute; top:-5px; right:-5px; background:var(--red); color:white; font-size:9px; width:14px; height:14px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;">0</span>
+    </div>
+    <i class="fas fa-th-large" onclick="toggleMobileSidebar('control-sidebar')" style="font-size:20px; color:var(--text3)"></i>
+  </div>
 </div>
 
 <div class="dash-container" id="dashRoot" style="display:none;">
-  
-  <aside class="pipeline-sidebar">
     <div style="margin-bottom:20px;">
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
         <div class="avatar" id="side-avatar" style="background:var(--accent); color:#fff;">B</div>
@@ -119,13 +208,21 @@
   </aside>
 
   <main class="engine-center">
-    <div class="heroai-anim" onclick="startGeneration()" style="cursor:pointer;">
-      <img src="logo.png">
-    </div>
-    <div class="engine-status">
-      <div class="dot-blink" id="engine-dot" style="background:var(--accent);"></div>
-      Business Engine: <span id="engine-txt" style="color:var(--accent)">Thinking...</span>
-    </div>
+    <!-- MASTER BRAIN TRIGGER -->
+    <section id="masterBrainTrigger" onclick="openMasterChat()" style="cursor:pointer; position:relative; margin-bottom:40px;">
+      <div class="engine-visual">
+        <div class="engine-ring" style="border-color:var(--accent);"></div>
+        <div class="engine-ring" style="border-color:var(--accent);"></div>
+        <div class="engine-core" style="box-shadow: 0 0 30px var(--accent-glow);">
+          <img src="logo.png" id="hero-logo" style="width:50%; height:50%; object-fit:contain;">
+        </div>
+      </div>
+      <div class="engine-status">
+        <div class="dot-blink" id="engine-dot" style="background:var(--accent);"></div>
+        <span id="engine-txt" style="font-family:var(--font-mono); font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--accent);">Business Architect: Waiting for Brief</span>
+      </div>
+      <div style="font-size:11px; color:var(--text3); margin-top:8px; max-width:250px; line-height:1.4; text-align:center;">Click to collaborate with your AI Enterprise Consultant.</div>
+    </section>
 
     <div class="accuracy-badge" style="border-color:var(--accent); color:var(--accent); background:rgba(16, 185, 129, 0.1);">
        <i class="fas fa-shield-check"></i> 99.9% Enterprise Accuracy Verified
@@ -137,76 +234,68 @@
       <span style="font-size:11px; font-weight:700; color:var(--text3)">AUTO-PILOT</span>
     </div>
 
-    <div class="workflow-list" id="workflow-checklist"></div>
-
     <!-- AI MARKETING INTERACTION PANEL -->
-    <div id="ai-marketing-panel" style="display:none; margin-top:20px; padding:20px; background:var(--surface2); border:1px solid var(--accent); border-radius:16px;">
-       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-         <div style="font-weight:800; font-size:14px; color:var(--accent);"><i class="fas fa-bullhorn"></i> Campaign Architect</div>
+    <div id="ai-marketing-panel" style="display:none; width:100%; max-width:500px; padding:24px; background:var(--surface); border:1px solid var(--accent); border-radius:20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+         <div style="font-weight:800; font-size:16px; color:var(--accent); font-family:var(--font-head);"><i class="fas fa-bullhorn"></i> Campaign Strategy Architect</div>
          <i class="fas fa-times" onclick="closeMarketingPanel()" style="cursor:pointer; color:var(--text3)"></i>
        </div>
-       <p style="font-size:11px; color:var(--text2); margin-bottom:15px;">Targeting & Offering Details. Upload product brochure or provide details.</p>
-       <div style="display:grid; gap:12px;">
-         <input type="text" id="campaign-name" placeholder="Campaign Name (e.g. Summer Sale 2026)" class="select-inp">
-         <textarea id="campaign-offer" placeholder="What is the main offer? (e.g. 50% off on all tech items)" class="select-inp" style="height:80px;"></textarea>
-         <div style="border:1px dashed var(--border); padding:15px; text-align:center; border-radius:12px; cursor:pointer;" onclick="document.getElementById('campaign-img').click()">
-            <i class="fas fa-file-invoice" style="color:var(--text3)"></i>
-            <div style="font-size:10px; color:var(--text3); margin-top:5px;">Upload Creative Asset / Brochure</div>
-            <input type="file" id="campaign-img" style="display:none;" onchange="toast('success','File','Asset uploaded')">
+       <div style="display:grid; gap:16px;">
+         <div class="select-wrap" style="margin-top:0;">
+           <label>Campaign Name</label>
+           <input type="text" id="campaign-name" placeholder="e.g. Q3 Growth - Tech Sector" class="select-inp">
          </div>
-         <button class="onboarding-btn" style="width:100%; background:var(--accent); color:#fff;" onclick="launchAIBusinessArchitect()">Architect Marketing Strategy</button>
+         <div class="select-wrap" style="margin-top:0;">
+           <label>The Main Offering / Hook</label>
+           <textarea id="campaign-offer" placeholder="Explain your product or offer in detail..." class="select-inp" style="height:100px; resize:none;"></textarea>
+         </div>
+         <div style="border:1px dashed var(--border); padding:20px; text-align:center; border-radius:12px; cursor:pointer; background:rgba(255,255,255,0.02);" onclick="document.getElementById('campaign-img').click()">
+            <i class="fas fa-cloud-upload-alt" style="color:var(--accent); font-size:24px;"></i>
+            <div style="font-size:11px; color:var(--text2); margin-top:8px;">Upload Brand Assets / Guidelines</div>
+            <input type="file" id="campaign-img" style="display:none;" onchange="toast('success','Asset','File synchronized.')">
+         </div>
+         <button class="onboarding-btn" style="width:100%; background:var(--accent); color:#fff; font-weight:800;" onclick="launchAIBusinessArchitect()">Architect Campaign Strategy</button>
        </div>
     </div>
   </main>
 
   <aside class="control-sidebar">
     <div class="menu-section">
-      <div class="menu-h">System Mode</div>
-      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--surface2); border-radius:12px;">
-         <div style="font-size:12px; font-weight:700;">Auto-Pilot Mode</div>
-         <label class="switch">
-            <input type="checkbox" id="auto-switch-sidebar" checked onchange="syncSwitches(this)">
-            <span class="slider round" style="background:var(--accent);"></span>
-         </label>
+      <div class="menu-h">Strategic Output Queue</div>
+      <div id="strategy-queue-list" style="display:flex; flex-direction:column; gap:12px;">
+         <!-- Dynamic Strategy Cards -->
+         <div class="pipeline-card" style="border-left: 3px solid var(--accent); background:rgba(16,185,129,0.03);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+               <span style="font-size:10px; font-weight:800; color:var(--accent);">CAMPAIGN READY</span>
+               <span style="font-size:10px; color:var(--text3);"><i class="fas fa-clock"></i> 18:30 Today</span>
+            </div>
+            <div style="font-weight:700; font-size:12px;">Enterprise Growth Reels</div>
+            <div style="font-size:10px; color:var(--text3); margin-top:4px;">Optimized for LinkedIN & Meta Business</div>
+            <div style="margin-top:12px; display:flex; gap:8px;">
+               <button class="onboarding-btn" style="margin:0; padding:6px 12px; font-size:10px; flex:1;">Download Asset</button>
+               <button class="onboarding-btn" style="margin:0; padding:6px 12px; font-size:10px; background:var(--surface); border:1px solid var(--border);">Copy Strategy</button>
+            </div>
+         </div>
       </div>
     </div>
 
     <div class="menu-section">
-      <div class="menu-h">Digital Marketing Suite</div>
-      <div class="menu-item" onclick="toast('info','Competitor','Scanning competitor ads...')">
-        <i class="fas fa-search-plus"></i> Competitor Strategy Scanner
-      </div>
-      <div class="menu-item" onclick="toast('info','Leads','Lead Funnel Active')">
-        <i class="fas fa-filter"></i> Automated Lead Funnel
-      </div>
-      <div class="menu-item" onclick="toast('info','Conversion','Calculating Estimated Growth Impact...')">
-        <i class="fas fa-chart-line"></i> Growth Predictor
-      </div>
+      <div class="menu-h">Business Intel (24/7 Agents)</div>
+      <div class="menu-item" onclick="openMasterChat()"><i class="fas fa-search-dollar" style="color:var(--amber);"></i> Market Trend Scanner</div>
+      <div class="menu-item" onclick="openMasterChat()"><i class="fas fa-users-cog" style="color:var(--cyan);"></i> Audience Persona Builder</div>
+      <div class="menu-item" onclick="openMasterChat()"><i class="fas fa-chart-line" style="color:var(--accent);"></i> ROI Predictor</div>
     </div>
 
     <div class="menu-section">
-      <div class="menu-h">Enterprise Growth Tools</div>
-      <div class="menu-item"><i class="fas fa-chart-pie"></i> Growth Analyzer</div>
-      <div class="menu-item"><i class="fas fa-bullseye"></i> Lead Generator</div>
-      <div class="menu-item"><i class="fas fa-magic"></i> Local SEO Booster</div>
-      <div class="menu-item"><i class="fas fa-ad"></i> Ad Manager (Meta/Google)</div>
-    </div>
-
-    <div class="menu-section">
-      <div class="menu-h">Performance</div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-        <div class="stat-card"><div class="stat-lbl">Reach</div><div class="stat-val" id="stat-views">0</div></div>
-        <div class="stat-card"><div class="stat-lbl">Leads</div><div class="stat-val" id="stat-engagement">0</div></div>
+      <div class="menu-h">Account Status</div>
+      <div style="padding:16px; background:var(--surface2); border:1px solid var(--border); border-radius:16px; display:flex; align-items:center; gap:12px;">
+         <div style="width:32px; height:32px; background:var(--accent-glow); border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--accent);"><i class="fas fa-gem"></i></div>
+         <div>
+            <div style="font-weight:800; font-size:12px; color:var(--text);">BUSINESS PLAN</div>
+            <div style="font-size:10px; color:var(--accent);">95% Resources Available</div>
+         </div>
       </div>
-    </div>
-
-    <div class="menu-section">
-       <div class="menu-h">Enterprise Plan</div>
-       <div style="padding:15px; background:var(--surface2); border:1px solid var(--border); border-radius:16px;">
-          <div style="font-weight:700; color:var(--accent); font-size:13px; text-transform:uppercase;">Business</div>
-          <div style="font-size:10px; color:var(--text2); margin-top:6px;"><i class="fas fa-clock"></i> Active</div>
-       </div>
-       <div class="menu-item" style="color:var(--rose); margin-top:10px;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+      <div class="menu-item" style="color:var(--red); margin-top:12px;" onclick="logout()"><i class="fas fa-power-off"></i> Terminate Session</div>
     </div>
   </aside>
 
@@ -216,17 +305,108 @@
 <script src="ui.js"></script>
 <script>
   let currentUser = storage.get('user');
-  window.onload = () => { if(!currentUser) window.location.href='auth.html'; else { document.getElementById('dashRoot').style.display='grid'; initUI(); } };
+  // ── NOTIFICATION CENTER LOGIC ──
+  function openNotifCenter() {
+    document.getElementById('notifCenter').classList.add('active');
+    document.getElementById('notifModal').classList.add('active');
+    fetchNotifications();
+  }
+  function closeNotifCenter() {
+    document.getElementById('notifCenter').classList.remove('active');
+    document.getElementById('notifModal').classList.remove('active');
+  }
+
+  async function fetchNotifications() {
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/auth/notifications`, {
+        headers: { 'Authorization': `Bearer ${storage.get('token')}` }
+      });
+      const data = await res.json();
+      renderNotifications(data);
+    } catch(e) { console.error("Notif fetch failed"); }
+  }
+
+  function renderNotifications(notifs) {
+    const list = document.getElementById('notifList');
+    const badge = document.getElementById('notif-badge');
+    if(!notifs || notifs.length === 0) {
+      list.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text3); font-size:12px;">No new alerts.</div>';
+      badge.style.display = 'none';
+      return;
+    }
+
+    const unread = notifs.filter(n => !n.isRead).length;
+    badge.textContent = unread;
+    badge.style.display = unread > 0 ? 'flex' : 'none';
+
+    list.innerHTML = notifs.map(n => `
+      <div class="notif-item ${n.isRead ? '' : 'unread'}">
+        <div style="font-weight:800; font-size:12px; color:var(--text);">${n.title}</div>
+        <div style="font-size:11px; color:var(--text2); margin-top:4px;">${n.message}</div>
+        <div style="font-size:9px; color:var(--text3); margin-top:8px;">${new Date(n.createdAt).toLocaleString()}</div>
+      </div>
+    `).join('');
+  }
+
+  window.onload = () => { 
+    if(!currentUser) {
+      window.location.href='auth.html'; 
+    } else { 
+      const dashRoot = document.getElementById('dashRoot');
+      if (dashRoot) dashRoot.style.display='grid'; 
+      initUI(); 
+      fetchNotifications();
+      if(!currentUser.isSetupComplete) {
+        const modal = document.getElementById('onboardingModal');
+        if (modal) modal.classList.add('active');
+      }
+    } 
+  };
+
   function initUI() {
     if(!currentUser || !currentUser.profile) return;
-    document.getElementById('side-name').textContent = currentUser.profile.name || 'User';
-    document.getElementById('side-email').textContent = currentUser.auth.email || 'No Email';
-    const initial = (currentUser.profile.name ? currentUser.profile.name[0] : 'U').toUpperCase();
+    document.getElementById('side-name').textContent = currentUser.profile.name || 'Enterprise Partner';
+    document.getElementById('side-email').textContent = currentUser.auth.email || 'business@heroai.io';
+    const initial = (currentUser.profile.name ? currentUser.profile.name[0] : 'B').toUpperCase();
     const avatar = document.getElementById('side-avatar');
     if (avatar) avatar.textContent = initial;
   }
+
+  // ── MASTER BRAIN CHAT LOGIC ──
+  function openMasterChat() { document.getElementById('chatOverlay').classList.add('active'); }
+  function closeMasterChat() { document.getElementById('chatOverlay').classList.remove('active'); }
+
+  async function sendChatMessage() {
+    const inp = document.getElementById('chatInput');
+    const msg = inp.value.trim();
+    if(!msg) return;
+
+    appendMsg('user', msg);
+    inp.value = '';
+
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/engine/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${storage.get('token')}` },
+        body: JSON.stringify({ message: msg, context: 'BUSINESS_ARCHITECT' })
+      });
+      const data = await res.json();
+      appendMsg('ai', data.response);
+    } catch(e) { appendMsg('ai', "Master Brain is processing high-level data. Please wait..."); }
+  }
+
+  function appendMsg(role, text) {
+    const box = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'ai-msg';
+    div.style.alignSelf = role === 'user' ? 'flex-end' : 'flex-start';
+    if(role === 'user') div.style.background = 'var(--surface2)';
+    div.innerHTML = text.replace(/\n/g, '<br>');
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
   async function startGeneration() {
-    const engine = document.getElementById('engine-select')?.value || 'Default';
     const objective = document.querySelector('.objective-btn.active').textContent;
     const promoInfo = {
       name: document.getElementById('campaign-name').value,
@@ -238,6 +418,10 @@
       interests: document.getElementById('target-interests').value
     };
 
+    if(!promoInfo.offer && (objective === 'Marketing' || objective === 'Direct Sale')) {
+       return setObj(objective, document.querySelector('.objective-btn.active'));
+    }
+
     toast('info', 'Master Brain', 'Architecting Business Campaign...');
     
     try {
@@ -248,8 +432,7 @@
           'Authorization': `Bearer ${storage.get('token')}`
         },
         body: JSON.stringify({ 
-          type: 'REEL',
-          engineSelection: engine,
+          type: 'BUSINESS_REEL',
           objective,
           promoInfo,
           targeting,
@@ -266,6 +449,7 @@
       }
     } catch(e) { toast('error', 'Error', 'Engine unreachable.'); }
   }
+
   function setObj(obj, el) {
     document.querySelectorAll('.objective-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
@@ -273,6 +457,7 @@
     const panel = document.getElementById('ai-marketing-panel');
     if(obj === 'Marketing' || obj === 'Direct Sale') {
       panel.style.display = 'block';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
       toast('info', 'AI Strategist', `Please define your ${obj} goals.`);
     } else {
       panel.style.display = 'none';
@@ -287,6 +472,7 @@
     if(!offer) return toast('warning', 'Strategist', 'Please specify the main offering.');
     toast('success', 'Master Brain', 'Marketing strategy architecture initiated.');
     closeMarketingPanel();
+    startGeneration();
   }
 
   function finishOnboarding() {
@@ -294,7 +480,6 @@
     const lang = document.getElementById('on-lang').value;
     if(!loc) return toast('warning', 'Setup', 'Please enter your headquarters.');
     
-    // Update local user and storage
     currentUser.profile.location = loc;
     currentUser.profile.language = lang;
     currentUser.isSetupComplete = true;
@@ -304,28 +489,12 @@
     toast('success', 'Enterprise Ready', 'Business Studio calibrated successfully.');
   }
 
-  function syncSwitches(el) {
-    document.getElementById('auto-switch-main').checked = el.checked;
-    toggleAutoMode(el);
+  function toggleAutoMode(el) {
+    const status = el.checked ? 'AUTO-PILOT' : 'MANUAL';
+    toast('info', 'System Mode', `Business Engine set to ${status}`);
   }
 
   function logout() { storage.clear(); window.location.href='auth.html'; }
-
-  window.onload = () => { 
-    if(!currentUser) {
-      window.location.href='auth.html'; 
-    } else { 
-      const dashRoot = document.getElementById('dashRoot');
-      if (dashRoot) dashRoot.style.display='grid'; 
-      initUI(); 
-      if(!currentUser.isSetupComplete) {
-        const modal = document.getElementById('onboardingModal');
-        if (modal) modal.classList.add('active');
-      }
-      // Re-initialize branding for dynamic content
-      if (typeof applyGlobalBranding === 'function') applyGlobalBranding();
-    } 
-  };
 </script>
 </body>
 </html>
