@@ -224,7 +224,20 @@
     </div>
 
     <div class="workflow-list" id="workflow-checklist">
-      <div class="menu-h" style="margin-bottom:10px;">HeroAi</div>
+      <div class="menu-h" style="margin-bottom:10px;">HeroAi Content Builder</div>
+      
+      <!-- Manual Script Entry -->
+      <div style="margin-bottom:20px; padding:15px; background:var(--surface2); border:1px solid var(--border); border-radius:16px;">
+         <div style="font-size:12px; font-weight:700; color:var(--text); margin-bottom:8px;">Manual Script Input</div>
+         <textarea id="manual-script-inp" placeholder="Paste your story here or leave empty for Auto-Pilot trend scripting..." style="width:100%; height:100px; background:transparent; border:none; color:var(--text2); font-size:11px; outline:none; resize:none;"></textarea>
+         
+         <div id="script-opt-alert" style="display:none; margin-top:10px; padding:10px; background:rgba(255,59,48,0.1); border:1px solid var(--rose); border-radius:10px;">
+            <div style="font-size:10px; color:var(--rose); font-weight:800;"><i class="fas fa-exclamation-triangle"></i> ENGAGEMENT ALERT</div>
+            <div style="font-size:9px; color:var(--text2); margin-top:4px;">Story too long (~6 min). AI recommends optimizing for 4 min to maximize retention.</div>
+            <button class="onboarding-btn btn-sm" style="margin-top:8px; padding:4px 8px; font-size:9px; background:var(--rose);" onclick="optimizeScript()">Optimize Now</button>
+         </div>
+      </div>
+
       <!-- Checklist items -->
     </div>
   </main>
@@ -1081,6 +1094,31 @@
       dot.style.background = 'var(--amber)';
     }
     toast('info', 'Engine Updated', `Switched to ${val} Mode.`);
+  }
+
+  // Script Length Analyzer
+  const scriptInp = document.getElementById('manual-script-inp');
+  if(scriptInp) {
+    scriptInp.addEventListener('input', (e) => {
+      const words = e.target.value.split(/\s+/).length;
+      const alertBox = document.getElementById('script-opt-alert');
+      if(words > 650) { // Approx > 4-5 mins
+        alertBox.style.display = 'block';
+      } else {
+        alertBox.style.display = 'none';
+      }
+    });
+  }
+
+  function optimizeScript() {
+    toast('info', 'Master Brain', 'Optimizing story for maximum engagement...');
+    const inp = document.getElementById('manual-script-inp');
+    // Mocking AI optimization
+    setTimeout(() => {
+      inp.value = "[Optimized by HeroAi]: " + inp.value.substring(0, 500) + "... (Shortened for 4 min retention)";
+      document.getElementById('script-opt-alert').style.display = 'none';
+      toast('success', 'Optimized', 'Script is now viral-ready. Proceeding...');
+    }, 2000);
   }
 
   async function startGeneration() {
