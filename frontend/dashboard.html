@@ -321,6 +321,7 @@
       <div class="menu-h">Master Brain Intelligence</div>
       <select id="engine-select" style="width:100%; padding:10px; background:var(--surface2); border:1px solid var(--border); border-radius:12px; color:var(--text); font-size:11px; font-weight:700;" onchange="updateEngineMode()">
         <option value="HYBRID_AUTO">🚀 Hybrid Auto (Best Results)</option>
+        <option value="CARTOON_3D">🎨 Cartoon/Anime (3D Branding)</option>
         <option value="WAN_CINEMATIC">💎 WanVideo (Cinematic 4K)</option>
         <option value="LTX2_ULTRA">⚡ LTX-2 (Synced Audio-Visual)</option>
         <option value="STANDARD">⚙️ Standard (Fastest)</option>
@@ -1086,6 +1087,9 @@
     if(val === 'WAN_CINEMATIC') {
       desc.textContent = 'WanVideo: 100% Output Priority (Cinematic 4K).';
       dot.style.background = 'var(--cyan)';
+    } else if(val === 'CARTOON_3D') {
+      desc.textContent = 'Cartoon Engine: 3D Pixar-Style & Anime Character Branding.';
+      dot.style.background = 'var(--amber)';
     } else if(val === 'LTX2_ULTRA') {
       desc.textContent = 'LTX-2: Ultra-Realistic Synced Dialogue.';
       dot.style.background = 'var(--purple)';
