@@ -1,60 +1,62 @@
-const { AssetProviderService, VoiceService } = require('./MediaServices');
-const FfmpegEngine = require('./FfmpegEngine');
+const VaultService = require('./VaultService');
 
+/**
+ * Stateful Video Production Service
+ * Breaks down generation into atomic steps with checkpoint persistence.
+ */
 class VideoProductionService {
-    /**
-     * Orchestrates the full video production flow.
-     */
-    static async createFullVideo(pipelineId, scenes, strategy = {}) {
-        console.log(`[PRODUCTION] Starting full orchestration for: ${pipelineId} using ${strategy.engine || 'Standard'}`);
-        
-        try {
-            const processedSegments = [];
-
-            for (const scene of scenes) {
-                console.log(`[PRODUCTION] Processing Scene ${scene.sceneId}...`);
-                
-                // 1. Fetch Visual Asset (User Avatar vs Stock vs AI Generation)
-                let clipUrl;
-                if (strategy.visualType === 'USER_AVATAR') {
-                    console.log("[PRODUCTION] Enforcing User Avatar Clone...");
-                    clipUrl = "https://path-to-user-cloned-avatar.mp4"; // Real logic would fetch from Vault
-                } else {
-                    clipUrl = await AssetProviderService.fetchClip(scene.visualPrompt);
-                }
-                
-                // 2. Generate Voice Over (User Clone vs Niche Optimized)
-                let audioUrl;
-                if (strategy.voiceType === 'USER_CLONE') {
-                    console.log("[PRODUCTION] Enforcing User Voice Clone...");
-                    audioUrl = "https://path-to-user-cloned-voice.mp3";
-                } else {
-                    audioUrl = await VoiceService.generateAudio(scene.text);
-                }
-                
-                processedSegments.push({
-                    isCompleted: true,
-                    videoClipUrl: clipUrl,
-                    audioUrl: audioUrl,
-                    text: scene.text
-                });
-            }
-
-            // 3. Assemble all segments into one cinematic video
-            const finalPath = await FfmpegEngine.stitchSegments(pipelineId, processedSegments);
-            
-            return {
-                status: 'COMPLETED',
-                finalPath: finalPath,
-                segmentsCount: processedSegments.length
-            };
-
-        } catch (err) {
-            console.error(`[PRODUCTION] Failed:`, err);
-            throw err;
-        }
+  async generateVideo(taskId, taskDetails) {
+    const state = { taskId, step: 'INITIAL', data: {} };
+    
+    try {
+      // STEP 1: Scripting
+      state.step = 'SCRIPTING';
+      state.data.script = await this.executeWithRetry('GEMINI', 'generateScript', taskDetails);
+      
+      // STEP 2: Voiceover
+      state.step = 'VOICEOVER';
+      state.data.audioUrl = await this.executeWithRetry('ELEVENLABS', 'generateVoice', state.data.script);
+      
+      // STEP 3: Visuals (WAN/LTX-2)
+      state.step = 'VISUALS';
+      state.data.videoSegments = await this.executeWithRetry('VIDEO_ENGINE', 'generateSegments', state.data.script);
+      
+      // STEP 4: Final Assembly (FFmpeg)
+      state.step = 'ASSEMBLY';
+      return await this.assembleFinal(state.data);
+      
+    } catch (err) {
+      console.error(`[PRODUCTION-ERROR] Failed at ${state.step}:`, err);
+      // Persist state to DB for resume
+      await this.persistTaskState(taskId, state);
+      throw err;
     }
+  }
+
+  async executeWithRetry(provider, method, payload) {
+    let attempts = 0;
+    while (attempts < 5) {
+      const apiKey = await VaultService.getValidKey(provider);
+      try {
+        // Mocking the call to actual engine
+        return await this.callAIEngine(method, payload, apiKey);
+      } catch (err) {
+        if (this.isKeyError(err)) {
+          await VaultService.blacklistKey(apiKey);
+          attempts++;
+          console.warn(`[RETRY] Key failed, rotating to next... (Attempt ${attempts})`);
+        } else {
+          throw err;
+        }
+      }
+    }
+    throw new Error('All keys exhausted for this provider.');
+  }
+
+  isKeyError(err) {
+    const codes = [401, 402, 429];
+    return codes.includes(err.status) || err.message.includes('credit');
+  }
 }
 
-module.exports = VideoProductionService;
-
+module.exports = new VideoProductionService();
