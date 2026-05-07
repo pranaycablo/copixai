@@ -29,3 +29,4 @@
 ## 6. Output: AI Blueprint Ready
 - Backend AI processes all inputs to generate a **"User Content Blueprint" (Digital DNA)**.
 - AI analyzes the user's level and suggests a smart plan (Free for beginners, Pro for serious creators).
+

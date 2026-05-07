@@ -6,6 +6,7 @@ const VideoPipelineSchema = new mongoose.Schema({
   description: { type: String },
   platformsToPost: [{ type: String }], // e.g. ['youtube', 'instagram']
   videoType: { type: String, enum: ['LONG', 'REEL'], default: 'REEL' },
+  bundleType: { type: String, enum: ['SINGLE', 'FULL_PACK'], default: 'SINGLE' }, // FULL_PACK = 1 Video + 2 Reels
   durationSeconds: { type: Number, default: 0 },
   
   status: { 
@@ -96,3 +97,4 @@ VideoPipelineSchema.index({ createdAt: -1 });
 VideoPipelineSchema.index({ "finalOutputUrls.shorts": 1 }, { sparse: true });
 
 module.exports = mongoose.model('VideoPipeline', VideoPipelineSchema);
+

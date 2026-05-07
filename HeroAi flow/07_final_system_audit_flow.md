@@ -1,7 +1,7 @@
 # Flow 7: Auto System Audit & Final Deployment
 
 ## 1. AI Self-Auditing (360° Check)
-- Before and during launch, CopixAI audits itself to prevent errors reaching the user.
+- Before and during launch, HeroAi audits itself to prevent errors reaching the user.
 - **Auth Flow Check:** Tests OTP, login smoothness, session expiry.
 - **Content Flow Check:** Ensures script-to-video pipeline does not break.
 - **Payment & API Check:** Verifies subscription activations and API fallbacks.
@@ -24,3 +24,4 @@
 - Load tests system stability with 100 to 1000+ concurrent users.
 - Verifies auto-language switching, currency localization, and strict security (JWT, data encryption).
 - **Launch State:** The system is completely autonomous, scalable, bug-free, and generating passive income.
+

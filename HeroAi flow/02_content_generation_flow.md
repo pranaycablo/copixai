@@ -28,3 +28,4 @@
   - 2-3 Shorts/Reels extracted from the main video
   - Optimized Title, Description, and Hashtags
   - AI-generated custom Thumbnail
+

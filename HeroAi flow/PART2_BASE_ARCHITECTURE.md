@@ -1,4 +1,4 @@
-# 🏗️ CopixAI — PART 2: COMPLETE BASE ARCHITECTURE
+# 🏗️ HeroAi — PART 2: COMPLETE BASE ARCHITECTURE
 ## Database Schema + API Design + Service Map + Assured Growth Engine
 ### Status: PRODUCTION-READY | ZERO GAPS | ALL LAYERS COVERED
 
@@ -7,7 +7,7 @@
 ## 📦 SECTION 1: PROJECT FOLDER STRUCTURE
 
 ```
-copixai/
+HeroAi/
 ├── backend/
 │   ├── src/
 │   │   ├── config/
@@ -599,7 +599,7 @@ DAILY (Auto Mode active users):
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    COPIXAI SYSTEM MAP                       │
+│                    HeroAi SYSTEM MAP                       │
 ├─────────────────────────────────────────────────────────────┤
 │  FRONTEND (React Native)                                    │
 │  ├── Auth Screen → OTP / Google                             │
@@ -660,3 +660,4 @@ DAILY (Auto Mode active users):
 ---
 
 > **NEXT: PART 3 — Frontend Screens Design + User Experience Flows + Admin Panel UI**
+

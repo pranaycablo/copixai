@@ -250,39 +250,32 @@
         </div>
       </div>
 
-      <!-- STEP 3: NICHES -->
+      <!-- STEP 3: TERRITORY -->
       <div id="step3" class="screen">
-        <h1>Select Your Niche</h1>
-        <p class="subtitle">Define your content categories for AI optimization.</p>
-        <div class="niche-cloud">
-          <div class="niche-tag" onclick="toggleNiche('Technology', this)">Technology</div>
-          <div class="niche-tag" onclick="toggleNiche('Finance', this)">Finance & Crypto</div>
-          <div class="niche-tag" onclick="toggleNiche('Lifestyle', this)">Lifestyle & Vlogging</div>
-          <div class="niche-tag" onclick="toggleNiche('Gaming', this)">Gaming</div>
-          <div class="niche-tag" onclick="toggleNiche('Education', this)">Education & Courses</div>
-          <div class="niche-tag" onclick="toggleNiche('Business', this)">Business & SaaS</div>
-          <div class="niche-tag" onclick="toggleNiche('Health', this)">Health & Fitness</div>
-          <div class="niche-tag" onclick="toggleNiche('Travel', this)">Travel & Adventure</div>
-          <div class="niche-tag" onclick="toggleNiche('Food', this)">Food & Cooking</div>
-          <div class="niche-tag" onclick="toggleNiche('Fashion', this)">Fashion & Beauty</div>
-          <div class="niche-tag" onclick="toggleNiche('Motivation', this)">Motivation & Mental Health</div>
-          <div class="niche-tag" onclick="toggleNiche('Real Estate', this)">Real Estate</div>
-          <div class="niche-tag" onclick="toggleNiche('Spiritual', this)">Spiritual & Astro</div>
-          <div class="niche-tag" onclick="toggleNiche('News', this)">News & Politics</div>
-          <div class="niche-tag" onclick="toggleNiche('Pets', this)">Pets & Animals</div>
-          <div class="niche-tag" onclick="toggleNiche('ASMR', this)">ASMR & Relax</div>
-          <div class="niche-tag" onclick="toggleNiche('Comedy', this)">Comedy & Skits</div>
-          <div class="niche-tag" onclick="toggleNiche('DIY', this)">DIY & Crafts</div>
-          <div class="niche-tag" onclick="toggleNiche('Sports', this)">Sports & Analytics</div>
-          <div class="niche-tag" onclick="toggleNiche('Automobiles', this)">Automobiles</div>
-          <div class="niche-tag" onclick="toggleNiche('Science', this)">Science & Space</div>
-          <div class="niche-tag" onclick="toggleNiche('Documentary', this)">Documentary</div>
-          <div class="niche-tag" onclick="toggleNiche('Podcast', this)">Podcast & Interview</div>
-          <div class="niche-tag" onclick="toggleNiche('Parenting', this)">Parenting</div>
+        <h1>Define Your Territory</h1>
+        <p class="subtitle">Choose your primary domain and specific AI niche.</p>
+        
+        <div class="search-bar" style="margin-bottom:20px; display:flex; gap:10px;">
+           <input type="text" id="nicheSearch" placeholder="Search across 100+ niches..." class="input" style="background:var(--s2); border:1px solid var(--gb); padding:10px 15px; width:100%;" oninput="filterTerritories()">
         </div>
+
+        <div id="categoryGrid" class="role-grid" style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap:10px; max-height:250px; overflow-y:auto; padding:10px;">
+           <!-- Dynamic Categories -->
+        </div>
+
+        <div id="nicheCloudWrap" style="display:none; margin-top:20px; border-top:1px solid var(--gb); padding-top:20px;">
+           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+              <h3 id="selectedCatName" style="font-size:14px; text-transform:uppercase; color:var(--c);">Niches</h3>
+              <button class="btn-ghost" style="font-size:10px; padding:4px 8px;" onclick="resetTerritory()">Change Category</button>
+           </div>
+           <div id="nicheCloud" class="niche-cloud" style="max-height: 200px; overflow-y: auto;">
+              <!-- Dynamic Niches -->
+           </div>
+        </div>
+
         <div class="setup-footer">
           <button class="btn btn-ghost" onclick="nextStep(2, 'backward')"><i class="fas fa-arrow-left"></i> Back</button>
-          <button class="btn btn-primary" id="next3" disabled onclick="nextStep(4)">Continue <i class="fas fa-arrow-right"></i></button>
+          <button class="btn btn-primary" id="next3" disabled onclick="nextStep(4)">Continue Mission <i class="fas fa-arrow-right"></i></button>
         </div>
       </div>
 
@@ -517,41 +510,76 @@
       }
     }
 
+    let allCategories = [];
+    let selectedCategory = null;
+
+    async function loadTerritories() {
+      try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/categories/all`);
+        allCategories = await res.json();
+        renderCategories();
+      } catch (e) { toast('error', 'Sync Failure', 'Failed to load niche engine.'); }
+    }
+
+    function renderCategories(filter = '') {
+      const grid = document.getElementById('categoryGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      const filtered = allCategories.filter(c => 
+        c.name.toLowerCase().includes(filter.toLowerCase()) || 
+        c.niches.some(n => n.toLowerCase().includes(filter.toLowerCase()))
+      );
+
+      filtered.forEach(cat => {
+        const el = document.createElement('div');
+        el.className = 'role-card';
+        el.style.padding = '15px';
+        el.innerHTML = `
+          <div class="role-icon" style="font-size:20px; width:40px; height:40px;"><i class="${cat.icon}"></i></div>
+          <h3 style="font-size:12px; margin-top:8px;">${cat.name}</h3>
+        `;
+        el.onclick = () => selectCategory(cat);
+        grid.appendChild(el);
+      });
+    }
+
+    function selectCategory(cat) {
+      selectedCategory = cat;
+      document.getElementById('categoryGrid').style.display = 'none';
+      document.getElementById('nicheCloudWrap').style.display = 'block';
+      document.getElementById('selectedCatName').innerText = cat.name + ' Niches';
+      
+      const cloud = document.getElementById('nicheCloud');
+      if (!cloud) return;
+      cloud.innerHTML = '';
+      cat.niches.forEach(n => {
+        const tag = document.createElement('div');
+        tag.className = 'niche-tag';
+        tag.innerText = n;
+        tag.onclick = () => toggleNiche(n, tag);
+        cloud.appendChild(tag);
+      });
+    }
+
+    function resetTerritory() {
+      selectedCategory = null;
+      document.getElementById('categoryGrid').style.display = 'grid';
+      document.getElementById('nicheCloudWrap').style.display = 'none';
+      setupData.niches = [];
+      document.getElementById('next3').disabled = true;
+    }
+
+    function filterTerritories() {
+      const val = document.getElementById('nicheSearch').value;
+      renderCategories(val);
+    }
+
     function toggleNiche(n, el) {
-      const nicheGroups = {
-        'Professional': ['Technology', 'Finance', 'Education', 'Business', 'AI News', 'Real Estate', 'Marketing'],
-        'Entertainment': ['Gaming', 'Comedy', 'Movie Reviews', 'Music', 'Entertainment'],
-        'Lifestyle': ['Lifestyle', 'Health & Fitness', 'Travel', 'Food & Cooking', 'Fashion & Beauty'],
-        'Personal': ['Motivation', 'Self-Improvement', 'Spirituality']
-      };
-
-      const getGroup = (niche) => {
-        for (const [group, members] of Object.entries(nicheGroups)) {
-          if (members.includes(niche)) return group;
-        }
-        return 'Other';
-      };
-
-      if (setupData.niches.includes(n)) {
-        setupData.niches = setupData.niches.filter(x => x !== n);
-        el.classList.remove('active');
-      } else {
-        // AI Guidance Logic
-        if (setupData.niches.length > 0) {
-          const currentGroup = getGroup(setupData.niches[0]);
-          const newGroup = getGroup(n);
-          
-          if (currentGroup !== newGroup && currentGroup !== 'Other' && newGroup !== 'Other') {
-            showToast('warning', 'AI Guidance', `To maintain channel authority, we recommend sticking to ${currentGroup} niches.`);
-            // We allow it, but warn. Or we could block.
-            // For now, let's just warn to keep the "AI Guidance" feel.
-          }
-        }
-        
-        setupData.niches.push(n);
-        el.classList.add('active');
-      }
-      document.getElementById('next3').disabled = setupData.niches.length === 0;
+      document.querySelectorAll('.niche-tag').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      setupData.niches = [n]; // Single primary niche for clarity
+      document.getElementById('next3').disabled = false;
+      showToast('success', 'Niche Target Locked', `Analyzing ${n} trends...`);
     }
 
     function syncNicheData() {
@@ -605,6 +633,9 @@
       }, 2000);
     }
 
+    window.onload = () => {
+      loadTerritories();
+    }
     async function completeSetup() {
       const btn = event.target;
       btn.disabled = true;
@@ -650,3 +681,4 @@
   </script>
 </body>
 </html>
+

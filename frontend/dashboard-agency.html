@@ -183,21 +183,21 @@
       <div class="menu-h">Smart Post Manager</div>
       <div class="menu-item"><i class="fas fa-clock"></i> Intelligent Gap Timer (4h)</div>
       <div class="menu-item"><i class="fas fa-magic"></i> Bulk SEO Rewriter</div>
-      <div class="menu-item"><i class="fas fa-chart-line"></i> ROI Comparison Tool</div>
+      <div class="menu-item"><i class="fas fa-chart-line"></i> Performance Comparison Tool</div>
     </div>
 
     <div class="menu-section">
       <div class="menu-h">Managed Services</div>
       <div class="menu-item"><i class="fas fa-ad"></i> Agency Ad Network (Meta)</div>
       <div class="menu-item"><i class="fas fa-ad"></i> Agency Ad Network (Google)</div>
-      <div class="menu-item"><i class="fas fa-wallet"></i> Agency Payouts</div>
+      <div class="menu-item"><i class="fas fa-tasks"></i> Growth Service Management</div>
     </div>
 
     <div class="menu-section" style="margin-top:auto;">
        <div style="padding:15px; background:var(--surface2); border:1px solid var(--border); border-radius:16px;">
-          <div style="font-size:10px; color:var(--text3); text-transform:uppercase; font-weight:800;">Global Agency Balance</div>
+          <div style="font-size:10px; color:var(--text3); text-transform:uppercase; font-weight:800;">Ad & Infra Credits</div>
           <div style="font-size:24px; font-weight:800; color:var(--accent); margin-top:5px;">₹1,42,500</div>
-          <div style="font-size:9px; color:var(--text2); margin-top:4px;">*Deducted automatically for Ad Spend & Credits</div>
+          <div style="font-size:9px; color:var(--text2); margin-top:4px;">*Deducted automatically for Ad Spend & Infrastructure</div>
        </div>
        <div class="menu-item" style="color:var(--rose); margin-top:15px;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Secure Logout</div>
     </div>
@@ -240,11 +240,6 @@
     
     document.getElementById('agency-name').textContent = currentUser.profile.name || 'Agency Hub';
     document.getElementById('agency-credits').textContent = `Credits: ${currentUser.subscription.creditsRemaining}`;
-
-    if(!currentUser.isSetupComplete) {
-       // Agencies usually have a separate onboarding or skip it, but let's be consistent
-       toast('info', 'Welcome', 'Agency Command Center Initialized.');
-    }
 
     fetchClients();
   }
@@ -317,9 +312,31 @@
     } catch(e) { toast('error', 'Error', 'Connection failed.'); }
   }
 
-  function startGeneration() {
+  async function startGeneration() {
     if(!activeClient) return toast('warning', 'Select Client', 'Please select a business to trigger production.');
     toast('info', 'Triggering AI', `Orchestrating content for ${activeClient.businessName}...`);
+    
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/engine/generate`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${storage.get('token')}`
+        },
+        body: JSON.stringify({ 
+          type: 'REEL',
+          clientId: activeClient._id,
+          title: `Agency Production - ${activeClient.businessName}`
+        })
+      });
+      const data = await res.json();
+      if(res.ok) {
+        tracker.currentTaskId = data.taskId;
+        tracker.track();
+      } else {
+        toast('error', 'Denied', data.error);
+      }
+    } catch(e) { toast('error', 'Error', 'Engine unreachable.'); }
   }
 
   function switchAgencyTab(tabId, el) {
@@ -340,18 +357,17 @@
   }
 
   function logout() { storage.clear(); window.location.href='auth.html'; }
-  function toast(type, title, msg) {
-    if(window.showToast) return window.showToast(type, title, msg); // Use ui.js if available
-    const stack = document.getElementById('toastStack');
-    if(!stack) return;
-    const t = document.createElement('div');
-    t.className = `toast ${type}`;
-    t.innerHTML = `<strong>${title}</strong><p>${msg}</p>`;
-    stack.appendChild(t);
-    setTimeout(() => t.remove(), 4000);
-  }
-
-  window.onload = loadAgencyDashboard;
+  window.onload = () => {
+    if(!currentUser) {
+      window.location.href='auth.html';
+    } else {
+      const dashRoot = document.getElementById('dashRoot');
+      if (dashRoot) dashRoot.style.display='grid';
+      loadAgencyDashboard();
+      if (typeof applyGlobalBranding === 'function') applyGlobalBranding();
+    }
+  };
 </script>
 </body>
 </html>
+

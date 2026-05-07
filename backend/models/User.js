@@ -27,17 +27,41 @@ const UserSchema = new mongoose.Schema({
   referrals: {
     referralCode: { type: String, unique: true, sparse: true, default: () => 'HAI-' + Math.random().toString(36).substr(2, 9).toUpperCase() },
     referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    pendingSignups: { type: Number, default: 0 }, // Count toward the 5 needed for extra days
-    totalReferrals: { type: Number, default: 0 },
-    freeDaysEarned: { type: Number, default: 0 }
+    activeReferralsCount: { type: Number, default: 0 }, // Count of users who signed up AND linked social
+    claimedRewardsCount: { type: Number, default: 0 }, // How many 5-user rewards already claimed
+    hasContributedReferralPoint: { type: Boolean, default: false }, // Tracks if this user gave a point to their referrer
+    lastPopupShown: { type: Date }
   },
   subscription: {
-    planId: { type: String, enum: ['trial', 'beginner', 'creator', 'business', 'agency'], default: 'trial' },
-    status: { type: String, enum: ['ACTIVE', 'EXPIRED', 'CANCELLED'], default: 'ACTIVE' },
-    creditsRemaining: { type: Number, default: 3 }, 
-    dailyVideoQuota: { type: Number, default: 1 }, // 1 Video per day (Trial)
-    dailyReelQuota: { type: Number, default: 2 }, // 2 Reels per day (Trial)
-    expiresAt: { type: Date }
+    // 3 Main Plan Types
+    contentPlan: { 
+      tier: { type: String, enum: ['FREE', 'GRO', 'PRO', 'PREMIUM'], default: 'FREE' },
+      expiresAt: { type: Date }
+    },
+    seoPlan: { 
+      tier: { type: String, enum: ['NONE', 'GRO', 'PRO', 'PREMIUM'], default: 'NONE' },
+      expiresAt: { type: Date }
+    },
+    adsPlan: { 
+      tier: { type: String, enum: ['NONE', 'GRO', 'PRO', 'PREMIUM'], default: 'NONE' },
+      expiresAt: { type: Date }
+    },
+    planId: { type: String, enum: ['beginner', 'pro_creator', 'business', 'agency'], default: 'beginner' },
+    creditsRemaining: { type: Number, default: 3 }, // Signup bonus: 3 Tokens
+    dailyTokenQuota: { type: Number, default: 1 }, // Set by Admin
+    signupBonusUsed: { type: Boolean, default: false }
+  },
+  adsConfig: {
+    targetAge: { min: Number, max: Number },
+    targetArea: [String],
+    budget: { type: Number },
+    objectives: [{ type: String, enum: ['BRANDING', 'MARKETING', 'OFFER', 'UGC', 'AWARENESS'] }],
+    platforms: [{ type: String, enum: ['META', 'GOOGLE'] }]
+  },
+  usageStats: {
+    tokensUsedToday: { type: Number, default: 0 },
+    lastReset: { type: Date, default: Date.now },
+    connectedChannelsCount: { type: Number, default: 0 } // Max 2 for Free
   },
   digitalIdentity: {
     voiceCloneId: { type: String }, 
@@ -69,23 +93,42 @@ const UserSchema = new mongoose.Schema({
     languageStyle: { type: String, default: 'HINGLISH' },
     hookSensitivity: { type: Number, default: 0.95 } // High sensitivity for viral hooks
   },
-  usageStats: {
-    dailyAiMinutes: { type: Number, default: 0 },
-    videosCreatedToday: { type: Number, default: 0 },
-    reelsCreatedToday: { type: Number, default: 0 },
-    lastReset: { type: Date, default: Date.now },
-    workersLastRun: { type: Map, of: Date } // Cross-device AI worker cooldowns
-  },
   billing: {
     isTrialActive: { type: Boolean, default: true },
     trialStartDate: { type: Date, default: Date.now },
     autopayActive: { type: Boolean, default: false },
     autopayValidatedAt: { type: Date },
     autopayPrice: { type: Number, default: 1499 }, // ₹1499 for India
-    paymentSourceId: { type: String, sparse: true }, // Unique Bank/Autopay link ID
+    paymentSourceId: { type: String, sparse: true },
+    razorpayOrderId: String,
+    razorpayPaymentId: String,
+    transactionHistory: [{
+      amount: Number,
+      planId: String,
+      status: String,
+      date: { type: Date, default: Date.now }
+    }],
     failedAutopayAttempts: { type: Number, default: 0 },
     lastAutopayPauseDate: { type: Date }
   },
+  // AGENCY CLIENT MANAGEMENT
+  clients: [{
+    clientName: String,
+    niche: String,
+    platformLinks: [{
+        platform: String,
+        handle: String,
+        isConnected: { type: Boolean, default: false }
+    }],
+    adsConfig: {
+      platform: { type: String, enum: ['GOOGLE', 'META'], default: 'GOOGLE' },
+      objective: String,
+      targetAge: { min: Number, max: Number },
+      targetArea: String,
+      budget: Number
+    },
+    status: { type: String, default: 'ACTIVE' }
+  }],
   isSetupComplete: { type: Boolean, default: false },
   socialLinks: [{
     platform: { type: String },
@@ -115,3 +158,4 @@ UserSchema.index({ "profile.role": 1 });
 UserSchema.index({ "subscription.planId": 1 });
 
 module.exports = mongoose.model('User', UserSchema);
+

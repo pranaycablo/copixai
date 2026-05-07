@@ -1,4 +1,4 @@
-# 🎨 CopixAI — PART 3A: USER APP UI
+# 🎨 HeroAi — PART 3A: USER APP UI
 ## All Screens | Complete Flow | React Native
 
 ---
@@ -23,7 +23,7 @@
 
 ```
 ┌──────────────────────────┐
-│     [CopixAI Logo]       │
+│     [HeroAi Logo]       │
 │    ✨ Purple gradient BG  │
 │                          │
 │  "Your AI Content Team"  │
@@ -329,10 +329,10 @@
 
 ```
 ┌──────────────────────────┐
-│  💰 Earn with CopixAI    │
+│  💰 Earn with HeroAi    │
 │                          │
 │  Your Referral Link:     │
-│  copixai.com/r/rahul123  │
+│  HeroAi.com/r/rahul123  │
 │  [📋 Copy] [📤 Share]    │
 │                          │
 │  ┌──────────────────┐    │
@@ -409,3 +409,4 @@ Dashboard (Home)
   ├── Affiliate → Wallet
   └── Settings → Auto Mode + Connect Social
 ```
+

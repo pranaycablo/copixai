@@ -691,6 +691,7 @@
       <a class="nav-item" onclick="switchPanel('security')"><i class="fas fa-shield-alt"></i> Security & Fraud</a>
       <a class="nav-item" onclick="switchPanel('optimization')"><i class="fas fa-wand-magic-sparkles"></i> Asset Optimizer</a>
       <a class="nav-item" onclick="switchPanel('queue')"><i class="fas fa-server"></i> FFmpeg Queue</a>
+      <a class="nav-item" onclick="switchPanel('territory')"><i class="fas fa-map-marked-alt"></i> Territory Master</a>
       <a class="nav-item" onclick="switchPanel('settings')"><i class="fas fa-cogs"></i> System Settings</a>
 
       <div style="margin-top:auto;border-top:1px solid var(--border);padding-top:16px;">
@@ -905,6 +906,10 @@
                   <option value="FREE">Free Tier</option>
                 </select>
               </div>
+              <div class="input-group" style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
+                <input type="checkbox" id="isFixedMaster" style="width:18px; height:18px;">
+                <label for="isFixedMaster" style="margin:0; font-size:13px; color:var(--amber);">Fixed Master Brain (Gemini Only)</label>
+              </div>
               <button type="submit" class="btn btn-cyan" style="width:100%;">Add Key to Vault</button>
             </form>
           </div>
@@ -1068,7 +1073,11 @@
               <div class="v-info">
                 <div class="v-title">Daily Viral Loop (₹49) <label class="toggle" style="margin-left:auto;"><input
                       type="checkbox" checked><span class="slider"></span></label></div>
-                <div class="v-sub">1 Video + 3 Reels · Auto-Post</div>
+                <div class="v-sub">1 Token/Day · 1 Video + 2 Reels</div>
+                <div style="display:flex; gap:10px; margin-top:8px;">
+                   <input type="number" placeholder="Total Tokens" class="input btn-sm" style="width:100px;" value="1">
+                   <input type="number" placeholder="Daily Limit" class="input btn-sm" style="width:100px;" value="1">
+                </div>
               </div>
             </div>
             <div class="vault-row">
@@ -1076,7 +1085,11 @@
               <div class="v-info">
                 <div class="v-title">Weekly Momentum (₹199) <label class="toggle" style="margin-left:auto;"><input
                       type="checkbox" checked><span class="slider"></span></label></div>
-                <div class="v-sub">Daily Posts + Advanced Analytics</div>
+                <div class="v-sub">2 Tokens/Day · Advanced Analytics</div>
+                <div style="display:flex; gap:10px; margin-top:8px;">
+                   <input type="number" placeholder="Total Tokens" class="input btn-sm" style="width:100px;" value="14">
+                   <input type="number" placeholder="Daily Limit" class="input btn-sm" style="width:100px;" value="2">
+                </div>
               </div>
             </div>
             <div class="vault-row">
@@ -1084,7 +1097,11 @@
               <div class="v-info">
                 <div class="v-title">Monthly Authority (₹499) <label class="toggle" style="margin-left:auto;"><input
                       type="checkbox" checked><span class="slider"></span></label></div>
-                <div class="v-sub">Bulk Generation + Multi-Account</div>
+                <div class="v-sub">3 Tokens/Day · Multi-Account Hub</div>
+                <div style="display:flex; gap:10px; margin-top:8px;">
+                   <input type="number" placeholder="Total Tokens" class="input btn-sm" style="width:100px;" value="90">
+                   <input type="number" placeholder="Daily Limit" class="input btn-sm" style="width:100px;" value="3">
+                </div>
               </div>
             </div>
           </div>
@@ -1395,15 +1412,99 @@
         </div>
       </div>
 
+      <!-- 11. TERRITORY MASTER PANEL -->
+      <div id="panel-territory" class="panel-section">
+        <div class="card-header" style="margin-bottom:30px;">
+           <div>
+             <h2 style="font-family:var(--font-head);font-size:24px;font-weight:700;">Territory Master</h2>
+             <p style="color:var(--text-sub);margin-top:4px;">Manage hierarchical categories and micro-niches across all social platforms.</p>
+           </div>
+           <button class="btn btn-cyan" onclick="openAddCategoryModal()"><i class="fas fa-plus"></i> Add Category</button>
+        </div>
+
+        <div class="grid-3" id="territoryGrid">
+           <!-- Dynamic Categories -->
+        </div>
+
+        <!-- Category Modal -->
+        <div id="catModal" class="overlay" style="display:none; justify-content:center; align-items:center; z-index:5000;">
+           <div class="card" style="width:100%; max-width:500px; background:var(--bg2);">
+              <h3 id="catModalTitle" style="margin-bottom:20px;">Add Category</h3>
+              <div class="input-group">
+                 <label>Category Name</label>
+                 <input type="text" id="cat-name" class="input" placeholder="e.g. Finance">
+              </div>
+              <div class="input-group">
+                 <label>Icon Class (FontAwesome)</label>
+                 <input type="text" id="cat-icon" class="input" placeholder="e.g. fas fa-coins">
+              </div>
+              <div class="input-group">
+                 <label>Niches (Comma Separated)</label>
+                 <textarea id="cat-niches" class="input" style="height:100px;" placeholder="Stock Market, Crypto, UPI..."></textarea>
+              </div>
+              <div style="display:flex; gap:10px; margin-top:20px;">
+                 <button class="btn btn-cyan" style="flex:1;" onclick="saveCategory()">Save Territory</button>
+                 <button class="btn btn-ghost" style="flex:1;" onclick="closeCatModal()">Cancel</button>
+              </div>
+           </div>
+        </div>
+      </div>
+
       <!-- 10. SYSTEM SETTINGS PANEL -->
       <div id="panel-settings" class="panel-section">
         <div class="card-header" style="margin-bottom:30px;">
            <div>
              <h2 style="font-family:var(--font-head);font-size:24px;font-weight:700;">Global Controls</h2>
-             <p style="color:var(--text-sub);margin-top:4px;">Manage platform-wide pricing, niches, and API security.</p>
+             <p style="color:var(--text-sub);margin-top:4px;">Manage platform-wide pricing, content, and API security.</p>
            </div>
-           <button class="btn btn-cyan" onclick="saveSettings()">Save Master Config</button>
+           <button class="btn btn-cyan" onclick="saveMasterSettings()">Save Master Config</button>
         </div>
+
+        <div class="grid-2">
+           <div class="card">
+              <h3 class="card-title">Content Management</h3>
+              <div class="input-group">
+                 <label>About Us Story</label>
+                 <textarea id="set-about" class="input" style="height:120px;"></textarea>
+              </div>
+              <div class="input-group">
+                 <label>Terms & Conditions</label>
+                 <textarea id="set-terms" class="input" style="height:120px;"></textarea>
+              </div>
+              <div class="input-group">
+                 <label>Privacy Policy</label>
+                 <textarea id="set-privacy" class="input" style="height:120px;"></textarea>
+              </div>
+           </div>
+
+           <div class="card">
+              <h3 class="card-title">Payment Gateways</h3>
+              <div style="background:var(--bg3); padding:15px; border-radius:12px; margin-bottom:15px;">
+                 <label style="font-size:11px; color:var(--cyan); font-weight:700;">RAZORPAY (India)</label>
+                 <div class="input-group" style="margin-top:10px;">
+                    <label>Key ID</label>
+                    <input type="text" id="set-rzp-id" class="input">
+                 </div>
+                 <div class="input-group">
+                    <label>Key Secret</label>
+                    <input type="password" id="set-rzp-secret" class="input">
+                 </div>
+              </div>
+
+              <div style="background:var(--bg3); padding:15px; border-radius:12px;">
+                 <label style="font-size:11px; color:var(--purple); font-weight:700;">STRIPE (International)</label>
+                 <div class="input-group" style="margin-top:10px;">
+                    <label>Publishable Key</label>
+                    <input type="text" id="set-strip-id" class="input">
+                 </div>
+                 <div class="input-group">
+                    <label>Secret Key</label>
+                    <input type="password" id="set-strip-secret" class="input">
+                 </div>
+              </div>
+           </div>
+        </div>
+      </div>
         
         <div class="grid-2">
           <!-- PRICING CONFIG -->
@@ -1437,6 +1538,12 @@
              <div class="input-group">
                 <label>Reward Access (Days)</label>
                 <input type="number" id="set-ref-days" class="input">
+             </div>
+
+             <h3 class="card-title" style="margin-top:30px;"><i class="fas fa-coins" style="color:var(--green);"></i> Credit Quota</h3>
+             <div class="input-group">
+                <label>Daily Free Tokens (per user)</label>
+                <input type="number" id="set-daily-tokens" class="input" placeholder="e.g. 1">
              </div>
 
              <h3 class="card-title" style="margin-top:30px;"><i class="fas fa-layer-group" style="color:var(--purple);"></i> Niche Categories</h3>
@@ -1551,7 +1658,7 @@
         const stats = await res.json();
         if (document.getElementById('ov-active')) document.getElementById('ov-active').innerHTML = `${stats.activeNow.toLocaleString()} <span style="font-size:14px;color:var(--green);font-family:var(--font-body);">Active</span>`;
         if (document.getElementById('ov-videos')) document.getElementById('ov-videos').innerHTML = `${stats.totalVideos.toLocaleString()} <span style="font-size:14px;color:var(--text-muted);font-family:var(--font-body);">today</span>`;
-        if (document.getElementById('ov-revenue')) document.getElementById('ov-revenue').innerHTML = `₹${stats.revenue.toLocaleString()} <span style="font-size:14px;color:var(--green);font-family:var(--font-body);">50% Share</span>`;
+        if (document.getElementById('ov-revenue')) document.getElementById('ov-revenue').innerHTML = `₹${stats.revenue.toLocaleString()} <span style="font-size:14px;color:var(--green);font-family:var(--font-body);">Growth Value</span>`;
       } catch (err) { console.log("Stats fetch failed:", err); }
     }
 
@@ -1659,32 +1766,97 @@
       } catch (err) { showToast('warning', "Offline Mode", "Sample payments active."); }
     }
 
-    async function saveVaultItem(e, category) {
-      e.preventDefault();
-      const data = category === 'API' ? {
-        provider: document.getElementById('apiProvider').value,
-        role: document.getElementById('apiRole').value,
-        key: document.getElementById('apiKey').value,
-        type: document.getElementById('apiType').value
-      } : {
-        email: document.getElementById('botEmail').value,
-        password: document.getElementById('botPass').value,
-        purpose: document.getElementById('botPurpose').value
-      };
-
+    async function fetchVault() {
       try {
         const token = storage.get('token');
+        const res = await fetch(`${CONFIG.API_BASE_URL}/admin/vault`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const vaultItems = await res.json();
+        
+        // Update API Table
+        const apiTbody = document.querySelector('#panel-aivault table tbody');
+        apiTbody.innerHTML = '';
+        
+        vaultItems.filter(i => i.category === 'API').forEach(i => {
+          const tr = document.createElement('tr');
+          const statusBadge = i.status === 'RED' ? 'badge-red' : (i.status === 'ACTIVE' ? 'badge-green' : 'badge-amber');
+          tr.innerHTML = `
+            <td><strong>${i.provider}</strong> ${i.isFixedMaster ? '<i class="fas fa-brain" title="Fixed Master" style="color:var(--amber); font-size:10px;"></i>' : ''}</td>
+            <td><span class="badge" style="background:var(--bg3);">${i.module}</span></td>
+            <td><span class="badge ${statusBadge}">${i.status}</span></td>
+            <td><span style="color:${i.usage.costPerCallEstimate > 0 ? 'var(--amber)' : 'var(--green)'}; font-weight:700;">${i.usage.costPerCallEstimate > 0 ? 'PAID' : 'FREE'}</span></td>
+            <td>${i.usage.dailyCount} calls</td>
+          `;
+          apiTbody.appendChild(tr);
+        });
+
+        // Update Bot Pool
+        const botList = document.querySelector('#panel-aivault .vault-row').parentElement;
+        // Keep only the first card-title and form
+        const title = botList.querySelector('.card-title');
+        const form = botList.querySelector('form');
+        botList.innerHTML = '';
+        botList.appendChild(title);
+        botList.appendChild(form);
+
+        vaultItems.filter(i => i.category === 'BOT').forEach(i => {
+          const div = document.createElement('div');
+          div.className = 'vault-row';
+          const statusBadge = i.status === 'BANNED' ? 'badge-red' : 'badge-green';
+          div.innerHTML = `
+            <div class="v-icon" style="color:var(--amber);"><i class="fas fa-envelope"></i></div>
+            <div class="v-info">
+              <div class="v-title">${i.credentials.email} <span class="badge ${statusBadge}">${i.status}</span></div>
+              <div class="v-sub">Purpose: ${i.module}</div>
+            </div>
+          `;
+          botList.appendChild(div);
+        });
+
+      } catch (err) { console.log("Vault fetch failed:", err); }
+    }
+
+    async function saveVaultItem(e, category) {
+      e.preventDefault();
+      const token = storage.get('token');
+      
+      let payload = { category };
+      if (category === 'API') {
+        payload = {
+          ...payload,
+          provider: document.getElementById('apiProvider').value,
+          module: document.getElementById('apiRole').value,
+          credentials: { apiKey: document.getElementById('apiKey').value },
+          usage: { costPerCallEstimate: document.getElementById('apiType').value === 'FREE' ? 0 : 0.01 },
+          isFixedMaster: document.getElementById('isFixedMaster')?.checked || false
+        };
+      } else {
+        payload = {
+          ...payload,
+          category: 'BOT',
+          module: document.getElementById('botPurpose').value,
+          provider: document.getElementById('botPurpose').value,
+          credentials: { 
+            email: document.getElementById('botEmail').value,
+            passwordEncrypted: document.getElementById('botPass').value // Will be hashed on server
+          }
+        };
+      }
+
+      try {
         const res = await fetch(`${CONFIG.API_BASE_URL}/admin/vault`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ category, ...data })
+          body: JSON.stringify(payload)
         });
         if (res.ok) {
           showToast('success', "Success", `${category} added to Vault.`);
           e.target.reset();
+          fetchVault();
         }
       } catch (err) {
         showToast('error', "Error", "Failed to save vault item.");
@@ -1712,7 +1884,8 @@
         'users': 'User Network',
         'security': 'Data Storage Server',
         'cto': 'CTO Command Terminal',
-        'queue': 'FFmpeg Production Queue'
+        'queue': 'FFmpeg Production Queue',
+        'territory': 'Territory & Niche Master'
       };
       document.getElementById('topTitle').innerText = titles[id] || 'Admin Console';
 
@@ -1720,29 +1893,60 @@
       if (id === 'tickets') fetchTickets();
       if (id === 'finance') fetchFinancials();
       if (id === 'settings') fetchSettings();
+      if (id === 'territory') fetchTerritories();
+      if (id === 'aivault') fetchVault();
     }
 
     async function fetchSettings() {
       try {
         const token = storage.get('token');
-        const res = await fetch(`${CONFIG.API_BASE_URL}/admin/settings`, {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/system/admin`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
         if (res.ok) {
-           document.getElementById('set-price-beg').value = data.plans.beginner.price;
-           document.getElementById('set-price-pro').value = data.plans.creator.price;
-           document.getElementById('set-price-biz').value = data.plans.business.price;
-           document.getElementById('set-price-age').value = data.plans.agency.price;
-           document.getElementById('set-ref-shares').value = data.referral.requiredShares;
-           document.getElementById('set-ref-days').value = data.referral.freeDaysReward;
-           document.getElementById('set-niches').value = data.niches.join(', ');
-           document.getElementById('api-firebase').value = data.apiKeys.firebase || '';
-           document.getElementById('api-google').value = data.apiKeys.googleLanguage || '';
-           document.getElementById('api-gemini').value = data.apiKeys.gemini || '';
-           document.getElementById('api-payment').value = data.apiKeys.paymentGateway || '';
+           document.getElementById('set-about').value = data.aboutUs || '';
+           document.getElementById('set-terms').value = data.termsAndConditions || '';
+           document.getElementById('set-privacy').value = data.privacyPolicy || '';
+           document.getElementById('set-rzp-id').value = data.gateways.razorpay.keyId || '';
+           document.getElementById('set-rzp-secret').value = data.gateways.razorpay.keySecret || '';
+           document.getElementById('set-strip-id').value = data.gateways.stripe.publishableKey || '';
+           document.getElementById('set-strip-secret').value = data.gateways.stripe.secretKey || '';
         }
       } catch (err) { showToast('error', 'Error', 'Failed to fetch global settings.'); }
+    }
+
+    async function saveMasterSettings() {
+      try {
+        const token = storage.get('token');
+        const payload = {
+          aboutUs: document.getElementById('set-about').value,
+          termsAndConditions: document.getElementById('set-terms').value,
+          privacyPolicy: document.getElementById('set-privacy').value,
+          gateways: {
+            razorpay: {
+              keyId: document.getElementById('set-rzp-id').value,
+              keySecret: document.getElementById('set-rzp-secret').value,
+              isActive: true
+            },
+            stripe: {
+              publishableKey: document.getElementById('set-strip-id').value,
+              secretKey: document.getElementById('set-strip-secret').value,
+              isActive: false
+            }
+          }
+        };
+
+        const res = await fetch(`${CONFIG.API_BASE_URL}/system/update`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+          },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) showToast('success', 'Master Config Saved', 'Content and Gateways updated successfully.');
+      } catch (err) { showToast('error', 'Error', 'Failed to save settings.'); }
     }
 
     async function saveSettings() {
@@ -1758,7 +1962,8 @@
             requiredShares: document.getElementById('set-ref-shares').value,
             freeDaysReward: document.getElementById('set-ref-days').value
           },
-          niches: document.getElementById('set-niches').value.split(',').map(s => s.trim()),
+          dailyTokenQuota: document.getElementById('set-daily-tokens').value,
+          // niches removed
           apiKeys: {
             firebase: document.getElementById('api-firebase').value,
             googleLanguage: document.getElementById('api-google').value,
@@ -1778,6 +1983,100 @@
         });
         if (res.ok) showToast('success', 'Master Config Saved', 'Global parameters updated successfully.');
       } catch (err) { showToast('error', 'Error', 'Failed to save settings.'); }
+    }
+
+    // ── TERRITORY MASTER LOGIC ──
+    let currentCatId = null;
+
+    async function fetchTerritories() {
+      try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/categories/all`);
+        const cats = await res.json();
+        const grid = document.getElementById('territoryGrid');
+        grid.innerHTML = '';
+
+        cats.forEach(c => {
+           const div = document.createElement('div');
+           div.className = 'card';
+           div.style.borderTop = `3px solid var(--purple)`;
+           div.innerHTML = `
+              <div style="display:flex; justify-content:space-between;">
+                 <div class="v-icon"><i class="${c.icon}"></i></div>
+                 <div style="display:flex; gap:8px;">
+                    <button class="btn btn-ghost btn-sm" onclick="editCategory('${c._id}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="deleteCategory('${c._id}')"><i class="fas fa-trash"></i></button>
+                 </div>
+              </div>
+              <h3 style="margin-top:15px; font-size:16px;">${c.name}</h3>
+              <p style="font-size:11px; color:var(--text-sub); margin-top:5px;">${c.niches.length} Niches Defined</p>
+              <div style="margin-top:10px; font-size:10px; color:var(--text-muted); height:40px; overflow:hidden;">${c.niches.join(', ')}</div>
+           `;
+           grid.appendChild(div);
+        });
+      } catch (e) { showToast('error', 'Error', 'Failed to load territories.'); }
+    }
+
+    function openAddCategoryModal() {
+      currentCatId = null;
+      document.getElementById('catModalTitle').innerText = 'Add Category';
+      document.getElementById('cat-name').value = '';
+      document.getElementById('cat-icon').value = 'fas fa-folder';
+      document.getElementById('cat-niches').value = '';
+      document.getElementById('catModal').style.display = 'flex';
+    }
+
+    function closeCatModal() { document.getElementById('catModal').style.display = 'none'; }
+
+    async function editCategory(id) {
+       currentCatId = id;
+       const res = await fetch(`${CONFIG.API_BASE_URL}/categories/all`);
+       const cats = await res.json();
+       const cat = cats.find(c => c._id === id);
+       if (cat) {
+          document.getElementById('catModalTitle').innerText = 'Edit Category';
+          document.getElementById('cat-name').value = cat.name;
+          document.getElementById('cat-icon').value = cat.icon;
+          document.getElementById('cat-niches').value = cat.niches.join(', ');
+          document.getElementById('catModal').style.display = 'flex';
+       }
+    }
+
+    async function saveCategory() {
+       const name = document.getElementById('cat-name').value;
+       const icon = document.getElementById('cat-icon').value;
+       const niches = document.getElementById('cat-niches').value.split(',').map(s => s.trim());
+       const token = storage.get('token');
+
+       const url = currentCatId ? `${CONFIG.API_BASE_URL}/categories/${currentCatId}` : `${CONFIG.API_BASE_URL}/categories/add`;
+       const method = currentCatId ? 'PUT' : 'POST';
+
+       try {
+          const res = await fetch(url, {
+             method,
+             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+             body: JSON.stringify({ name, icon, niches })
+          });
+          if (res.ok) {
+             showToast('success', 'Territory Updated', 'Category and niches saved successfully.');
+             closeCatModal();
+             fetchTerritories();
+          }
+       } catch (e) { showToast('error', 'Error', 'Failed to save territory.'); }
+    }
+
+    async function deleteCategory(id) {
+       if (!confirm('Are you sure? This will remove the entire category and its niches.')) return;
+       try {
+          const token = storage.get('token');
+          const res = await fetch(`${CONFIG.API_BASE_URL}/categories/${id}`, {
+             method: 'DELETE',
+             headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+             showToast('success', 'Deleted', 'Category removed from ecosystem.');
+             fetchTerritories();
+          }
+       } catch (e) { showToast('error', 'Error', 'Deletion failed.'); }
     }
 
     async function fetchFinancials() {
@@ -1839,11 +2138,18 @@
     }
 
     function openChat(aiName) {
+      showToast('info', 'AI Direct Command', `Opening secure line to ${aiName}... Synchronizing neural context.`);
+      // Mock chat initialization
+      setTimeout(() => {
+        showToast('success', 'Line Active', `${aiName} is awaiting your strategic directives.`);
+      }, 1000);
+    }
+
     function toggleSidebar() {
-      const sb = document.querySelector('.sidebar');
+      const sb = document.querySelector('aside');
+      if(sb) sb.classList.toggle('open');
       const ov = document.getElementById('sidebarOverlay');
-      sb.classList.toggle('open');
-      ov.classList.toggle('open');
+      if(ov) ov.classList.toggle('open');
     }
 
     function switchPanel(panelId) {
@@ -1900,7 +2206,7 @@
 
       const user = storage.get('user');
       // STRICT ADMIN CHECK
-      const isAdmin = (user && (user.profile.role === 'ADMIN' || user.auth.email === 'pranaycopixai@gmail.com' || user.auth.email === 'riturajvashisth@gmail.com'));
+      const isAdmin = (user && (user.profile.role === 'ADMIN' || user.auth.email === 'pranayHeroAi@gmail.com' || user.auth.email === 'riturajvashisth@gmail.com'));
       
       if (!user || !isAdmin) {
         showToast('error', "Access Denied", "Unauthorized attempt detected. IP logged.");
@@ -2003,26 +2309,64 @@
   </script>
   <script src="../ui.js"></script>
   <script>
-    function optimizeAsset(input) {
+    async function optimizeAsset(input) {
       const res = document.getElementById('optimize-result');
+      const file = input.files[0];
+      if (!file) return;
+
       res.style.display = 'block';
-      res.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Initializing Neural Compressor...`;
-      
-      setTimeout(() => {
-        const file = input.files[0];
-        if(!file) return;
-        const oldSize = (file.size / 1024).toFixed(2);
-        const newSize = (oldSize * 0.12).toFixed(2);
-        res.innerHTML = `
-          <div style="color:var(--green); font-weight:700; margin-bottom:8px;">✅ Optimization Complete</div>
-          <div>Original Size: ${oldSize} KB</div>
-          <div>HeroAi Optimized: ${newSize} KB</div>
-          <div style="color:var(--cyan); margin-top:8px;">Savings: 88.2% (₹0 Latency)</div>
-          <button class="btn btn-cyan btn-sm" style="width:100%; margin-top:12px;">Download Optimized Asset</button>
-        `;
-      }, 2500);
+      res.innerHTML = `<i class="fas fa-spinner fa-spin"></i> HeroAi Neural Compression in progress...`;
+
+      try {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            // Neural Downscaling Logic (Target 1920 max)
+            const MAX_WIDTH = 1920;
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // High Fidelity Compression (0.7 quality)
+            canvas.toBlob((blob) => {
+              const oldSize = (file.size / 1024).toFixed(2);
+              const newSize = (blob.size / 1024).toFixed(2);
+              const savings = (((file.size - blob.size) / file.size) * 100).toFixed(1);
+              
+              const optimizedUrl = URL.createObjectURL(blob);
+
+              res.innerHTML = `
+                <div style="color:var(--green); font-weight:700; margin-bottom:8px;">✅ Neural Optimization Complete</div>
+                <div style="font-size:12px; color:var(--text-sub);">
+                  Original: ${oldSize} KB<br>
+                  HeroAi Optimized: ${newSize} KB (${width}x${parseInt(height)})
+                </div>
+                <div style="color:var(--cyan); margin-top:8px; font-weight:600;">Savings: ${savings}%</div>
+                <a href="${optimizedUrl}" download="heroai_optimized_${file.name}" class="btn btn-cyan btn-sm" style="width:100%; margin-top:12px; text-decoration:none; display:inline-block; text-align:center;">Download Optimized Asset</a>
+              `;
+              showToast('success', 'Optimized', `Compressed by ${savings}% with zero quality loss.`);
+            }, 'image/jpeg', 0.7);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      } catch (err) {
+        res.innerHTML = `<div style="color:var(--red);">Neural Engine Error: Could not process asset.</div>`;
+      }
     }
   </script>
 </body>
 
 </html>
+

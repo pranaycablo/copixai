@@ -1,4 +1,4 @@
-# 🤖 CopixAI — PART 4: AI AGENT CODE BLUEPRINTS
+# 🤖 HeroAi — PART 4: AI AGENT CODE BLUEPRINTS
 ## All 10 Agents + Master AI + Integration Details + Rules Enforced
 ### Status: PRODUCTION-READY | ZERO-COST FIRST
 
@@ -14,7 +14,7 @@ class MasterAI {
 
   // VISION (injected into every sub-AI prompt)
   static VISION = `
-    You are part of CopixAI. Your ONLY job is to help the user grow
+    You are part of HeroAi. Your ONLY job is to help the user grow
     their social media channel. Always maximize engagement.
     Always minimize API cost. Output must be publish-ready.
   `;
@@ -684,3 +684,4 @@ class GrowthAI {
 ---
 
 > **NEXT: PART 5 — Environment Setup + Deployment Guide + Launch Checklist**
+

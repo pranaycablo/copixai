@@ -52,20 +52,21 @@ router.post('/settings', async (req, res) => {
 // ── REVENUE & FINANCIALS (Daily Profits/Tax) ──
 router.get('/financials', async (req, res) => {
   try {
-    const transactions = await Transaction.find().sort({ createdAt: -1 });
-    
-    // Aggregation Logic for Daily Stats
-    const summary = transactions.reduce((acc, t) => {
-      acc.totalRevenue += t.amount;
-      acc.totalTax += t.taxAmount;
-      acc.totalNetProfit += t.netProfit;
-      acc.totalCost += t.costToCompany;
-      return acc;
-    }, { totalRevenue: 0, totalTax: 0, totalNetProfit: 0, totalCost: 0 });
+    const summary = await Transaction.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$amount" },
+          totalTax: { $sum: "$taxAmount" },
+          totalNetProfit: { $sum: "$netProfit" },
+          totalCost: { $sum: "$costToCompany" }
+        }
+      }
+    ]);
 
     res.json({
-      summary,
-      transactions: transactions.slice(0, 50) // Return last 50
+      summary: summary[0] || { totalRevenue: 0, totalTax: 0, totalNetProfit: 0, totalCost: 0 },
+      transactions: await Transaction.find().sort({ createdAt: -1 }).limit(100)
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -73,11 +74,36 @@ router.get('/financials', async (req, res) => {
 });
 
 // ── USER MANAGEMENT ──
-router.get('/users/:id', async (req, res) => {
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/users/:id/credentials', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json(user);
+    
+    // In production, these should be encrypted. For Admin, we show them as identity packets.
+    res.json({
+      credentials: {
+        email: user.auth.email,
+        phone: user.auth.phone,
+        lastLogin: user.security.lastLogin,
+        ip: user.security.lastIp,
+        plan: user.subscription.planId
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/users/:id/history', async (req, res) => {
+  try {
+    const history = await VideoPipeline.find({ userId: req.params.id }).sort({ createdAt: -1 });
+    res.json(history);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -85,7 +111,7 @@ router.get('/users/:id', async (req, res) => {
 
 router.get('/users', async (req, res) => {
   try {
-    const users = await User.find().sort({ createdAt: -1 });
+    const users = await User.find().sort({ createdAt: -1 }).limit(200);
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -168,19 +194,27 @@ router.post('/vault', async (req, res) => {
 // ── DASHBOARD OVERVIEW STATS ──
 router.get('/stats', async (req, res) => {
   try {
-    const transactions = await Transaction.find();
-    const revenue = transactions.reduce((sum, t) => sum + t.amount, 0);
-    const totalVideos = await VideoPipeline.countDocuments();
-    const activeNow = await User.countDocuments({ 'usageStats.lastReset': { $gte: new Date(Date.now() - 24*60*60*1000) } }); // Active in last 24h
+    const statsAgg = await Transaction.aggregate([
+      {
+        $group: {
+          _id: null,
+          revenue: { $sum: "$amount" },
+          netProfit: { $sum: "$netProfit" }
+        }
+      }
+    ]);
     
-    const stats = {
+    const financialStats = statsAgg[0] || { revenue: 0, netProfit: 0 };
+    const totalVideos = await VideoPipeline.countDocuments();
+    const activeNow = await User.countDocuments({ 'usageStats.lastReset': { $gte: new Date(Date.now() - 24*60*60*1000) } });
+    
+    res.json({
       users: await User.countDocuments(),
-      revenue: revenue,
+      revenue: financialStats.revenue,
       totalVideos: totalVideos,
       activeNow: activeNow,
-      netProfit: transactions.reduce((sum, t) => sum + t.netProfit, 0)
-    };
-    res.json(stats);
+      netProfit: financialStats.netProfit
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -209,3 +243,4 @@ router.post('/system-reset', async (req, res) => {
 });
 
 module.exports = router;
+

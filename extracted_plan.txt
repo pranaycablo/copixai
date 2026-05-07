@@ -1,6 +1,6 @@
 🚀
  
-CopixAI
+HeroAi
  – Idea (Story Mode)
 देखो
 …
@@ -175,7 +175,7 @@ Consistency
  
 से
  
-CopixAI
+HeroAi
  
 पैदा
  
@@ -227,7 +227,7 @@ CopixAI
 दे
 🧠
  
-CopixAI
+HeroAi
  
 क्या
  
@@ -237,7 +237,7 @@ CopixAI
  
 में
 ?
-CopixAI
+HeroAi
  
 कोई
  tool 
@@ -278,7 +278,7 @@ AI Company
 हो
 और
  
-CopixAI
+HeroAi
  
 तुम्हारे
  
@@ -504,7 +504,7 @@ thumbnail
 होता
 अब
  
-CopixAI
+HeroAi
  
 का
  
@@ -659,7 +659,7 @@ growth
 सबसे
  powerful 
 चीज
-CopixAI
+HeroAi
  Bot
 👉
  user 
@@ -711,7 +711,7 @@ suggest
  team
 सिर्फ
  
-CopixAI
+HeroAi
  
 से
 :
@@ -734,7 +734,7 @@ grow
 🔥
  Final 
 बात
-CopixAI
+HeroAi
  
 सिर्फ
  SaaS 
@@ -774,7 +774,7 @@ User signup
 )
 अब
  
-CopixAI
+HeroAi
  
 सिर्फ
  basic info 
@@ -1271,7 +1271,7 @@ Signup → OTP
 है
 👉
  
-CopixAI
+HeroAi
  
 उसे
  
@@ -1682,7 +1682,7 @@ growth guidance
 ”
 🤖
  Reality:
-CopixAI
+HeroAi
  
 उसे
  grow 
@@ -1777,7 +1777,7 @@ reels
  
 लेकिन
  
-CopixAI
+HeroAi
  
 यहाँ
  
@@ -2194,7 +2194,7 @@ Example:
  FINAL POWER
 अब
  
-CopixAI
+HeroAi
  
 बन
  
@@ -2223,7 +2223,7 @@ Video
  Scene 1: 
 अब
  
-CopixAI
+HeroAi
  
 खुद
  
@@ -2251,7 +2251,7 @@ growth
  
 अब
  
-CopixAI
+HeroAi
  next level 
 पर
  
@@ -2382,7 +2382,7 @@ Case 3:
 करता
  
 है
-CopixAI
+HeroAi
  
 सिर्फ
  growth 
@@ -2467,7 +2467,7 @@ Creator video
  PART C: AI Company Structure (MOST POWERFUL)
 अब
  
-CopixAI
+HeroAi
  
 एक
  software 
@@ -2486,7 +2486,7 @@ AI company
 🧠
  Imagine:
 User = Owner
-CopixAI
+HeroAi
  = Team
 👑
  AI CEO (Brain)
@@ -2580,7 +2580,7 @@ User
 करते
  
 हैं
-CopixAI
+HeroAi
  Bot:
 human tone 
 में
@@ -2661,7 +2661,7 @@ User:
 :
 👉
  
-CopixAI
+HeroAi
  
 उसे
  company 
@@ -3168,7 +3168,7 @@ User
 हैं
 🧠
  PART A: Modular AI Architecture
-CopixAI
+HeroAi
  
 एक
  single AI 
@@ -3526,7 +3526,7 @@ Multiple AI modules
 रहा
 अब
  
-CopixAI
+HeroAi
  
 एक
  creator tool 
@@ -3860,7 +3860,7 @@ earn
  
 👉
  
-CopixAI
+HeroAi
 :
 retain 
 करता
@@ -3931,7 +3931,7 @@ detect
 → repeat
 🔥
  FINAL REALITY
-CopixAI
+HeroAi
  
 अब
 :
@@ -3997,7 +3997,7 @@ Admin
 ?”
 🤖
  
-CopixAI
+HeroAi
  
 खुद
  audit mode 
@@ -4366,7 +4366,7 @@ Build
  FINAL RESULT
 अब
  
-CopixAI
+HeroAi
  
 बन
  
@@ -4411,3 +4411,4 @@ Idea
 → Market optimization  
 → Final audit  
 → Launch
+

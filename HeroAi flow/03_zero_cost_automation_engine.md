@@ -1,11 +1,11 @@
-# CopixAI: Zero-Cost Automation & Multi-Brain Engine Architecture
+# HeroAi: Zero-Cost Automation & Multi-Brain Engine Architecture
 
-This document defines the highly optimized, ultra-low-cost (₹1–₹5 per video) backend orchestration system for CopixAI. The system acts as an autonomous "Human Manager," utilizing a mix of Free APIs, Headless Browser Automation, and segmented FFmpeg processing to achieve massive scale with near-zero API costs.
+This document defines the highly optimized, ultra-low-cost (₹1–₹5 per video) backend orchestration system for HeroAi. The system acts as an autonomous "Human Manager," utilizing a mix of Free APIs, Headless Browser Automation, and segmented FFmpeg processing to achieve massive scale with near-zero API costs.
 
 ---
 
 ## 1. Core Philosophy: The Human Manager AI
-CopixAI does not just "generate videos." It manages the creator's digital life.
+HeroAi does not just "generate videos." It manages the creator's digital life.
 *   **Study:** Analyzes user audience, geography, niche, and competitor trends.
 *   **Strategize:** Determines the exact best time to post and the ideal content format.
 *   **Produce:** Uses a multi-brain approach (switching between APIs and Browser Automation) to gather assets for free.
@@ -109,7 +109,7 @@ While production costs are aggressively kept near zero, the platform monetizes t
 2.  **SEO Optimization Add-on** (Premium keywords/ranking strategies).
 3.  **Ads Commission** (If the platform manages ads, 50% split).
 4.  **Affiliate Engine** (₹100 for users, ₹249 for creators).
-5.  **Voice Clone Marketplace** (Creators license their voice, 50/50 revenue split with CopixAI).
+5.  **Voice Clone Marketplace** (Creators license their voice, 50/50 revenue split with HeroAi).
 6.  **Credit Top-ups** (For users who exhaust daily limits).
 7.  **Priority Rendering** (Pay to skip the FFmpeg queue).
 
@@ -119,3 +119,4 @@ The AI constantly monitors the user's linked social channels. If views stagnate,
 
 ---
 **Status:** Architecture Finalized. Ready for Node.js/Python backend implementation.
+

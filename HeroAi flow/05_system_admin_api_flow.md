@@ -1,7 +1,7 @@
 # Flow 5: Multi-API Rotation & Admin Control
 
 ## 1. Modular AI Architecture
-- CopixAI is a network of specialized AI modules:
+- HeroAi is a network of specialized AI modules:
   - **Script AI** (Titles, text, desc)
   - **Video AI** (Clips, scenes, merge)
   - **Voice AI** (Speech generation)
@@ -25,3 +25,4 @@
 - **User Monitoring:** Track active users, plan usage, and performance.
 - **Revenue Dashboard:** Track total income, plan sales, and affiliate payouts.
 - **Ticket Panel:** Monitor user issues (AI handled vs Manual).
+

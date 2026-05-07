@@ -1,219 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Privacy Policy — HeroAi Global</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;700;800&family=Bebas+Neue&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #03030A; --ink: #05050D; --rim: rgba(255,255,255,0.08);
-  --C: #00F0FF; --snow: #F8FAFC; --snow2: #CBD5E1;
-}
-body { background: var(--bg); color: var(--snow); font-family: 'Bricolage Grotesque', sans-serif; line-height: 1.8; margin: 0; padding: 0; }
-.wrap { max-width: 1000px; margin: 0 auto; padding: 80px 24px; }
-.back { display: inline-flex; align-items:center; gap:10px; color: var(--C); text-decoration: none; font-weight: 800; font-size: 14px; margin-bottom: 50px; text-transform: uppercase; letter-spacing: 1px; }
-.back:hover { opacity: 0.8; }
-h1 { font-family: 'Bebas Neue', sans-serif; font-size: 5rem; color: var(--C); margin: 0 0 15px; line-height: 0.9; }
-.meta { color: var(--snow2); font-size: 14px; margin-bottom: 60px; border-bottom: 1px solid var(--rim); padding-bottom: 30px; display: flex; gap: 30px; }
-.meta b { color: var(--C); }
-.legal-body section { margin-bottom: 50px; }
-h3 { color: var(--C); margin: 0 0 20px; font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 15px; }
-h3::before { content: ''; width: 40px; height: 1px; background: var(--C); }
-p { color: var(--snow2); font-size: 16px; margin-bottom: 24px; text-align: justify; }
-ul { list-style: none; padding: 0; margin-bottom: 30px; }
-ul li { position: relative; padding-left: 25px; margin-bottom: 12px; color: var(--snow2); font-size: 15px; }
-ul li::before { content: '◈'; position: absolute; left: 0; color: var(--C); font-size: 12px; }
-footer { margin-top: 100px; padding-top: 60px; border-top: 1px solid var(--rim); text-align: center; color: var(--snow2); font-size: 13px; opacity: 0.6; }
-@media (max-width: 768px) { h1 { font-size: 3rem; } .meta { flex-direction: column; gap: 10px; } }
-
-/* ── HeroAi Global Branding ── */
-.heroai-glow { font-weight: 800; display: inline-flex; align-items: center; gap: 0; filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.22)); }
-.heroai-glow .h { background: linear-gradient(135deg, #FFD700 0%, #FFFFFF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.heroai-glow .a { background: linear-gradient(135deg, #00F0FF 0%, #2E5BFF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.45)); animation: logoShineSmall 3s infinite ease-in-out; }
-@keyframes logoShineSmall { 0%, 100% { filter: drop-shadow(0 0 3px rgba(0, 240, 255, 0.3)); } 50% { filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.7)); } }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy — HeroAi</title>
+    <link rel="stylesheet" href="brand.css">
+    <style>
+        body { background: #06060A; color: #F1F1F8; font-family: sans-serif; padding: 50px; line-height: 1.6; }
+        .wrap { max-width: 800px; margin: 0 auto; background: #12121C; padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        h1 { color: #22D3EE; margin-bottom: 20px; }
+        h2 { color: #F59E0B; margin-top: 30px; }
+    </style>
 </head>
 <body>
-<div class="wrap">
-  <a href="index.html" class="back">← Infrastructure Hub</a>
-  <h1>PRIVACY POLICY</h1>
-  <div class="meta">
-    <span><b>Effective Date:</b> May 4, 2026</span>
-    <span><b>Compliance:</b> GDPR, CCPA, DPDP Act</span>
-  </div>
-
-  <div class="legal-body">
-    <section>
-      <h3>1. INTRODUCTION</h3>
-      <p>HeroAi ("Company", "We", "Us", or "Our") is committed to protecting your privacy and ensuring the security of your personal data. This Privacy Policy governs how we collect, use, process, store, disclose, and protect information when you access or use the HeroAi platform, applications, and APIs.</p>
-    </section>
-
-    <section>
-      <h3>2. SCOPE OF POLICY</h3>
-      <p>This Policy applies to all individuals who interact with our Services, including website visitors, registered users, business clients, and developers using our API infrastructure. It covers both personal and non-personal data collected through our digital interfaces.</p>
-    </section>
-
-    <section>
-      <h3>3. KEY DEFINITIONS</h3>
-      <ul>
-        <li><b>Personal Data:</b> Information that can identify an individual directly or indirectly.</li>
-        <li><b>Processing:</b> Any operation performed on data, such as collection, storage, or analysis.</li>
-        <li><b>Data Controller:</b> HeroAi, which determines the purposes and means of processing.</li>
-        <li><b>Data Processor:</b> Third-party entities that process data on our behalf.</li>
-      </ul>
-    </section>
-
-    <section>
-      <h3>4. CATEGORIES OF DATA COLLECTED</h3>
-      <p>We collect several types of information to provide and improve our Services:</p>
-      <ul>
-        <li><b>Identity Data:</b> Full name, username, and professional titles.</li>
-        <li><b>Contact Data:</b> Email addresses, phone numbers, and billing addresses.</li>
-        <li><b>Account Data:</b> Password hashes, API keys, and subscription status.</li>
-        <li><b>Technical Data:</b> IP addresses, browser types, device IDs, and operating systems.</li>
-        <li><b>Usage Data:</b> Metrics on how you interact with our AI tools, prompts, and automation flows.</li>
-      </ul>
-    </section>
-
-    <section>
-      <h3>5. METHODS OF COLLECTION</h3>
-      <p>Data is gathered through three primary channels:</p>
-      <ul>
-        <li><b>Direct Interaction:</b> Information you provide during registration or support requests.</li>
-        <li><b>Automated Tracking:</b> Cookies, pixels, and server logs that record your activity.</li>
-        <li><b>Third-Party Integration:</b> Data received from linked accounts (e.g., Google, Facebook, LinkedIn).</li>
-      </ul>
-    </section>
-
-    <section>
-      <h3>6. PURPOSE OF DATA PROCESSING</h3>
-      <p>We process your information for the following reasons:</p>
-      <ul>
-        <li>To provide and manage your HeroAi account and platform access.</li>
-        <li>To facilitate AI content generation and automated workflow execution.</li>
-        <li>To process payments and manage your subscription billing.</li>
-        <li>To monitor platform security and prevent fraudulent activity.</li>
-        <li>To communicate critical updates and optional marketing offers.</li>
-      </ul>
-    </section>
-
-    <section>
-      <h3>7. LEGAL BASIS FOR PROCESSING</h3>
-      <p>Our processing activities are grounded in several legal frameworks:</p>
-      <ul>
-        <li><b>Consent:</b> Where you have given explicit permission for a specific use.</li>
-        <li><b>Contractual Necessity:</b> To perform the services you have signed up for.</li>
-        <li><b>Legitimate Interests:</b> To improve our platform and ensure security.</li>
-        <li><b>Legal Obligation:</b> To comply with laws regarding taxes, finance, and safety.</li>
-      </ul>
-    </section>
-
-    <section>
-      <h3>8. AI PROCESSING AND MACHINE LEARNING</h3>
-      <p>HeroAi uses advanced AI models. Your inputs (prompts) and outputs may be processed to refine model performance. However, we do not use your private personal data for training public models without your explicit, separate opt-in consent.</p>
-    </section>
-
-    <section>
-      <h3>9. DATA SHARING AND DISCLOSURE</h3>
-      <p>We do not sell your personal data. We only share information with:</p>
-      <ul>
-        <li><b>Service Providers:</b> Cloud hosting (AWS/Azure), payment processors (Stripe), and analytics tools.</li>
-        <li><b>Legal Authorities:</b> When required by law or to protect the safety of our users.</li>
-        <li><b>Business Transfers:</b> In the event of a merger, acquisition, or asset sale.</li>
-      </ul>
-    </section>
-
-    <section>
-      <h3>10. INTERNATIONAL DATA TRANSFERS</h3>
-      <p>Your data may be stored or processed in countries outside your own. We ensure that such transfers are protected by Standard Contractual Clauses (SCCs) or other legally recognized safeguards to maintain your privacy rights.</p>
-    </section>
-
-    <section>
-      <h3>11. DATA RETENTION POLICY</h3>
-      <p>We retain your personal data only for as long as your account is active or as needed to provide you Services. We may retain certain information for longer periods if required for legal, tax, or regulatory purposes.</p>
-    </section>
-
-    <section>
-      <h3>12. YOUR DATA RIGHTS (Global Standards)</h3>
-      <p>Depending on your location, you may have the following rights:</p>
-      <ul>
-        <li><b>Right to Access:</b> Request a copy of the data we hold about you.</li>
-        <li><b>Right to Erasure:</b> Request the permanent deletion of your personal information.</li>
-        <li><b>Right to Portability:</b> Receive your data in a structured, machine-readable format.</li>
-        <li><b>Right to Object:</b> Opt-out of specific types of processing, such as direct marketing.</li>
-      </ul>
-    </section>
-
-    <section>
-      <h3>13. SECURITY INFRASTRUCTURE</h3>
-      <p>We implement multi-layered security protocols, including AES-256 encryption at rest, TLS 1.3 encryption in transit, and continuous vulnerability monitoring. However, no digital transmission is 100% secure.</p>
-    </section>
-
-    <section>
-      <h3>14. COOKIE AND TRACKING POLICY</h3>
-      <p>We use cookies to remember your preferences and analyze traffic. You can manage your cookie settings through your browser, though disabling them may affect platform functionality.</p>
-    </section>
-
-    <section>
-      <h3>15. THIRD-PARTY LINKS AND SERVICES</h3>
-      <p>HeroAi may contain links to external sites. We are not responsible for the content or privacy practices of those third parties. We encourage you to read their respective policies.</p>
-    </section>
-
-    <section>
-      <h3>16. CHILDREN'S PRIVACY</h3>
-      <p>HeroAi does not intentionally collect data from individuals under the age of 18. If we discover we have inadvertently collected such data, we will take steps to delete it immediately.</p>
-    </section>
-
-    <section>
-      <h3>17. REFUNDS AND BILLING DATA</h3>
-      <p>Payment information is handled by PCI-compliant third parties. HeroAi does not store full credit card details. Refunds are issued only for technical failures verified by our support team.</p>
-    </section>
-
-    <section>
-      <h3>18. LIABILITY FOR DATA INCIDENTS</h3>
-      <p>While we maintain high security, HeroAi is not liable for data loss caused by user-side security failures (e.g., weak passwords) or unforeseen technical breaches beyond our reasonable control.</p>
-    </section>
-
-    <section>
-      <h3>19. USER RESPONSIBILITIES</h3>
-      <p>You must provide accurate data and keep your account details secure. You are responsible for any data you upload to the platform and for ensuring it does not violate the privacy of others.</p>
-    </section>
-
-    <section>
-      <h3>20. BREACH NOTIFICATION PROTOCOL</h3>
-      <p>In the event of a high-risk data breach, HeroAi will notify affected users and the relevant data protection authorities within 72 hours of verification, as required by GDPR and the DPDP Act.</p>
-    </section>
-
-    <section>
-      <h3>21. COMPLIANCE FRAMEWORKS</h3>
-      <p>HeroAi is designed to be compliant with the General Data Protection Regulation (EU), California Consumer Privacy Act (US), and the Digital Personal Data Protection Act (India).</p>
-    </section>
-
-    <section>
-      <h3>22. UPDATES TO THIS POLICY</h3>
-      <p>We may update this policy to reflect changes in our practices or legal requirements. Significant changes will be announced on our website or via your registered email address.</p>
-    </section>
-
-    <section>
-      <h3>23. CONTACT AND GRIEVANCE REDRESSAL</h3>
-      <p>For any privacy-related questions or to exercise your rights, contact our Data Protection Officer:</p>
-      <p><b>Email:</b> privacy@HeroAi.com<br><b>DPO:</b> dpo@HeroAi.com<br><b>Address:</b> HeroAi HQ, Digital Governance Hub, India.</p>
-    </section>
-  </div>
-
-  <footer>
-    &copy; 2026 HeroAi Infrastructure. Your Privacy is our Digital Foundation.
-  </footer>
-</div>
-<script src="ui.js"></script>
+    <div class="wrap">
+        <h1>Privacy Policy</h1>
+        <p>Effective Date: May 2026</p>
+        <p>HeroAi respects your privacy and is committed to protecting your data. This policy explains how we handle your social media tokens and personal information.</p>
+        
+        <h2>1. Data Lifecycle (24h Policy)</h2>
+        <p>To maintain a ₹0 storage footprint and maximize user privacy, all temporary video assets and b-roll data are purged from our servers within 24 hours of generation.</p>
+        
+        <h2>2. Social Media Access</h2>
+        <p>We use OAuth tokens to post content on your behalf. These tokens are stored with military-grade encryption and are only accessed by our autonomous posting engine.</p>
+        
+        <a href="index.html" style="color:#22D3EE; display:block; margin-top:40px;">&larr; Back to Home</a>
+    </div>
 </body>
 </html>
-
-
-
-
-
-
-
-

@@ -1,6 +1,6 @@
 # 🚀 HeroAi — Autonomous Content Growth Infrastructure
 
-![CopixAI Logo](https://i.ibb.co/L6MhYm9/logo.png)
+![HeroAi Logo](https://i.ibb.co/L6MhYm9/logo.png)
 
 **HeroAi** is a high-performance, autonomous AI production ecosystem designed to dominate social media algorithms with zero human intervention. From viral trend discovery to 4K video rendering and smart distribution, HeroAi handles the entire content value chain.
 
@@ -45,8 +45,8 @@ A decentralized AI pipeline that autonomously handles:
 ### Setup
 1. Clone the repository:
    ```bash
-   git clone https://github.com/pranaycablo/copixai.git
-   cd copixai
+   git clone https://github.com/pranaycablo/heroai.git
+   cd heroai
    ```
 
 2. Install dependencies:
@@ -89,4 +89,5 @@ Optimized for **Render**, **Vercel**, or **Heroku**.
 This project is proprietary and built for high-scale autonomous operations.
 
 ---
-*Built with ❤️ by [pranaycablo](https://github.com/pranaycablo) for the future of AI automation.*
+*Built with ❤️ by [pranayheroai](https://github.com/pranayheroai) for the future of AI automation.*
+

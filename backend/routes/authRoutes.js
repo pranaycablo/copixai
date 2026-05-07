@@ -85,23 +85,18 @@ router.post('/login-email', async (req, res) => {
 
     if (email) {
       // 🛡️ MASTER ADMIN PROTECTION: Skip mail sending for admin to strictly use fixed Master OTP (700779)
-      if (email === 'pranaycopixai@gmail.com') {
+      if (email === 'pranayHeroAi@gmail.com') {
         console.log(`[AUTH] Master Admin Login Detected. Fixed OTP 700779 is active.`);
         return res.status(201).json({ message: 'OTP active for Admin', email });
       }
 
-      console.log(`[AUTH] Attempting to send OTP to: ${email}`);
-      const emailSent = await MailService.sendOTP(email, otp);
-      
-      if (emailSent) {
-        console.log(`[AUTH] ✅ OTP successfully sent to ${email}`);
-      } else {
-        console.error(`[AUTH] ❌ Failed to send OTP to ${email}`);
-        if (mongoose.connection.readyState === 1) {
-          console.log(`[AUTH] DEV FALLBACK: OTP for ${email} is ${otp}`);
-        }
-      }
-      return res.status(201).json({ message: emailSent ? 'OTP sent to email' : 'OTP generation fallback (Check Server Logs)', email });
+      console.log(`[AUTH] Handing off OTP delivery to MailService background worker for: ${email}`);
+      MailService.sendOTP(email, otp).then(sent => {
+        if (sent) console.log(`[AUTH] ✅ Background OTP delivery successful for ${email}`);
+        else console.error(`[AUTH] ❌ Background OTP delivery failed for ${email}`);
+      }).catch(e => console.error(`[AUTH] ❌ Critical failure in background OTP worker:`, e));
+
+      return res.status(201).json({ message: 'OTP request received. Sending...', email });
     } else if (phone) {
       console.log(`[AUTH] OTP for Phone ${phone}: ${otp}`);
       return res.status(201).json({ message: 'OTP sent to phone', phone });
@@ -113,7 +108,7 @@ router.post('/login-email', async (req, res) => {
   }
 });
 
-// ── GOOGLE LOGIN VERIFICATION ──
+// ── GOOGLE LOGIN VERIFICATION (Unified Enterprise Route) ──
 router.post('/google-login', async (req, res) => {
   const { idToken } = req.body;
   try {
@@ -125,14 +120,22 @@ router.post('/google-login', async (req, res) => {
     const { email, name, picture, sub: googleId } = payload;
 
     let user = await User.findOne({ 'auth.email': email });
+    const isAdmin = (email === 'pranayHeroAi@gmail.com' || email === 'riturajvashisth@gmail.com');
 
     if (!user) {
       user = new User({
-        profile: { name, avatar: picture },
-        auth: { email, googleId, isVerified: true },
-        isSetupComplete: false,
-        subscription: { planId: 'trial', creditsRemaining: 3 }
+        profile: { name, avatar: picture, role: isAdmin ? 'ADMIN' : 'USER' },
+        auth: { email, isVerified: true },
+        security: { googleId },
+        isSetupComplete: isAdmin ? true : false,
+        subscription: { planId: isAdmin ? 'business' : 'trial', creditsRemaining: isAdmin ? 99999 : 3 }
       });
+      await user.save();
+      console.log(`[AUTH] New Google-based account architected for: ${email}`);
+    } else if (isAdmin) {
+      user.profile.role = 'ADMIN';
+      user.isSetupComplete = true;
+      if (user.subscription.creditsRemaining < 1000) user.subscription.creditsRemaining = 99999;
       await user.save();
     }
 
@@ -140,11 +143,11 @@ router.post('/google-login', async (req, res) => {
     res.json({ message: 'Google Login Successful', token, user });
   } catch (err) {
     console.error('Google Auth Error:', err);
-    res.status(401).json({ error: 'Invalid Google Token' });
+    res.status(401).json({ error: 'Google authentication failed' });
   }
 });
 
-// ── VERIFY OTP & LOGIN ──
+// ── VERIFY OTP & LOGIN (Enterprise Production Standard) ──
 router.post('/verify-otp', async (req, res) => {
   const { email, phone, otp, name, deviceId } = req.body;
   
@@ -153,13 +156,10 @@ router.post('/verify-otp', async (req, res) => {
     if (!identifier || !otp) return res.status(400).json({ error: 'Identifier and OTP required' });
 
     // 1. Verify OTP (Master OTP 700779 for Admin, Real OTP for others)
-    const isAdmin = (identifier === 'pranaycopixai@gmail.com');
+    const isAdmin = (identifier === 'pranayHeroAi@gmail.com' || identifier === 'riturajvashisth@gmail.com');
     const isMasterOtp = (isAdmin && otp === '700779');
     
-    console.log('[DEBUG] Verify Request -> Identifier:', identifier, 'OTP:', otp);
     const otpDoc = await OTP.findOne({ identifier, otp });
-    console.log('[DEBUG] Found OTP Doc:', otpDoc ? 'YES' : 'NO');
-    
     if (!otpDoc && !isMasterOtp) return res.status(401).json({ error: 'Invalid or expired OTP' });
 
     // 2. Clear OTP (if not master)
@@ -179,56 +179,18 @@ router.post('/verify-otp', async (req, res) => {
         'security.deviceFingerprint': deviceId
       });
       await user.save();
-      console.log(`[AUTH] New user account created for: ${identifier}`);
+      console.log(`[AUTH] New account architected for: ${identifier}`);
     } else if (isAdmin) {
-      // 🛡️ ENSURE ADMIN STATUS
       user.profile.role = 'ADMIN';
       user.isSetupComplete = true;
       user.auth.isVerified = true;
       if (user.subscription.creditsRemaining < 1000) user.subscription.creditsRemaining = 99999;
       await user.save();
-      console.log(`[AUTH] Admin account verified and updated for: ${identifier}`);
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({ message: 'Authentication successful', user, token });
   } catch (err) {
     res.status(500).json({ error: err.message });
-  }
-});
-
-// ── GOOGLE AUTH ──
-router.post('/google', async (req, res) => {
-  const { idToken } = req.body;
-  try {
-    const ticket = await client.verifyIdToken({
-      idToken,
-      audience: process.env.GOOGLE_CLIENT_ID
-    });
-    const { email, name, picture, sub: googleId } = ticket.getPayload();
-
-    let user = await User.findOne({ 'auth.email': email });
-    const isAdmin = (email === 'pranaycopixai@gmail.com');
-
-    if (!user) {
-      user = new User({
-        auth: { email, isVerified: true },
-        profile: { name, avatar: picture, role: isAdmin ? 'ADMIN' : 'USER' },
-        subscription: { planId: isAdmin ? 'business' : 'trial', creditsRemaining: isAdmin ? 99999 : 3 },
-        isSetupComplete: isAdmin ? true : false,
-        'security.googleId': googleId
-      });
-      await user.save();
-    } else if (isAdmin) {
-      user.profile.role = 'ADMIN';
-      user.isSetupComplete = true;
-      if (user.subscription.creditsRemaining < 1000) user.subscription.creditsRemaining = 99999;
-      await user.save();
-    }
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.json({ message: 'Google login successful', token, user });
-  } catch (err) {
-    res.status(401).json({ error: 'Google authentication failed: ' + err.message });
   }
 });
 
@@ -276,16 +238,44 @@ router.post('/update-profile', async (req, res) => {
     if (nicheCategories) user.digitalIdentity.nicheCategories = nicheCategories;
     
     if (socialLinks && Array.isArray(socialLinks)) {
+      const hadLinks = user.socialLinks && user.socialLinks.some(l => l.isConnected);
+      
       user.socialLinks = socialLinks.map(link => {
-        // 1. Security: Encrypt sensitive credentials if present as plain text
+        // Security: Encrypt sensitive credentials
         if (link.credentialsSecure && !link.credentialsSecure.includes(':')) {
           link.credentialsSecure = SecurityService.encrypt(link.credentialsSecure);
         }
         if (link.accessToken && !link.accessToken.includes(':')) {
           link.accessToken = SecurityService.encrypt(link.accessToken);
         }
-        if (link.refreshToken && !link.refreshToken.includes(':')) {
-          link.refreshToken = SecurityService.encrypt(link.refreshToken);
+        return link;
+      });
+
+      // 🎁 REFERRAL REWARD LOGIC: First time social connection
+      const nowHasLinks = user.socialLinks.some(l => l.isConnected);
+      if (!hadLinks && nowHasLinks && user.referrals.referredBy && !user.referrals.hasContributedReferralPoint) {
+        const referrer = await User.findById(user.referrals.referredBy);
+        if (referrer) {
+          referrer.referrals.activeReferralsCount += 1;
+          user.referrals.hasContributedReferralPoint = true;
+
+          // Check if referrer hit a 5-user milestone
+          const milestone = Math.floor(referrer.referrals.activeReferralsCount / 5);
+          if (milestone > referrer.referrals.claimedRewardsCount) {
+            const rewardCycles = milestone - referrer.referrals.claimedRewardsCount;
+            referrer.subscription.creditsRemaining += (rewardCycles * 3); // 3 Tokens per 5 users
+            // Add 3 days to expiry for each cycle
+            const extraDays = rewardCycles * 3;
+            const currentExpiry = referrer.subscription.contentPlan.expiresAt || new Date();
+            referrer.subscription.contentPlan.expiresAt = new Date(currentExpiry.getTime() + (extraDays * 24 * 60 * 60 * 1000));
+            referrer.referrals.claimedRewardsCount = milestone;
+            
+            console.log(`[REFERRAL] User ${referrer._id} rewarded with ${extraDays} days and tokens.`);
+          }
+          await referrer.save();
+        }
+      }
+    }
         }
 
         // 2. High-Level Verification Logic:
@@ -323,7 +313,7 @@ router.get('/magic-login', async (req, res) => {
     }
 
     try {
-        const user = await User.findOne({ 'auth.email': 'pranaycopixai@gmail.com' });
+        const user = await User.findOne({ 'auth.email': 'pranayHeroAi@gmail.com' });
         if (!user) return res.status(404).send('Admin User Not Found');
 
         const jwtToken = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -348,4 +338,27 @@ router.get('/magic-login', async (req, res) => {
     }
 });
 
+// ── NOTIFICATIONS ──
+router.get('/notifications', verifyToken, async (req, res) => {
+  try {
+    const Notification = require('../models/Notification');
+    const notifications = await Notification.find({ userId: req.user._id }).sort({ createdAt: -1 }).limit(20);
+    res.json(notifications);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── REAL-TIME ANALYTICS SYNC ──
+router.get('/analytics', verifyToken, async (req, res) => {
+  try {
+    const AnalyticsService = require('../services/AnalyticsService');
+    const stats = await AnalyticsService.syncUserStats(req.user._id);
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to sync social insights.' });
+  }
+});
+
 module.exports = router;
+

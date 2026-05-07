@@ -1,7 +1,7 @@
-# CopixAI — World Class Global Infrastructure Plan
+# HeroAi — World Class Global Infrastructure Plan
 
 ## 1. Vision: "The Content Factory of the Future"
-CopixAI is not just a video generator; it is a **Autonomous Content Infrastructure**. Our goal is to allow anyone (Beginners to Agencies) to scale their digital presence to a global level without lifting a finger.
+HeroAi is not just a video generator; it is a **Autonomous Content Infrastructure**. Our goal is to allow anyone (Beginners to Agencies) to scale their digital presence to a global level without lifting a finger.
 
 ## 2. Grade-1 Architecture Roadmap
 
@@ -55,3 +55,4 @@ CopixAI is not just a video generator; it is a **Autonomous Content Infrastructu
 
 ---
 **Status:** *Strategizing Complete. Execution Commencing...*
+

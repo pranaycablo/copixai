@@ -53,3 +53,4 @@ class SecurityService {
 }
 
 module.exports = SecurityService;
+

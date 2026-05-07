@@ -174,19 +174,19 @@
     <div class="menu-section">
       <div class="menu-h">Digital Marketing Suite</div>
       <div class="menu-item" onclick="toast('info','Competitor','Scanning competitor ads...')">
-        <i class="fas fa-search-dollar"></i> Competitor Ad Scanner
+        <i class="fas fa-search-plus"></i> Competitor Strategy Scanner
       </div>
       <div class="menu-item" onclick="toast('info','Leads','Lead Funnel Active')">
         <i class="fas fa-filter"></i> Automated Lead Funnel
       </div>
-      <div class="menu-item" onclick="toast('info','ROI','Calculating Estimated ROI...')">
-        <i class="fas fa-chart-line"></i> ROI Predictor
+      <div class="menu-item" onclick="toast('info','Conversion','Calculating Estimated Growth Impact...')">
+        <i class="fas fa-chart-line"></i> Growth Predictor
       </div>
     </div>
 
     <div class="menu-section">
       <div class="menu-h">Enterprise Growth Tools</div>
-      <div class="menu-item"><i class="fas fa-chart-pie"></i> ROI Analyzer</div>
+      <div class="menu-item"><i class="fas fa-chart-pie"></i> Growth Analyzer</div>
       <div class="menu-item"><i class="fas fa-bullseye"></i> Lead Generator</div>
       <div class="menu-item"><i class="fas fa-magic"></i> Local SEO Booster</div>
       <div class="menu-item"><i class="fas fa-ad"></i> Ad Manager (Meta/Google)</div>
@@ -222,7 +222,8 @@
     document.getElementById('side-name').textContent = currentUser.profile.name || 'User';
     document.getElementById('side-email').textContent = currentUser.auth.email || 'No Email';
     const initial = (currentUser.profile.name ? currentUser.profile.name[0] : 'U').toUpperCase();
-    document.getElementById('side-avatar').textContent = initial;
+    const avatar = document.getElementById('side-avatar');
+    if (avatar) avatar.textContent = initial;
   }
   async function startGeneration() {
     const engine = document.getElementById('engine-select')?.value || 'Default';
@@ -258,6 +259,8 @@
       const data = await res.json();
       if(res.ok) {
         toast('success', 'Strategy Active', 'Marketing Campaign Queued.');
+        tracker.currentTaskId = data.taskId;
+        tracker.track();
       } else {
         toast('error', 'Denied', data.error);
       }
@@ -309,15 +312,21 @@
   function logout() { storage.clear(); window.location.href='auth.html'; }
 
   window.onload = () => { 
-    if(!currentUser) window.location.href='auth.html'; 
-    else { 
-      document.getElementById('dashRoot').style.display='grid'; 
+    if(!currentUser) {
+      window.location.href='auth.html'; 
+    } else { 
+      const dashRoot = document.getElementById('dashRoot');
+      if (dashRoot) dashRoot.style.display='grid'; 
       initUI(); 
       if(!currentUser.isSetupComplete) {
-        document.getElementById('onboardingModal').classList.add('active');
+        const modal = document.getElementById('onboardingModal');
+        if (modal) modal.classList.add('active');
       }
+      // Re-initialize branding for dynamic content
+      if (typeof applyGlobalBranding === 'function') applyGlobalBranding();
     } 
   };
 </script>
 </body>
 </html>
+

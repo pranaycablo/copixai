@@ -283,3 +283,4 @@ input:checked + .slider:before { transform: translateX(20px); }
 .stat-card:hover { border-color: var(--cyan); background: var(--surface2); }
 .stat-lbl { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--text3); letter-spacing: 1px; }
 .stat-val { font-size: 24px; font-weight: 800; color: var(--text); margin-top: 5px; }
+

@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="brand.css">
   <script src="config.js"></script>
   <script src="ui.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <style>
     /* Inline overrides if needed */
     .onboarding-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
@@ -22,7 +23,23 @@
 
 <div class="onboarding-overlay" id="onboardingModal">
   <div class="glass-modal">
-    <div class="logo-icon mx-auto" style="width:60px;height:60px;margin-bottom:20px;"><img src="logo.png" style="width:100%;height:100%;object-fit:contain"></div>
+    <div class="logo-icon mx-auto" style="width:60px;height:60px;margin-bottom:20px;">
+    <!-- CENTER ENGINE STATUS -->
+    <section class="engine-center" id="masterBrainTrigger" onclick="openMasterChat()" style="cursor:pointer; position:relative;">
+      <div class="engine-visual">
+        <div class="engine-ring"></div>
+        <div class="engine-ring"></div>
+        <div class="engine-core">
+          <img src="logo.png" id="hero-logo" style="width:50%; height:50%; object-fit:contain;">
+        </div>
+      </div>
+      <div class="engine-status">
+        <div class="dot-blink" id="engine-dot" style="background:var(--amber);"></div>
+        <span id="engine-txt" style="font-family:var(--fm); font-size:12px; letter-spacing:1px; text-transform:uppercase;">Master Brain: Awaiting Directives</span>
+      </div>
+      <div id="engine-desc" style="font-size:11px; color:var(--text3); margin-top:8px; max-width:250px; line-height:1.4;">Click me to chat with your AI Growth Consultant.</div>
+    </section>
+</div>
     <h1 style="font-family:var(--fh)">Welcome to HeroAi</h1>
     <p style="color:var(--text2); margin-top:10px">I am your AI Growth Pilot. Let's personalize your dashboard.</p>
     
@@ -49,7 +66,39 @@
     <i class="fas fa-tasks" onclick="toggleMobileSidebar('pipeline-sidebar')" style="font-size:20px; color:var(--text3)"></i>
     <div class="logo-text" style="font-size:18px;"><span class="logo-hero">Hero</span><span class="logo-ai">Ai</span></div>
   </div>
-  <i class="fas fa-th-large" onclick="toggleMobileSidebar('control-sidebar')" style="font-size:20px; color:var(--text3)"></i>
+  <div style="display:flex; align-items:center; gap:15px;">
+    <div id="notif-bell" style="position:relative; cursor:pointer;" onclick="toggleNotifPanel()">
+      <i class="fas fa-bell" style="font-size:20px; color:var(--text3)"></i>
+      <span id="notif-badge" style="display:none; position:absolute; top:-5px; right:-5px; background:var(--red); color:white; font-size:9px; width:14px; height:14px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;">0</span>
+    </div>
+    </div>
+    <i class="fas fa-th-large" onclick="toggleMobileSidebar('control-sidebar')" style="font-size:20px; color:var(--text3)"></i>
+  </div>
+</div>
+
+<!-- MASTER BRAIN CHAT OVERLAY -->
+<div id="chatOverlay" class="onboarding-overlay" style="background:rgba(0,0,0,0.8); backdrop-filter:blur(30px);">
+  <div class="glass-modal" style="width:100%; max-width:500px; height:80vh; display:flex; flex-direction:column; padding:0; overflow:hidden; border:1px solid var(--border-amber);">
+    <div style="padding:20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:rgba(245,166,35,0.05);">
+       <div style="display:flex; align-items:center; gap:12px;">
+         <div style="width:32px; height:32px; background:var(--amber); border-radius:50%; display:flex; align-items:center; justify-content:center;"><i class="fas fa-brain" style="color:black; font-size:16px;"></i></div>
+         <div>
+           <h3 style="font-family:var(--fh); font-size:16px;">Master Brain Chat</h3>
+           <p style="font-size:10px; color:var(--amber);">AI Growth Consultant • Online</p>
+         </div>
+       </div>
+       <i class="fas fa-times" onclick="closeMasterChat()" style="cursor:pointer; color:var(--text3);"></i>
+    </div>
+    <div id="chatMessages" style="flex:1; padding:20px; overflow-y:auto; display:flex; flex-direction:column; gap:15px; font-size:13px;">
+       <div class="ai-msg" style="align-self:flex-start; background:var(--surface); padding:12px 16px; border-radius:0 15px 15px 15px; max-width:85%; line-height:1.5;">
+          Namaste! Main aapka HeroAi Master Brain hoon. Aapke content ko viral karne ke liye main ready hoon. Bataiye, aaj hum kya plan karein?
+       </div>
+    </div>
+    <div style="padding:20px; border-top:1px solid var(--border); background:rgba(0,0,0,0.3); display:flex; gap:10px;">
+       <input type="text" id="chatInput" style="flex:1; background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:12px; color:var(--text); outline:none;" placeholder="Puchiye mujhse growth strategy ke baare mein..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+       <button class="onboarding-btn" style="margin-top:0; width:auto; padding:0 20px;" onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
 </div>
 
 <div class="dash-container" id="dashRoot" style="display:none;">
@@ -156,7 +205,7 @@
 
   <!-- CENTER: HEROAI ENGINE -->
   <main class="engine-center">
-    <div class="heroai-anim" onclick="startGeneration()" style="cursor:pointer;" title="Click to Start AI Production">
+    <div class="heroai-anim" onclick="checkCreditsAndStart()" style="cursor:pointer;" title="Click to Start AI Production">
       <img src="logo.png">
     </div>
     <div class="engine-status">
@@ -188,15 +237,44 @@
     </div>
 
     <div class="menu-section">
+       <div class="menu-h">Strategic Output Queue</div>
+       <div id="scheduled-list" style="display:flex; flex-direction:column; gap:10px;">
+          <!-- Active outputs with post times -->
+          <div style="padding:12px; background:var(--surface2); border:1px solid var(--border); border-radius:12px;">
+             <div style="display:flex; justify-content:space-between; align-items:start;">
+                <div>
+                   <div style="font-size:11px; font-weight:800; color:var(--cyan);">VIDEO + 2 REELS</div>
+                   <div style="font-size:10px; color:var(--text3); margin-top:2px;">Topic: AI Revolution 2026</div>
+                </div>
+                <span class="badge badge-green" style="font-size:8px;">READY</span>
+             </div>
+             <div style="margin-top:10px; font-size:10px; color:var(--text2);">
+                <i class="fas fa-clock"></i> Best Post Time: <b style="color:var(--amber);">18:30 (Today)</b>
+             </div>
+             <div style="display:flex; gap:8px; margin-top:10px;">
+                <button class="onboarding-btn btn-sm" style="flex:1; font-size:9px; padding:6px;"><i class="fas fa-download"></i> Download</button>
+                <button class="onboarding-btn btn-sm" style="flex:1; font-size:9px; padding:6px; background:var(--bg3); color:var(--text);"><i class="fas fa-copy"></i> Copy SEO</button>
+             </div>
+          </div>
+       </div>
+    </div>
+
+    <div class="menu-section">
       <div class="menu-h">System Mode</div>
       <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--surface2); border-radius:12px;">
          <div style="font-size:12px; font-weight:700;">Auto-Pilot Mode</div>
          <label class="switch">
-            <input type="checkbox" id="auto-switch" onchange="toggleAutoMode(this)">
+            <input type="checkbox" id="auto-switch-global" onchange="toggleAutoMode(this)">
             <span class="slider round"></span>
          </label>
       </div>
       <div style="font-size:9px; color:var(--text3); margin-top:8px;">*Manual mode allows you to approve scripts before production.</div>
+    </div>
+
+    <div class="menu-section" id="agency-hub-menu" style="display:none;">
+      <div class="menu-h">Agency Hub</div>
+      <div class="menu-item" onclick="openAgencyClients()"><i class="fas fa-user-friends"></i> Manage Clients</div>
+      <div class="menu-item" onclick="exportAgencyReport()"><i class="fas fa-file-invoice-dollar"></i> Client Reports (Export)</div>
     </div>
 
     <div class="menu-section">
@@ -221,8 +299,8 @@
       <div class="menu-item" onclick="openModelModal()"><i class="fas fa-user-astronaut"></i> Active My Model</div>
       <div class="menu-item" onclick="openVoiceModal()"><i class="fas fa-microphone-alt"></i> Use My Voice</div>
       <div class="menu-item" onclick="checkPaidAccess('SEO', openStudioModal)"><i class="fas fa-magic"></i> SEO</div>
-      <div class="menu-item" onclick="checkPaidAccess('Google Ads', () => toast('info','Ads','Google Ads integration coming soon'))"><i class="fas fa-ad"></i> Google Ads</div>
-      <div class="menu-item" onclick="checkPaidAccess('Meta Ads', () => toast('info','Ads','Meta Ads integration coming soon'))"><i class="fas fa-share-alt"></i> Meta Ads</div>
+      <div class="menu-item" onclick="openAdsWizard('GOOGLE')"><i class="fab fa-google"></i> Google Ads Agency</div>
+      <div class="menu-item" onclick="openAdsWizard('META')"><i class="fab fa-facebook"></i> Meta Ads Agency</div>
       <div class="menu-item" onclick="openChat()"><i class="fas fa-comments"></i> AI Support Chat</div>
     </div>
 
@@ -255,19 +333,6 @@
        </div>
     </div>
 
-    <div class="menu-section">
-       <div class="menu-h">Your Plan</div>
-       <div style="padding:15px; background:var(--surface2); border:1px solid var(--border); border-radius:16px; cursor:pointer; transition:0.3s;" onclick="openPlanModal()" class="plan-trigger">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="font-weight:700; color:var(--purple); font-size:13px; text-transform:uppercase;" id="current-plan-name">Free Trial</div>
-            <i class="fas fa-chevron-right" style="font-size:10px; color:var(--text3)"></i>
-          </div>
-          <div style="font-size:10px; color:var(--text2); margin-top:6px;" id="plan-expiry"><i class="fas fa-clock"></i> Checking status...</div>
-          <div style="margin-top:10px; font-size:9px; font-weight:800; color:var(--amber); text-transform:uppercase; letter-spacing:1px;" id="plan-cta">Upgrade to unlock Auto-Pilot</div>
-       </div>
-       <div class="menu-item" style="color:var(--rose); margin-top:10px;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
-    </div>
-
     <div style="margin-top:20px; font-size:10px; color:var(--text3); line-height:1.4;">
        *Upgrade to Pro for Full Auto-Pilot and 100 Days Monetization Blueprint.
     </div>
@@ -285,7 +350,7 @@
       <!-- Plan 1 -->
       <div class="widget" style="margin-bottom:0; text-align:left; border-color:var(--border2);">
          <div style="font-size:18px; font-weight:800; font-family:var(--fh); color:var(--text);">GRO</div>
-         <div style="font-size:24px; font-weight:800; margin:10px 0;">₹999<span style="font-size:12px; color:var(--text3)">/mo</span></div>
+         <div style="font-size:24px; font-weight:800; margin:10px 0;"><span class="plan-price" data-base="999">₹999</span><span style="font-size:12px; color:var(--text3)">/mo</span></div>
          <ul style="list-style:none; font-size:12px; color:var(--text2); display:grid; gap:8px;">
            <li><i class="fas fa-check-circle" style="color:var(--green)"></i> 3 Channels/Pages</li>
            <li><i class="fas fa-check-circle" style="color:var(--green)"></i> 1 Daily 4K Video</li>
@@ -302,7 +367,7 @@
            <div style="font-size:18px; font-weight:800; font-family:var(--fh); color:var(--amber);">PRO</div>
            <span class="badge badge-amber">Popular</span>
          </div>
-         <div style="font-size:24px; font-weight:800; margin:10px 0;">₹1499<span style="font-size:12px; color:var(--text3)">/mo</span></div>
+         <div style="font-size:24px; font-weight:800; margin:10px 0;"><span class="plan-price" data-base="1499">₹1499</span><span style="font-size:12px; color:var(--text3)">/mo</span></div>
          <ul style="list-style:none; font-size:12px; color:var(--text2); display:grid; gap:8px;">
            <li><i class="fas fa-check-circle" style="color:var(--green)"></i> 4 Channels/Pages</li>
            <li><i class="fas fa-check-circle" style="color:var(--green)"></i> 2 Daily 4K Videos</li>
@@ -316,7 +381,7 @@
       <!-- Plan 3 -->
       <div class="widget" style="margin-bottom:0; text-align:left; border-color:var(--purple); background:rgba(167,139,250,0.05);">
          <div style="font-size:18px; font-weight:800; font-family:var(--fh); color:var(--purple);">PREMIUM</div>
-         <div style="font-size:24px; font-weight:800; margin:10px 0;">₹2499<span style="font-size:12px; color:var(--text3)">/mo</span></div>
+         <div style="font-size:24px; font-weight:800; margin:10px 0;"><span class="plan-price" data-base="2499">₹2499</span><span style="font-size:12px; color:var(--text3)">/mo</span></div>
          <ul style="list-style:none; font-size:12px; color:var(--text2); display:grid; gap:8px;">
            <li><i class="fas fa-check-circle" style="color:var(--green)"></i> 5+ Channels/Pages</li>
            <li><i class="fas fa-check-circle" style="color:var(--green)"></i> 3 Daily 4K Videos</li>
@@ -362,8 +427,120 @@
   </div>
 </div>
 
-<!-- Use My Voice Modal -->
-<div class="onboarding-overlay" id="voiceModal">
+<!-- Agency Client Hub Modal -->
+<div class="onboarding-overlay" id="agencyClientModal">
+  <div class="glass-modal" style="max-width:500px; padding:30px;">
+    <button class="modal-close" onclick="closeAgencyModal()">&times;</button>
+    <div class="menu-h" style="color:var(--cyan);"><i class="fas fa-user-tie"></i> Agency Client Hub</div>
+    <p style="font-size:12px; color:var(--text2); margin-top:5px;">Switch between your client portfolios to manage content and ads.</p>
+    
+    <div id="client-list" style="margin-top:20px; display:grid; gap:10px;">
+       <!-- Clients will be injected here -->
+    </div>
+
+    <button class="onboarding-btn" style="width:100%; margin-top:20px; background:var(--cyan); color:black;" onclick="toast('info','Agency','Adding new client...')">+ Add New Client</button>
+  </div>
+</div>
+
+<!-- Referral Growth Modal -->
+<div class="onboarding-overlay" id="referralModal">
+  <div class="glass-modal" style="max-width:450px; padding:30px; border:1px solid var(--border-amber);">
+    <div style="text-align:center;">
+      <div style="width:60px; height:60px; background:rgba(245,166,35,0.05); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+        <i class="fas fa-users-rays" style="font-size:24px; color:var(--amber);"></i>
+      </div>
+      <h2 style="font-family:var(--fh); color:var(--text); font-size:22px;">Unlock Pro Access</h2>
+      <p id="ref-message" style="color:var(--text2); font-size:13px; margin:15px 0 25px; line-height:1.5;">
+        Aapne <span id="ref-count" style="color:var(--amber); font-weight:800;">0/5</span> users ko active kiya hai. Sirf 5 active referrals par paiye 3 din ka Pro plan ekdum FREE!
+      </p>
+
+      <div style="background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+        <code id="ref-link-val" style="font-size:11px; color:var(--text3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px;">https://heroai.pro/r/USERCODE</code>
+        <button class="icon-btn" onclick="copyReferralLink()" style="background:var(--amber); color:black; border:none;"><i class="fas fa-copy"></i></button>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button class="onboarding-btn" style="flex:1; margin-top:0; background:var(--amber); color:black;" onclick="openPlanModal()">Upgrade Now</button>
+        <button class="onboarding-btn" style="flex:1; margin-top:0; background:var(--surface); color:var(--text3); border:1px solid var(--border);" onclick="closeReferralModal()">Skip for now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADS AGENCY WIZARD MODAL -->
+<div class="onboarding-overlay" id="adsWizardModal">
+  <div class="glass-modal" style="max-width:550px; padding:0; height:85vh; display:flex; flex-direction:column; overflow:hidden;">
+    <div style="padding:20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:rgba(245,166,35,0.05);">
+       <div style="display:flex; align-items:center; gap:12px;">
+         <i id="ads-icon" class="fab fa-google" style="color:var(--amber); font-size:20px;"></i>
+         <h3 id="ads-title" style="font-family:var(--fh); font-size:16px;">Google Ads Agency</h3>
+       </div>
+       <i class="fas fa-times" onclick="closeAdsWizard()" style="cursor:pointer; color:var(--text3);"></i>
+    </div>
+
+    <div style="flex:1; padding:30px; overflow-y:auto;">
+       <!-- Step 1: Objective -->
+       <div id="ads-step-1" class="ads-step">
+          <div class="menu-h" style="margin-bottom:20px; text-align:left;">Step 1: Campaign Objective</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+             <div class="widget ads-opt" onclick="setAdsOpt('BRANDING', this)" style="cursor:pointer; padding:15px; text-align:center;">
+                <i class="fas fa-bullhorn" style="font-size:24px; color:var(--cyan); margin-bottom:10px;"></i>
+                <div style="font-size:12px; font-weight:700;">Branding</div>
+             </div>
+             <div class="widget ads-opt" onclick="setAdsOpt('MARKETING', this)" style="cursor:pointer; padding:15px; text-align:center;">
+                <i class="fas fa-shopping-cart" style="font-size:24px; color:var(--purple); margin-bottom:10px;"></i>
+                <div style="font-size:12px; font-weight:700;">Sales/Leads</div>
+             </div>
+             <div class="widget ads-opt" onclick="setAdsOpt('AWARENESS', this)" style="cursor:pointer; padding:15px; text-align:center;">
+                <i class="fas fa-eye" style="font-size:24px; color:var(--amber); margin-bottom:10px;"></i>
+                <div style="font-size:12px; font-weight:700;">Awareness</div>
+             </div>
+             <div class="widget ads-opt" onclick="setAdsOpt('UGC', this)" style="cursor:pointer; padding:15px; text-align:center;">
+                <i class="fas fa-users" style="font-size:24px; color:var(--green); margin-bottom:10px;"></i>
+                <div style="font-size:12px; font-weight:700;">UGC Trust</div>
+             </div>
+          </div>
+       </div>
+
+       <!-- Step 2: Targeting -->
+       <div id="ads-step-2" class="ads-step" style="display:none;">
+          <div class="menu-h" style="margin-bottom:20px; text-align:left;">Step 2: Target Audience</div>
+          <div class="select-wrap" style="margin-bottom:20px;">
+             <label>Target Age Group</label>
+             <div style="display:flex; align-items:center; gap:10px;">
+                <input type="number" id="ads-age-min" class="select-inp" placeholder="Min" style="flex:1;">
+                <span style="color:var(--text3)">to</span>
+                <input type="number" id="ads-age-max" class="select-inp" placeholder="Max" style="flex:1;">
+             </div>
+          </div>
+          <div class="select-wrap">
+             <label>Target Area/Location</label>
+             <input type="text" id="ads-location" class="select-inp" placeholder="e.g. Mumbai, Delhi, Global">
+             <div style="font-size:9px; color:var(--text3); margin-top:8px;">*Separate multiple cities with commas.</div>
+          </div>
+       </div>
+
+       <!-- Step 3: Auto-Budget & Launch -->
+       <div id="ads-step-3" class="ads-step" style="display:none;">
+          <div class="menu-h" style="margin-bottom:20px; text-align:left;">Step 3: AI Auto-Budget</div>
+          <div class="widget" style="background:rgba(245,166,35,0.05); border:1px solid var(--amber); padding:20px;">
+             <div style="font-size:11px; color:var(--text3); text-transform:uppercase; font-weight:700;">Plan-Based Allocation</div>
+             <div id="ads-budget-preview" style="font-size:28px; font-weight:800; color:var(--text); margin:10px 0;">₹0 <span style="font-size:12px; color:var(--text3)">Total Spend</span></div>
+             <div id="ads-daily-preview" style="font-size:13px; color:var(--amber); font-weight:600;">₹0 / day for 30 days</div>
+             <p style="font-size:10px; color:var(--text3); margin-top:15px; line-height:1.4;">
+                HeroAi automatically allocates 60% of your Ads Plan for direct spend, optimized by our Master Brain for maximum ROI.
+             </p>
+          </div>
+          <div style="font-size:10px; color:var(--green); margin-top:15px;"><i class="fas fa-shield-check"></i> Zero manual intervention required. Launching in Auto-Pilot.</div>
+       </div>
+    </div>
+
+    <div style="padding:20px; border-top:1px solid var(--border); background:rgba(0,0,0,0.3); display:flex; justify-content:space-between;">
+       <button id="ads-prev" class="onboarding-btn" style="margin-top:0; width:auto; padding:0 20px; background:var(--surface); display:none;" onclick="prevAdsStep()">Back</button>
+       <button id="ads-next" class="onboarding-btn" style="margin-top:0; width:auto; padding:0 40px;" onclick="nextAdsStep()">Continue</button>
+    </div>
+  </div>
+</div>
   <div class="glass-modal" style="max-width:500px;">
     <button class="modal-close" onclick="closeVoiceModal()">&times;</button>
     <div style="text-align:left;">
@@ -458,12 +635,100 @@
       autoSyncLocation(); // Trigger auto-sync
     } else {
       const role = currentUser.profile.role;
-      if(role === 'AGENCY' && !window.location.href.includes('agency')) { window.location.href = 'dashboard-agency.html'; return; }
-      if(role === 'BUSINESS' && !window.location.href.includes('business')) { window.location.href = 'dashboard-business.html'; return; }
+      if(role === 'AGENCY') {
+        const agencyMenu = document.getElementById('agency-hub-menu');
+        if(agencyMenu) agencyMenu.style.display = 'block';
+      }
       
       initUserUI();
       startETATimer();
     }
+  }
+
+  function exportAgencyReport() {
+    toast('info', 'Generating', 'Architecting your growth report...');
+    const stats = {
+      views: document.getElementById('stat-views').textContent,
+      engagement: document.getElementById('stat-engagement').textContent,
+      date: new Date().toLocaleDateString()
+    };
+    
+    const reportTxt = `HeroAi Agency Growth Report\nDate: ${stats.date}\nViews: ${stats.views}\nEngagement: ${stats.engagement}\nStatus: ALL SYSTEMS NOMINAL`;
+    const blob = new Blob([reportTxt], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `HeroAi_Report_${stats.date.replace(/\//g, '-')}.txt`;
+    a.click();
+    toast('success', 'Report Exported', 'Growth summary downloaded successfully.');
+  }
+
+  function openAgencyClients() {
+    const modal = document.getElementById('agencyClientModal');
+    const list = document.getElementById('client-list');
+    list.innerHTML = '';
+
+    if(!currentUser.clients || currentUser.clients.length === 0) {
+      list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text3); font-size:12px;">No clients added yet.</div>';
+    } else {
+      currentUser.clients.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'widget';
+        div.style = "cursor:pointer; padding:15px; border-color:var(--border);";
+        div.onclick = () => switchClient(c._id);
+        div.innerHTML = `<div style="font-weight:700;">${c.clientName}</div><div style="font-size:10px; color:var(--text3)">${c.niche}</div>`;
+        list.appendChild(div);
+      });
+    }
+    modal.classList.add('active');
+  }
+
+  function closeAgencyModal() { document.getElementById('agencyClientModal').classList.remove('active'); }
+
+  function switchClient(clientId) {
+    toast('success', 'Context Switched', 'Loading client data...');
+    closeAgencyModal();
+    // Logic to reload dashboard with client-specific context
+  }
+
+  function handleSelectPlan(planId, price) {
+    const options = {
+      key: "rzp_test_YOUR_KEY_HERE", 
+      amount: price * 100,
+      currency: "INR",
+      name: "HeroAi",
+      description: `Upgrade to ${planId.toUpperCase()} Plan`,
+      handler: function(response) {
+        verifyPayment(response, planId);
+      },
+      prefill: {
+        name: currentUser.profile.name,
+        email: currentUser.auth.email
+      },
+      theme: { color: "#2E5BFF" }
+    };
+    const rzp = new Razorpay(options);
+    rzp.open();
+  }
+
+  async function verifyPayment(response, planId) {
+    toast('info', 'Processing', 'Verifying payment status...');
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/payment/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${storage.get('token')}` },
+        body: JSON.stringify({ 
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_signature: response.razorpay_signature,
+          planId: planId
+        })
+      });
+      if(res.ok) {
+        toast('success', 'Plan Active', 'Welcome to the premium HeroAi ecosystem!');
+        loadDashboard();
+      }
+    } catch(e) { toast('error', 'Payment Failed', 'Verification error.'); }
   }
 
   function enableScriptEdit() {
@@ -484,18 +749,33 @@
     const locInp = document.getElementById('on-loc');
     if(!locInp) return;
     
-    locInp.placeholder = "Syncing location...";
+    locInp.placeholder = "Syncing Global Intelligence...";
     try {
       const res = await fetch('https://ipapi.co/json/');
       const data = await res.json();
       if(data.city && data.country_name) {
         locInp.value = `${data.city}, ${data.country_name}`;
-        toast('success', 'Location Synced', `Detected: ${data.city}`);
+        
+        // Dynamic Pricing Brain
+        const currency = data.country_code === 'IN' ? '₹' : '$';
+        const multiplier = data.country_code === 'IN' ? 1 : 0.012; // Example INR to USD
+        storage.set('geo', { currency, multiplier, country: data.country_code });
+        
+        toast('success', 'Global Sync', `Localized to ${currency} (${data.country_name})`);
+        updateLocalizedPrices();
       }
     } catch(e) {
       locInp.placeholder = "City, Country (Manual)";
       console.warn("Location sync failed.");
     }
+  }
+
+  function updateLocalizedPrices() {
+    const geo = storage.get('geo') || { currency: '₹', multiplier: 1 };
+    document.querySelectorAll('.plan-price').forEach(el => {
+       const base = parseInt(el.dataset.base);
+       el.textContent = `${geo.currency}${Math.round(base * geo.multiplier)}`;
+    });
   }
 
   function initUserUI() {
@@ -530,9 +810,8 @@
         if(currentUser.subscription.planId !== 'trial') planCTA.style.display = 'none';
       }
 
-      // Update Stats
-      if(document.getElementById('stat-views')) document.getElementById('stat-views').textContent = (currentUser.usageStats.dailyAiMinutes * 120).toLocaleString(); // Simulated views
-      if(document.getElementById('stat-engagement')) document.getElementById('stat-engagement').textContent = '4.8%';
+      // Sync Real-Time Analytics
+      fetchAnalytics();
       
       const list = document.getElementById('workflow-checklist');
       if(list) {
@@ -571,6 +850,8 @@
           });
         }
       }
+      
+      startStrategicNudges();
     } catch(e) { console.error('UI Init Error:', e); }
   }
 
@@ -675,6 +956,20 @@
     if(el) el.classList.toggle('mobile-on');
   }
 
+  function startStrategicNudges() {
+    const nudges = [
+      { t: 'Strategic Growth', m: 'Your niche is trending in New York. Upgrade to PRO for Geo-Targeted Ads.' },
+      { t: 'Master Brain', m: 'Your next viral window opens in 2 hours. Is your content ready?' },
+      { t: 'Referral Bonus', m: 'Share HeroAi with 3 more friends to unlock 3 days of Pro access!' },
+      { t: 'AI Optimization', m: 'Detected a 15% engagement lift on your last Reel. Ready for the next one?' }
+    ];
+
+    setInterval(() => {
+      const n = nudges[Math.floor(Math.random() * nudges.length)];
+      toast('info', n.t, n.m);
+    }, 45000); // Every 45 seconds
+  }
+
   function checkPaidAccess(feature, callback) {
     if(currentUser.subscription.planId === 'trial') {
       toast('warning', 'Upgrade Required', `${feature} is available on Gro, Pro, and Premium plans.`);
@@ -750,9 +1045,13 @@
   }
 
   function toggleAutoMode(el) {
-    if(el.checked && currentUser.subscription.planId === 'trial') {
-      toast('warning', 'Upgrade Required', 'Auto-Pilot requires a Gro or Pro plan.');
+    if(el.checked && currentUser.subscription.contentPlan.tier === 'FREE') {
+      toast('warning', 'Upgrade Required', 'Autonomous Growth and Auto-Pilot require a Paid Plan (Gro/Pro/Premium).');
       el.checked = false;
+      setTimeout(() => {
+         // Optionally show pricing modal
+         toast('info', 'Growth Pack', 'Check our professional plans to unlock full automation.');
+      }, 1500);
     }
   }
 
@@ -796,7 +1095,7 @@
           'Authorization': `Bearer ${storage.get('token')}`
         },
         body: JSON.stringify({ 
-          type: 'REEL', // Default to Reel for high engagement
+          type: 'REEL',
           engineSelection: engine 
         })
       });
@@ -804,7 +1103,8 @@
       const data = await res.json();
       if(res.ok) {
         toast('success', 'Neural Engine Active', 'Workflow placed in Auto-Pilot execution queue.');
-        pollTaskStatus(data.taskId);
+        tracker.currentTaskId = data.taskId;
+        tracker.track();
       } else {
         toast('error', 'Execution Error', data.message || data.error);
       }
@@ -813,90 +1113,142 @@
     }
   }
 
-  let statusPollInterval;
-  function pollTaskStatus(taskId) {
-    if(statusPollInterval) clearInterval(statusPollInterval);
-    
-    statusPollInterval = setInterval(async () => {
-      try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/engine/status/${taskId}`, {
-          headers: { 'Authorization': `Bearer ${storage.get('token')}` }
-        });
-        const task = await res.json();
-        
-        updatePipelineUI(task);
-        
-        if(task.status === 'POSTED_LIVE' || task.status === 'FAILED' || task.status === 'READY_TO_POST') {
-          clearInterval(statusPollInterval);
-          if(task.status === 'FAILED') toast('error', 'Pipeline Error', task.lastError);
-          else toast('success', 'Victory', 'Content successfully architected and deployed.');
-        }
-      } catch(e) { console.warn("Polling error:", e); }
-    }, 3000);
-  }
-
-  function updatePipelineUI(task) {
-    const statusMap = {
-      'QUEUED': 0,
-      'THINKING': 1,
-      'SCRIPTING': 2,
-      'GATHERING_ASSETS': 3,
-      'RENDERING': 4,
-      'DISTRIBUTING': 5,
-      'POSTED_LIVE': 6
-    };
-    
-    const currentIdx = statusMap[task.status] || 0;
-    document.getElementById('engine-txt').textContent = task.status;
-    
-    // Update Workflow Checklist
-    const steps = ['wf-thinking', 'wf-trends', 'wf-hook', 'wf-script', 'wf-render', 'wf-finalize'];
-    steps.forEach((id, idx) => {
-      const el = document.getElementById(id);
-      if(!el) return;
-      if(idx < currentIdx) {
-        el.querySelector('i').className = 'fas fa-check-circle';
-        el.querySelector('i').style.color = 'var(--green)';
-        el.querySelector('.dot-blink').className = 'dot-blink dot-green';
-      } else if(idx === currentIdx) {
-        el.querySelector('i').className = 'fas fa-spinner fa-spin';
-        el.querySelector('i').style.color = 'var(--cyan)';
-        el.querySelector('.dot-blink').className = 'dot-blink dot-cyan';
-      }
-    });
-
-    // Update Side Pipeline Cards
-    if(currentIdx >= 2) { // Scripting
-      const sCard = document.getElementById('card-script');
-      sCard.dataset.content = task.description || 'Generating...';
-      document.getElementById('pipe-script').textContent = 'Draft Ready';
-      document.getElementById('detail-script').textContent = (task.description || '').substring(0, 40) + '...';
-      document.getElementById('detail-script').style.display = 'block';
-      document.getElementById('actions-script').style.display = 'flex';
-      document.getElementById('dot-script').className = 'dot-blink dot-green';
-    }
-
-    if(currentIdx >= 4) { // Rendering
-       document.getElementById('pipe-video').textContent = 'Synthesizing...';
-       document.getElementById('dot-video').className = 'dot-blink dot-cyan';
-    }
-
-    if(task.status === 'POSTED_LIVE' || task.status === 'READY_TO_POST') {
-       document.getElementById('pipe-video').textContent = 'HD Ready';
-       document.getElementById('dot-video').className = 'dot-blink dot-green';
-       document.getElementById('actions-video').style.display = 'flex';
-       if(task.finalOutputUrls && task.finalOutputUrls.longVideo) {
-         document.getElementById('card-video').dataset.content = task.finalOutputUrls.longVideo;
-       }
-    }
-  }
 
   function simulateWorkflow(step) {
     // Legacy fallback for UI demo
     console.log("Simulating workflow step:", step);
   }
 
-  function logout() { storage.clear(); window.location.href='auth.html'; }
+  function closeReferralModal() { document.getElementById('referralModal').classList.remove('active'); }
+  function openReferralModal() {
+    const user = currentUser;
+    const active = user.referrals.activeReferralsCount || 0;
+    const remaining = 5 - (active % 5);
+    document.getElementById('ref-count').textContent = `${active % 5}/5`;
+    document.getElementById('ref-message').innerHTML = `Aapke <b>${active % 5}</b> friends active hain. Sirf <b>${remaining}</b> aur chahiye 3 din (3 tokens) ka reward paane ke liye!`;
+    document.getElementById('ref-link-val').textContent = `${window.location.origin}/auth.html?ref=${user.referrals.referralCode}`;
+    document.getElementById('referralModal').classList.add('active');
+  }
+
+  function copyReferralLink() {
+    const link = document.getElementById('ref-link-val').textContent;
+    navigator.clipboard.writeText(link);
+    toast('success', 'Copied!', 'Referral link copied to clipboard.');
+  }
+
+  let currentAdsStep = 1;
+  let adsConfigData = { objective: '', targetAge: { min: 18, max: 65 }, targetArea: '', budget: 500, platform: 'GOOGLE' };
+
+  function openAdsWizard(platform) {
+    adsConfigData.platform = platform;
+    document.getElementById('ads-title').textContent = `${platform === 'GOOGLE' ? 'Google' : 'Meta'} Ads Agency`;
+    document.getElementById('ads-icon').className = platform === 'GOOGLE' ? 'fab fa-google' : 'fab fa-facebook';
+    currentAdsStep = 1;
+    updateAdsStepUI();
+    document.getElementById('adsWizardModal').classList.add('active');
+  }
+
+  function closeAdsWizard() { document.getElementById('adsWizardModal').classList.remove('active'); }
+
+  function setAdsOpt(opt, el) {
+    adsConfigData.objective = opt;
+    document.querySelectorAll('.ads-opt').forEach(d => {
+       d.style.borderColor = 'var(--border)';
+       d.style.background = 'transparent';
+    });
+    el.style.borderColor = 'var(--amber)';
+    el.style.background = 'rgba(245,166,35,0.05)';
+  }
+
+  function updateAdsStepUI() {
+    document.querySelectorAll('.ads-step').forEach(s => s.style.display = 'none');
+    document.getElementById(`ads-step-${currentAdsStep}`).style.display = 'block';
+    document.getElementById('ads-prev').style.display = currentAdsStep > 1 ? 'block' : 'none';
+    document.getElementById('ads-next').textContent = currentAdsStep === 3 ? 'Launch Campaign' : 'Continue';
+
+    if(currentAdsStep === 3) {
+      calculateAutoBudget();
+    }
+  }
+
+  function calculateAutoBudget() {
+    // Plan Prices (In production, fetch from SystemSettings)
+    const prices = { 'GRO': 999, 'PRO': 1499, 'PREMIUM': 2499 };
+    const tier = currentUser.subscription.adsPlan.tier;
+    const totalPlanPrice = prices[tier] || 0;
+    
+    if(totalPlanPrice === 0) {
+      document.getElementById('ads-budget-preview').textContent = "No Ads Plan";
+      document.getElementById('ads-daily-preview').textContent = "Upgrade to an Ads Plan first.";
+      return;
+    }
+
+    const adSpend = Math.floor(totalPlanPrice * 0.6); // 60% for Ads
+    const dailySpend = (adSpend / 30).toFixed(2);
+    
+    document.getElementById('ads-budget-preview').textContent = `₹${adSpend}`;
+    document.getElementById('ads-daily-preview').textContent = `₹${dailySpend} / day for 30 days`;
+    adsConfigData.budget = adSpend;
+    adsConfigData.dailyBudget = dailySpend;
+  }
+
+  function nextAdsStep() {
+    if(currentAdsStep === 1 && !adsConfigData.objective) return toast('warning', 'Objective', 'Please select a campaign objective.');
+    
+    if(currentAdsStep < 3) {
+      currentAdsStep++;
+      updateAdsStepUI();
+    } else {
+      launchAdsCampaign();
+    }
+  }
+
+  function prevAdsStep() {
+    if(currentAdsStep > 1) {
+      currentAdsStep--;
+      updateAdsStepUI();
+    }
+  }
+
+  async function launchAdsCampaign() {
+    if(currentUser.subscription.adsPlan.tier === 'NONE') {
+      return toast('error', 'Plan Required', 'Please subscribe to an Ads Plan to launch campaigns.');
+    }
+    adsConfigData.targetAge.min = document.getElementById('ads-age-min').value || 18;
+    adsConfigData.targetAge.max = document.getElementById('ads-age-max').value || 65;
+    adsConfigData.targetArea = document.getElementById('ads-location').value;
+
+    toast('info', 'Master Brain', 'Synchronizing with Ad Servers...');
+    
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/auth/update-profile`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${storage.get('token')}`
+        },
+        body: JSON.stringify({ 
+          userId: currentUser._id, 
+          adsConfig: adsConfigData 
+        })
+      });
+      if(res.ok) {
+        toast('success', 'Campaign Active', `Your ${adsConfigData.platform} Ads are now in AI-Auto-Pilot mode.`);
+        closeAdsWizard();
+      }
+    } catch(e) {
+      toast('error', 'Launch Error', 'Failed to connect to Ad Network.');
+    }
+  }
+
+  async function checkCreditsAndStart() {
+    if(currentUser.subscription.creditsRemaining <= 0) {
+      toast('warning', 'Tokens Exhausted', 'Your trial tokens are over. Upgrade or Refer friends to continue.');
+      openReferralModal();
+      return;
+    }
+    startGeneration();
+  }
 
   // PWA Install Logic
   let deferredPrompt;
@@ -920,9 +1272,113 @@
     deferredPrompt = null;
   }
 
-  window.onload = loadDashboard;
+  async function fetchNotifications() {
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/auth/notifications`, {
+        headers: { 'Authorization': `Bearer ${storage.get('token')}` }
+      });
+      const data = await res.json();
+      if(res.ok && data.length > 0) {
+        const unreadCount = data.filter(n => !n.isRead).length;
+        const badge = document.getElementById('notif-badge');
+        if(unreadCount > 0) {
+          badge.textContent = unreadCount;
+          badge.style.display = 'flex';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    } catch(e) { console.error("Notif fetch failed"); }
+  }
+
+  function toggleNotifPanel() {
+    toast('info', 'Notifications', 'Opening alert center... Your video status will appear here.');
+    fetchNotifications();
+  }
+
+  window.onload = async () => {
+    await loadDashboard();
+    fetchNotifications();
+    
+    // Proactive Referral Popup: Show if user has 1-4 active referrals and hasn't seen it recently
+    const active = currentUser.referrals.activeReferralsCount || 0;
+    if (active % 5 > 0) {
+      setTimeout(openReferralModal, 3000); // Show after 3 seconds
+    }
+  };
+
+  // Poll for notifications every 30 seconds
+  setInterval(fetchNotifications, 30000);
+
+  function openMasterChat() {
+    document.getElementById('chatOverlay').classList.add('active');
+  }
+
+  function closeMasterChat() {
+    document.getElementById('chatOverlay').classList.remove('active');
+  }
+
+  async function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if(!msg) return;
+
+    const chatMessages = document.getElementById('chatMessages');
+    
+    // User Msg
+    const userDiv = document.createElement('div');
+    userDiv.style = "align-self:flex-end; background:var(--cyan); color:black; padding:12px 16px; border-radius:15px 15px 0 15px; max-width:85%; font-weight:500;";
+    userDiv.textContent = msg;
+    chatMessages.appendChild(userDiv);
+    
+    input.value = '';
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // AI Typing
+    const typingDiv = document.createElement('div');
+    typingDiv.style = "align-self:flex-start; color:var(--text3); font-size:11px; margin-left:10px;";
+    typingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> HeroAi is thinking...';
+    chatMessages.appendChild(typingDiv);
+
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/engine/chat`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${storage.get('token')}`
+        },
+        body: JSON.stringify({ message: msg, language: currentUser.profile.language })
+      });
+      const data = await res.json();
+      typingDiv.remove();
+
+      const aiDiv = document.createElement('div');
+      aiDiv.style = "align-self:flex-start; background:var(--surface); padding:12px 16px; border-radius:0 15px 15px 15px; max-width:85%; line-height:1.5;";
+      aiDiv.innerHTML = data.reply;
+      chatMessages.appendChild(aiDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    } catch(e) {
+      typingDiv.remove();
+      toast('error', 'Chat Error', 'Master Brain connectivity issue.');
+    }
+  }
+
+  async function fetchAnalytics() {
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/auth/analytics`, {
+        headers: { 'Authorization': `Bearer ${storage.get('token')}` }
+      });
+      const stats = await res.json();
+      const viewsEl = document.getElementById('stat-views');
+      const engageEl = document.getElementById('stat-engagement');
+      if(viewsEl) viewsEl.textContent = stats.views.toLocaleString();
+      if(engageEl) engageEl.textContent = stats.engagement + '%';
+    } catch(e) { console.error("Analytics sync failed"); }
+  }
 </script>
   <script src="pay.js"></script>
   <script src="core-ui.js" defer></script>
 </body>
 </html>
+

@@ -1,6 +1,6 @@
 # 🌍 09: Global Foolproof System Design & Ultimate Architecture
 
-To ensure CopixAI can handle **millions of users globally** without crashing, and to make the system **100% foolproof and abuse-resistant**, we must implement an Enterprise-Grade Technical Architecture. This document outlines the deep-research-backed backend structure required to guarantee a 200% success rate on a global scale.
+To ensure HeroAi can handle **millions of users globally** without crashing, and to make the system **100% foolproof and abuse-resistant**, we must implement an Enterprise-Grade Technical Architecture. This document outlines the deep-research-backed backend structure required to guarantee a 200% success rate on a global scale.
 
 ---
 
@@ -15,7 +15,7 @@ If users from USA, India, and UK are generating and watching videos simultaneous
 ---
 
 ## 🛡️ 2. Abuse & Fraud Prevention (Protecting the API Bank)
-Since CopixAI relies on a "Zero-Budget AI Orchestrator," hackers or bots might try to spam the system to exhaust your API keys.
+Since HeroAi relies on a "Zero-Budget AI Orchestrator," hackers or bots might try to spam the system to exhaust your API keys.
 - **Device Fingerprinting & IP Velocity:** If a single user or IP tries to generate 100 scripts in a minute, the system automatically bans them at the Edge level (before they even hit our AI APIs).
 - **Strict Rate Limiting (Redis):** Every user action is rate-limited using Redis to ensure fair usage of the Content Plans.
 - **Payment Fraud Protection:** Integration with Stripe Radar & Razorpay Risk Shield to block stolen credit cards automatically.
@@ -39,9 +39,9 @@ Video rendering is heavy. If 10,000 users click "Generate" at the exact same sec
 ---
 
 ## ⚖️ 5. Legal & Global Compliance Engine
-To operate globally without lawsuits, CopixAI must be legally bulletproof.
+To operate globally without lawsuits, HeroAi must be legally bulletproof.
 - **GDPR & CCPA:** Automated "Delete My Data" buttons in the app.
-- **AI Copyright Disclaimer:** T&C strictly states that CopixAI is an AI generation tool and the user holds responsibility for the final published content.
+- **AI Copyright Disclaimer:** T&C strictly states that HeroAi is an AI generation tool and the user holds responsibility for the final published content.
 - **DMCA Auto-Takedown:** If someone reports a copyrighted video, the admin dashboard flags it automatically.
 
 ---
@@ -57,7 +57,7 @@ Never lose a paying customer because a payment gateway is down.
 ---
 
 ## 🔁 7. Zero-Downtime Deployment (CI/CD)
-- **Blue-Green Deployment:** When you update CopixAI with new features, the system never goes offline. Users on the app won't even notice the server updated.
+- **Blue-Green Deployment:** When you update HeroAi with new features, the system never goes offline. Users on the app won't even notice the server updated.
 
 ---
 
@@ -68,3 +68,4 @@ By combining:
 3. **The Technology:** Kafka Queue + Edge CDN + Auto-Scaling Workers.
 
 **Result:** A system that is mathematically impossible to bankrupt, scales infinitely, and forces user upgrades naturally.
+

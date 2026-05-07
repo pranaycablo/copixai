@@ -1,53 +1,46 @@
 const express = require('express');
 const router = express.Router();
-const PaymentService = require('../services/PaymentService');
+const crypto = require('crypto');
 const User = require('../models/User');
-const verifyToken = require('../middleware/authMiddleware');
 
-// Create Order
-router.post('/create-order', verifyToken, async (req, res) => {
-    try {
-        const { amount, planId } = req.body;
-        const order = await PaymentService.createOrder(amount);
-        res.json(order);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+/**
+ * Razorpay Webhook Handler
+ * Securely updates user plan after successful payment
+ */
+router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+  const signature = req.headers['x-razorpay-signature'];
+
+  const shasum = crypto.createHmac('sha256', secret);
+  shasum.update(JSON.stringify(req.body));
+  const digest = shasum.digest('hex');
+
+  if (digest === signature) {
+    console.log('[PAYMENT] Webhook verified. Processing event:', req.body.event);
+    
+    if (req.body.event === 'payment.captured') {
+      const payment = req.body.payload.payment.entity;
+      const userId = payment.notes.userId;
+      const planId = payment.notes.planId;
+
+      const user = await User.findById(userId);
+      if (user) {
+        user.subscription.planId = planId;
+        user.subscription.creditsRemaining += (planId === 'gro' ? 30 : planId === 'pro' ? 60 : 100);
+        user.billing.transactionHistory.push({
+          amount: payment.amount / 100,
+          planId: planId,
+          status: 'SUCCESS',
+          date: new Date()
+        });
+        await user.save();
+        console.log(`[PAYMENT] Plan ${planId} activated for user ${userId}`);
+      }
     }
-});
-
-// Capture Order & Upgrade User
-router.post('/capture-order', verifyToken, async (req, res) => {
-    try {
-        const { orderId, planId } = req.body;
-        const capture = await PaymentService.captureOrder(orderId);
-        
-        if (capture.status === 'COMPLETED') {
-            const user = req.user;
-            
-            // Map Plans to Credits/Quotas
-            const plans = {
-                'pro': { credits: 100, dailyVideoQuota: 3, dailyReelQuota: 10 },
-                'business': { credits: 500, dailyVideoQuota: 15, dailyReelQuota: 50 },
-                'agency': { credits: 2000, dailyVideoQuota: 75, dailyReelQuota: 250 }
-            };
-
-            const selectedPlan = plans[planId.toLowerCase()] || plans['pro'];
-            
-            user.subscription.planId = planId;
-            user.subscription.creditsRemaining += selectedPlan.credits;
-            user.subscription.dailyVideoQuota = selectedPlan.dailyVideoQuota;
-            user.subscription.dailyReelQuota = selectedPlan.dailyReelQuota;
-            user.subscription.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 Days
-            
-            await user.save();
-            
-            res.json({ message: 'Payment Successful', user });
-        } else {
-            res.status(400).json({ error: 'Payment not completed' });
-        }
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+    res.json({ status: 'ok' });
+  } else {
+    res.status(400).send('Invalid signature');
+  }
 });
 
 module.exports = router;

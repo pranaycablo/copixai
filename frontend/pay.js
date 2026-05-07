@@ -80,3 +80,4 @@ async function handleSelectPlan(planId, priceInINR) {
         toast('error', 'Checkout Error', 'Unable to connect to PayPal.');
     }
 }
+

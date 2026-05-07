@@ -12,7 +12,7 @@ The current system uses a local MongoDB URI. For production:
 - Get the Connection String.
 - Create a `.env` file in this directory and add:
   ```env
-  MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/copixai
+  MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/HeroAi
   PORT=5000
   JWT_SECRET=your_super_secret_key
   ```
@@ -40,3 +40,4 @@ Once the server is running, log into the `admin.html` panel and add:
 4. `services/FfmpegEngine.js`: Combines 10-second video segments into final Shorts/Reels safely.
 
 *Engineered for Scale. Built for Growth.*
+

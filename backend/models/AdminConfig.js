@@ -63,3 +63,4 @@ const AdminConfigSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model('AdminConfig', AdminConfigSchema);
+

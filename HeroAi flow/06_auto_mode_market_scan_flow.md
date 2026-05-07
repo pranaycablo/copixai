@@ -20,3 +20,4 @@
 ## 4. Trend Injection & Gap Filling
 - **Trend Injection:** AI detects a viral topic (e.g., "Election") and injects it into the user's specific niche (e.g., creating a "Comedy Political Video").
 - **Smart Opportunity Detection:** AI finds low-competition, high-demand topics and pushes the user to create content on them.
+

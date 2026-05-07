@@ -10,11 +10,11 @@ async function seed() {
     console.log('Connected to MongoDB...');
 
     // Clear existing users for a fresh test
-    await User.deleteMany({ 'auth.email': 'pranayHeroAi@copix.ai' });
+    await User.deleteMany({ 'auth.email': 'pranayHeroAi@hero.ai' });
 
     const admin = new User({
       auth: {
-        email: 'pranayHeroAi@copix.ai',
+        email: 'pranayHeroAi@hero.ai',
         password: '9263793375', // In real app, this would be hashed
         phone: '9263793375'
       },
@@ -41,4 +41,5 @@ async function seed() {
 }
 
 seed();
+
 

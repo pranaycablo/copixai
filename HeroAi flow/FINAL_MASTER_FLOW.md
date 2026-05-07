@@ -1,8 +1,8 @@
-# 🌐 CopixAI — FINAL MASTER FLOW STRUCTURE
+# 🌐 HeroAi — FINAL MASTER FLOW STRUCTURE
 ## (Globally Researched | Deeply Proven | Production-Ready Blueprint)
 ### Version: 3.0 — The Definitive Build
 
-> **Status:** This is the FINAL and ONLY document needed to build CopixAI from scratch.
+> **Status:** This is the FINAL and ONLY document needed to build HeroAi from scratch.
 > Every decision here is backed by global research on production SaaS systems.
 > Supersedes all previous flow documents (01 through 09).
 
@@ -335,7 +335,7 @@ IF specific_api_module fails > 3 times:
 
 ### 9.2 Creator Affiliate (High-Value Program)
 - Creator applies → Admin approves → Gets special creator link.
-- Creator promotes CopixAI in their videos.
+- Creator promotes HeroAi in their videos.
 - Flow: `Video view → Signup → Paid plan → ₹299 commission per sale`
 - Commission tracked via unique UTM parameters tied to creator link.
 
@@ -344,7 +344,7 @@ IF specific_api_module fails > 3 times:
 - User can CHOOSE to list it in the marketplace (opt-in).
 - Other users can select this voice for their videos.
 - Every use earns the voice owner ₹X (admin sets price).
-- CopixAI keeps 50% of each transaction.
+- HeroAi keeps 50% of each transaction.
 
 ---
 
@@ -353,7 +353,7 @@ IF specific_api_module fails > 3 times:
 ### Research Insight:
 > *The most successful AI SaaS platforms (Jasper, Copy.ai, HeyGen) all use continuous learning feedback loops. Content that performs well is used to train better prompts. This creates a compounding growth effect where the platform gets smarter and more valuable over time.*
 
-### 10.1 How CopixAI Learns
+### 10.1 How HeroAi Learns
 ```
 AFTER each video is posted and 7 days of data collected:
   → Record: { topic, script_style, hook_type, views, engagement, watch_time }
@@ -407,3 +407,4 @@ RESULT:
 | **Viral Growth** | Affiliate system is built-in. Happy users refer others. Happy creators promote loudly. |
 | **Legal Safety** | GDPR delete button, T&C AI disclaimer, auto-delete of user videos. Zero liability. |
 | **Scalability** | Auto-scaling Docker workers. No manual work needed to handle 100x traffic spike. |
+

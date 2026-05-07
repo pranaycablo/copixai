@@ -1,8 +1,8 @@
 # scripts/run-all.ps1
-# COPIX AI — GLOBAL LAUNCH RUNNER
+# HERO AI — GLOBAL LAUNCH RUNNER
 # Starts Backend Engine and Launches Frontend
 
-Write-Host "`n🚀 STARTING COPIX AI ECOSYSTEM...`n" -ForegroundColor Cyan
+Write-Host "`n🚀 STARTING HERO AI ECOSYSTEM...`n" -ForegroundColor Cyan
 
 # 1. Start Backend
 Write-Host "📡 Launching Backend Engine on Port 5000..." -ForegroundColor Yellow
@@ -17,7 +17,8 @@ Write-Host "🎨 Opening Frontend Interface..." -ForegroundColor Yellow
 $frontendPath = Join-Path $PSScriptRoot "../frontend/index.html"
 Start-Process "explorer.exe" "$frontendPath"
 
-Write-Host "`n✅ CopixAI is now initializing." -ForegroundColor Green
+Write-Host "`n✅ HeroAi is now initializing." -ForegroundColor Green
 Write-Host "🔗 Admin Panel: frontend/admin.html" -ForegroundColor Red
 Write-Host "🔗 API Health: http://localhost:5000/health" -ForegroundColor Gray
 Write-Host "`nMonitor the backend window for live logs.`n"
+

@@ -1,6 +1,6 @@
-# CopixAI: Master Database Schema & Global Admin Architecture (Part 3)
+# HeroAi: Master Database Schema & Global Admin Architecture (Part 3)
 
-This document defines the MongoDB Database Schema and the highly dynamic, self-healing Admin Architecture for CopixAI. The goal is a system that can be managed by a **single person**, scales globally, and uses AI to auto-manage APIs, currencies, and technical updates.
+This document defines the MongoDB Database Schema and the highly dynamic, self-healing Admin Architecture for HeroAi. The goal is a system that can be managed by a **single person**, scales globally, and uses AI to auto-manage APIs, currencies, and technical updates.
 
 ---
 
@@ -36,7 +36,7 @@ The admin can dump hundreds of Free API keys, Gmail accounts (for browser automa
 ---
 
 ## 4. CTO Mode: AI Self-Coding Integration
-Since the system is managed by one person, CopixAI has a "CTO Command Prompt" in the Admin Panel.
+Since the system is managed by one person, HeroAi has a "CTO Command Prompt" in the Admin Panel.
 *   If a new AI model (e.g., ChatGPT-5 or Claude 3.5) releases, the Admin writes: *"Add support for Claude 3.5 API."*
 *   The Master Backend AI writes the integration code, tests it in a sandbox, and implements it into the live `AiVault` router automatically. 
 
@@ -154,3 +154,4 @@ Since the system is managed by one person, CopixAI has a "CTO Command Prompt" in
 4. **Checkout -> `AdminConfig`:** When a user buys a plan, the backend checks `Users.profile.countryCode`. It pulls the correct pricing from `geoPricing` and opens the correct gateway (Razorpay vs Stripe) from `paymentGateways`.
 
 This architecture guarantees that the single administrator never has to manually change code to swap APIs or update prices—the AI handles the infrastructure health entirely.
+

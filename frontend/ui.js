@@ -53,30 +53,15 @@ function generateUniqId() { return 'hai_' + Math.random().toString(36).substr(2,
 
 function applyGlobalBranding() {
     const regex = /HeroAi/gi;
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
-    const nodes = [];
-    let node;
-    while(node = walker.nextNode()) {
-        const p = node.parentElement;
-        if (p && !['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT'].includes(p.tagName) && !p.closest('.heroai-glow')) {
-            if (node.textContent.match(regex)) nodes.push(node);
+    const targets = document.querySelectorAll('h1, h2, h3, h4, p, span, div, a, button, li');
+    
+    targets.forEach(el => {
+        if (el.children.length === 0 && el.textContent.match(regex) && !el.classList.contains('heroai-glow')) {
+            const text = el.textContent;
+            el.innerHTML = text.replace(regex, (match) => {
+                return `<span class="heroai-glow"><span class="h">Hero</span><span class="a">Ai</span></span>`;
+            });
         }
-    }
-    nodes.forEach(node => {
-        const p = node.parentNode; if (!p) return;
-        const text = node.textContent;
-        const frag = document.createDocumentFragment();
-        let lastIdx = 0;
-        text.replace(regex, (match, offset) => {
-            frag.appendChild(document.createTextNode(text.substring(lastIdx, offset)));
-            const span = document.createElement('span');
-            span.className = 'heroai-glow';
-            span.innerHTML = '<span class="h">Hero</span><span class="a">Ai</span>';
-            frag.appendChild(span);
-            lastIdx = offset + match.length;
-        });
-        frag.appendChild(document.createTextNode(text.substring(lastIdx)));
-        p.replaceChild(frag, node);
     });
 }
 
@@ -236,3 +221,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+

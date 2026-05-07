@@ -241,6 +241,8 @@
       const data = await res.json();
       if(res.ok) {
         toast('success', 'Pipeline Active', 'Pro Content architecture started.');
+        tracker.currentTaskId = data.taskId;
+        tracker.track();
       } else {
         toast('error', 'Denied', data.error);
       }
@@ -248,13 +250,13 @@
   }
 
   let currentUser = storage.get('user');
-  window.onload = () => { if(!currentUser) window.location.href='auth.html'; else { document.getElementById('dashRoot').style.display='grid'; initUI(); } };
   function initUI() {
     if(!currentUser || !currentUser.profile) return;
     document.getElementById('side-name').textContent = currentUser.profile.name || 'Pro Creator';
     document.getElementById('side-email').textContent = currentUser.auth.email || '';
     const initial = (currentUser.profile.name ? currentUser.profile.name[0] : 'P').toUpperCase();
-    document.getElementById('side-avatar').textContent = initial;
+    const avatar = document.getElementById('side-avatar');
+    if (avatar) avatar.textContent = initial;
   }
   function logout() { storage.clear(); window.location.href='auth.html'; }
   function setObj(obj, el) {
@@ -340,15 +342,20 @@
   }
 
   window.onload = () => { 
-    if(!currentUser) window.location.href='auth.html'; 
-    else { 
-      document.getElementById('dashRoot').style.display='grid'; 
+    if(!currentUser) {
+      window.location.href='auth.html'; 
+    } else { 
+      const dashRoot = document.getElementById('dashRoot');
+      if (dashRoot) dashRoot.style.display='grid'; 
       initUI(); 
       if(!currentUser.isSetupComplete) {
-        document.getElementById('onboardingModal').classList.add('active');
+        const modal = document.getElementById('onboardingModal');
+        if (modal) modal.classList.add('active');
       }
+      if (typeof applyGlobalBranding === 'function') applyGlobalBranding();
     } 
   };
 </script>
 </body>
 </html>
+

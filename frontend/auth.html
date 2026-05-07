@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>HeroAi — Secure Authentication</title>
+  <title>HeroAi — Access Your Master Engine</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="stylesheet" href="brand.css">
@@ -226,8 +226,13 @@
   <!-- RESTRICTION MODAL -->
   <div id="restrictionModal" class="modal-overlay">
     <div class="restriction-card">
-      <div class="res-icon"><i class="fas fa-user-shield"></i></div>
-      <h2 class="res-title">Account Secured</h2>
+      <div class="logo-box">
+        <div class="logo-circle">
+          <img src="logo.png" alt="HeroAi Logo">
+        </div>
+        <h1 class="brand-name">HeroAi</h1>
+        <p class="brand-tagline">Global Content Orchestration Engine</p>
+      </div>
       <p class="res-msg">Identity match detected. This <span id="resType">email</span> is already part of the HeroAi Network. Log in to access your dashboard.</p>
       <div class="res-btns">
         <button class="btn btn-primary" style="width:100%" onclick="setMode('login'); closeRestriction()">Log In Instead</button>
@@ -282,8 +287,9 @@
     };
 
     async function googleLoginBackend(response) {
+      showToast('info', 'Google Login', 'Verifying identity...');
       try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/auth/google`, {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/auth/google-login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ idToken: response.credential })
@@ -383,7 +389,7 @@
 
       const role = (user.profile && user.profile.role) ? user.profile.role : 'USER';
       const email = (user.auth && user.auth.email) ? user.auth.email : '';
-      const isMaster = (email === 'pranaycopixai@gmail.com' || email === 'riturajvashisth@gmail.com');
+      const isMaster = (email === 'pranayHeroAi@gmail.com' || email === 'riturajvashisth@gmail.com');
 
       console.log('[FLOW] Evaluating Redirect Path:', { role, isSetup: user.isSetupComplete, isMaster });
 
@@ -402,24 +408,6 @@
       }
     }
 
-    async function handleGoogleLogin(response) {
-      showToast('info', 'Google Login', 'Verifying identity...');
-      try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/auth/google-login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken: response.credential })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          handleUserRedirect(data.user, data.token);
-        } else {
-          showToast('error', 'Auth Failed', data.error);
-        }
-      } catch (e) {
-        showToast('error', 'Connection Error', 'Backend unreachable');
-      }
-    }
 
     async function sendAction(type) {
       if (!userData || !userData.identifier) {
@@ -513,3 +501,4 @@
   </script>
 </body>
 </html>
+

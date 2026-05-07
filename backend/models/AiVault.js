@@ -6,6 +6,11 @@ const AiVaultSchema = new mongoose.Schema({
     enum: ['API_KEY', 'BROWSER_GMAIL', 'PROXY'], 
     required: true 
   },
+  category: { // New: To distinguish between API and Automation Bots
+    type: String,
+    enum: ['API', 'BOT'],
+    default: 'API'
+  },
   module: {
     type: String, 
     enum: ['SCRIPT_AI', 'VOICE_AI', 'CLIP_AI', 'THUMBNAIL_AI', 'BROWSER_AUTOMATION'],
@@ -15,6 +20,10 @@ const AiVaultSchema = new mongoose.Schema({
     type: String, 
     required: true // e.g., 'Groq', 'Gemini', 'GoogleAccount'
   },
+  isFixedMaster: { // New: For Master Brain Fixed Gemini
+    type: Boolean,
+    default: false
+  },
   credentials: {
     apiKey: { type: String }, // Encrypted
     email: { type: String },
@@ -22,7 +31,7 @@ const AiVaultSchema = new mongoose.Schema({
   },
   status: { 
     type: String, 
-    enum: ['ACTIVE', 'EXHAUSTED', 'COOLING_DOWN', 'BANNED'], 
+    enum: ['ACTIVE', 'EXHAUSTED', 'COOLING_DOWN', 'BANNED', 'RED'], // Added RED for UI
     default: 'ACTIVE' 
   },
   priority: {
@@ -33,14 +42,15 @@ const AiVaultSchema = new mongoose.Schema({
     dailyCount: { type: Number, default: 0 },
     dailyLimit: { type: Number, default: 1000 },
     totalCostIncurred: { type: Number, default: 0 },
-    costPerCallEstimate: { type: Number, default: 0.001 }
+    costPerCallEstimate: { type: Number, default: 0.00 }
   },
   health: {
     averageResponseTimeMs: { type: Number, default: 0 },
     errorCount: { type: Number, default: 0 }
   },
   lastUsedAt: { type: Date },
-  resetAt: { type: Date } // When the quota resets (e.g., next day)
+  resetAt: { type: Date } 
 }, { timestamps: true });
 
 module.exports = mongoose.model('AiVault', AiVaultSchema);
+

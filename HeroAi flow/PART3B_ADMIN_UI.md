@@ -1,4 +1,4 @@
-# 🖥️ CopixAI — PART 3B: ADMIN PANEL UI
+# 🖥️ HeroAi — PART 3B: ADMIN PANEL UI
 ## All Panels | Complete Control Tower | Next.js Web Dashboard
 
 ---
@@ -23,11 +23,11 @@
 ```
 ┌─────────────────────────────────────┐
 │                                     │
-│     🔐 CopixAI Admin Control        │
+│     🔐 HeroAi Admin Control        │
 │                                     │
 │  Email:                             │
 │  ┌─────────────────────────────┐    │
-│  │ admin@copixai.com           │    │
+│  │ admin@HeroAi.com           │    │
 │  └─────────────────────────────┘    │
 │                                     │
 │  Password:                          │
@@ -52,7 +52,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  CopixAI Admin   [🔔 3]   admin@copixai.com  [Exit] │
+│  HeroAi Admin   [🔔 3]   admin@HeroAi.com  [Exit] │
 ├──────────┬──────────────────────────────────────────┤
 │  SIDEBAR │  MAIN CONTENT AREA                       │
 │          │                                          │
@@ -388,3 +388,4 @@ Overview (System health + Revenue snapshot)
 ---
 
 > **NEXT: PART 4 — AI Agent Code Blueprints + API Integration Details**
+

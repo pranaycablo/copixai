@@ -50,12 +50,16 @@ const engineRoutes = require('./routes/engineRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const agencyRoutes = require('./routes/agencyRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
+const systemRoutes = require('./routes/systemRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/engine', engineRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/agency', agencyRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/system', systemRoutes);
 app.use('/api/clients', require('./routes/clientRoutes'));
 
 // Root API Welcome
@@ -130,6 +134,13 @@ mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 5000 })
       }
     }
 
+    // 8. INITIALIZE BACKGROUND SERVICES
+    const CleanupService = require('./services/CleanupService');
+    const OAuthRefreshService = require('./services/OAuthRefreshService');
+    
+    CleanupService.init();
+    OAuthRefreshService.init();
+
     startServer();
   })
   .catch(err => {
@@ -150,24 +161,8 @@ function startServer() {
     }
   }
 
-  // 🧹 AUTO-CLEANUP JOB: Purge temp files every 2 hours to maintain 1000% performance
-  setInterval(() => {
-    const tempDir = path.join(__dirname, 'temp');
-    if (fs.existsSync(tempDir)) {
-      const files = fs.readdirSync(tempDir);
-      const now = Date.now();
-      files.forEach(file => {
-        const filePath = path.join(tempDir, file);
-        const stats = fs.statSync(filePath);
-        if (now - stats.mtimeMs > 2 * 60 * 60 * 1000) { // 2 hours old
-           fs.unlinkSync(filePath);
-           console.log(`[CLEANUP] Purged stale asset: ${file}`);
-        }
-      });
-    }
-  }, 2 * 60 * 60 * 1000);
-
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 HeroAi Enterprise Live at: http://${ip}:${PORT}`);
   });
 }
+

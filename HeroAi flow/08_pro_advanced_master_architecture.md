@@ -1,6 +1,6 @@
-# 🚀 CopixAI: Pro-Advanced Master Architecture (200% Success Guarantee Model)
+# 🚀 HeroAi: Pro-Advanced Master Architecture (200% Success Guarantee Model)
 
-This document outlines the ultra-secure, highly scalable (millions of users), and cost-optimized backend architecture for CopixAI. The system is designed to run completely autonomously with near-zero manual admin intervention, maximizing profitability and user growth.
+This document outlines the ultra-secure, highly scalable (millions of users), and cost-optimized backend architecture for HeroAi. The system is designed to run completely autonomously with near-zero manual admin intervention, maximizing profitability and user growth.
 
 ---
 
@@ -66,11 +66,11 @@ Handling large scale video processing without server crashes.
 ---
 
 ## 💰 6. 7-Pillar Multi-Income System
-CopixAI acts as an absolute cash-flow engine with multiple revenue streams tracked separately in the Admin Dashboard:
+HeroAi acts as an absolute cash-flow engine with multiple revenue streams tracked separately in the Admin Dashboard:
 1. **Subscription Plans:** Core revenue from Content, SEO, and Ads plans.
 2. **Ads Management Commission:** 50% flat margin on user ad budgets.
 3. **Viral Affiliate System:** ₹100 per standard referral, ₹299 per creator referral.
-4. **Voice Clone Marketplace:** Users can sell their custom Voice Clones to others (CopixAI takes a 50% split).
+4. **Voice Clone Marketplace:** Users can sell their custom Voice Clones to others (HeroAi takes a 50% split).
 5. **Premium Feature Unlock:** Priority server processing, access to the highest-tier AI models.
 6. **API Usage Margin:** The massive profit difference between the Zero-Budget AI Orchestrator's cost and the user's plan price.
 7. **Creator Tools Upsell:** One-off purchases for extra daily credits or instant fast-track generation.
@@ -80,3 +80,4 @@ CopixAI acts as an absolute cash-flow engine with multiple revenue streams track
 ## 🚀 7. Guaranteed Success Protocol
 - **For Users:** The AI continuously fixes gaps (SEO, Hooks, Ads) until the user goes viral. Success is not left to chance; it is mathematically forced by the AI.
 - **For the Platform:** E2EE Security, Zero-Budget API Orchestrator, and Auto-Pause Video Generation guarantee that server costs never exceed revenue.
+

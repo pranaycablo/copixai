@@ -1,4 +1,4 @@
-# 🧠 CopixAI — PART 1: COMPLETE PROVEN STRUCTURE
+# 🧠 HeroAi — PART 1: COMPLETE PROVEN STRUCTURE
 ## Multi-Secure | Multi-AI | UGC + Promo + Branding | Zero-Cost Vision
 ### Status: PRODUCTION-READY BLUEPRINT — NO GAPS, NO BREAKS
 
@@ -6,7 +6,7 @@
 
 ## 🎯 THE ONE UNIFIED VISION (All AIs Work By This)
 
-> **"Every AI agent in CopixAI has ONE job: Make the user's channel grow FAST,  
+> **"Every AI agent in HeroAi has ONE job: Make the user's channel grow FAST,  
 > using the user's OWN face and voice, at ZERO cost to the platform."**
 
 This vision is hard-coded into every AI agent's instruction set.  
@@ -167,7 +167,7 @@ MODULE: Script AI
 - Admin account is created at system initialization (NOT via signup).
 - Admin email + password stored as encrypted environment variable.
 - No one can register as admin through the normal user flow.
-- Admin panel is on a separate subdomain: `admin.copixai.com`
+- Admin panel is on a separate subdomain: `admin.HeroAi.com`
 - Admin login requires: Password + 2FA (TOTP via Google Authenticator)
 
 ---
@@ -403,3 +403,4 @@ RULE 10 — DAILY COST CAP:
 ---
 
 > **NEXT: PART 2 — Database Schema + API Architecture + Backend Code Structure**
+
