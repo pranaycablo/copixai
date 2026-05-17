@@ -67,7 +67,7 @@
     <div class="logo-text" style="font-size:18px;"><span class="logo-hero">Hero</span><span class="logo-ai">Ai</span></div>
   </div>
   <div style="display:flex; align-items:center; gap:15px;">
-    <div id="notif-bell" style="position:relative; cursor:pointer;" onclick="openNotifCenter()">
+    <div id="notif-bell" style="position:relative; cursor:pointer;" onclick="toggleNotifPanel()">
       <i class="fas fa-bell" style="font-size:20px; color:var(--text3)"></i>
       <span id="notif-badge" style="display:none; position:absolute; top:-5px; right:-5px; background:var(--red); color:white; font-size:9px; width:14px; height:14px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;">0</span>
     </div>
@@ -76,24 +76,7 @@
   </div>
 </div>
 
-<!-- NOTIFICATION CENTER MODAL -->
-<div id="notifCenter" class="onboarding-overlay" style="background:rgba(0,0,0,0.6);">
-  <div class="notif-modal" id="notifModal" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:90%; max-width:450px; background:var(--surface); border:1px solid var(--amber); border-radius:24px; z-index:10001; display:none; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.8); backdrop-filter:blur(20px); overflow:hidden;">
-    <div style="padding:20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:rgba(245,166,35,0.05);">
-       <div style="display:flex; align-items:center; gap:10px;">
-          <i class="fas fa-bell" style="color:var(--amber);"></i>
-          <span style="font-weight:800; font-family:var(--fh);">Notification Center</span>
-       </div>
-       <button onclick="closeNotifCenter()" style="background:none; border:none; color:var(--text3); cursor:pointer; font-size:18px;"><i class="fas fa-times-circle"></i></button>
-    </div>
-    <div class="notif-body" id="notifList" style="max-height:400px; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:12px;">
-       <div style="text-align:center; padding:30px; color:var(--text3); font-size:12px;">No new alerts at the moment.</div>
-    </div>
-    <div style="padding:15px; text-align:center; border-top:1px solid var(--border);">
-       <button class="onboarding-btn" style="margin:0; width:100%; font-size:11px;" onclick="closeNotifCenter()">Close Center</button>
-    </div>
-  </div>
-</div>
+<!-- MASTER BRAIN CHAT OVERLAY -->
 <div id="chatOverlay" class="onboarding-overlay" style="background:rgba(0,0,0,0.8); backdrop-filter:blur(30px);">
   <div class="glass-modal" style="width:100%; max-width:500px; height:80vh; display:flex; flex-direction:column; padding:0; overflow:hidden; border:1px solid var(--border-amber);">
     <div style="padding:20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:rgba(245,166,35,0.05);">
@@ -338,7 +321,6 @@
       <div class="menu-h">Master Brain Intelligence</div>
       <select id="engine-select" style="width:100%; padding:10px; background:var(--surface2); border:1px solid var(--border); border-radius:12px; color:var(--text); font-size:11px; font-weight:700;" onchange="updateEngineMode()">
         <option value="HYBRID_AUTO">🚀 Hybrid Auto (Best Results)</option>
-        <option value="CARTOON_3D">🎨 Cartoon/Anime (3D Branding)</option>
         <option value="WAN_CINEMATIC">💎 WanVideo (Cinematic 4K)</option>
         <option value="LTX2_ULTRA">⚡ LTX-2 (Synced Audio-Visual)</option>
         <option value="STANDARD">⚙️ Standard (Fastest)</option>
@@ -1104,9 +1086,6 @@
     if(val === 'WAN_CINEMATIC') {
       desc.textContent = 'WanVideo: 100% Output Priority (Cinematic 4K).';
       dot.style.background = 'var(--cyan)';
-    } else if(val === 'CARTOON_3D') {
-      desc.textContent = 'Cartoon Engine: 3D Pixar-Style & Anime Character Branding.';
-      dot.style.background = 'var(--amber)';
     } else if(val === 'LTX2_ULTRA') {
       desc.textContent = 'LTX-2: Ultra-Realistic Synced Dialogue.';
       dot.style.background = 'var(--purple)';
@@ -1155,8 +1134,7 @@
         },
         body: JSON.stringify({ 
           type: 'REEL',
-          engineSelection: engine,
-          autoPilot: document.getElementById('auto-switch-main').checked
+          engineSelection: engine 
         })
       });
       
@@ -1332,47 +1310,28 @@
     deferredPrompt = null;
   }
 
-  // ── NOTIFICATION CENTER LOGIC ──
-  function openNotifCenter() {
-    document.getElementById('notifCenter').style.display = 'flex';
-    document.getElementById('notifModal').style.display = 'flex';
-    fetchNotifications();
-  }
-  function closeNotifCenter() {
-    document.getElementById('notifCenter').style.display = 'none';
-    document.getElementById('notifModal').style.display = 'none';
-  }
-
   async function fetchNotifications() {
     try {
       const res = await fetch(`${CONFIG.API_BASE_URL}/auth/notifications`, {
         headers: { 'Authorization': `Bearer ${storage.get('token')}` }
       });
       const data = await res.json();
-      renderNotifications(data);
+      if(res.ok && data.length > 0) {
+        const unreadCount = data.filter(n => !n.isRead).length;
+        const badge = document.getElementById('notif-badge');
+        if(unreadCount > 0) {
+          badge.textContent = unreadCount;
+          badge.style.display = 'flex';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
     } catch(e) { console.error("Notif fetch failed"); }
   }
 
-  function renderNotifications(notifs) {
-    const list = document.getElementById('notifList');
-    const badge = document.getElementById('notif-badge');
-    if(!notifs || notifs.length === 0) {
-      list.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text3); font-size:12px;">No new alerts.</div>';
-      badge.style.display = 'none';
-      return;
-    }
-
-    const unread = notifs.filter(n => !n.isRead).length;
-    badge.textContent = unread;
-    badge.style.display = unread > 0 ? 'flex' : 'none';
-
-    list.innerHTML = notifs.map(n => `
-      <div style="padding:12px; background:var(--bg); border:1px solid var(--border); border-radius:12px; margin-bottom:10px; ${n.isRead ? '' : 'border-color:var(--amber);'}">
-        <div style="font-weight:800; font-size:12px; color:var(--text);">${n.title}</div>
-        <div style="font-size:11px; color:var(--text2); margin-top:4px;">${n.message}</div>
-        <div style="font-size:9px; color:var(--text3); margin-top:8px;">${new Date(n.createdAt).toLocaleString()}</div>
-      </div>
-    `).join('');
+  function toggleNotifPanel() {
+    toast('info', 'Notifications', 'Opening alert center... Your video status will appear here.');
+    fetchNotifications();
   }
 
   window.onload = async () => {
